@@ -1,0 +1,29 @@
+{
+    "name": "popphp/pop-kettle",
+    "description": "A CLI helper application for the Pop PHP Framework.",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nick Sagona",
+            "email": "dev@nolainteractive.com",
+            "homepage": "http://www.nolainteractive.com/"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "popphp/popphp": "^3.3.0",
+        "popphp/pop-console": "^3.1.0",
+        "popphp/pop-code": "^3.1.1",
+        "popphp/pop-db": "^4.4.0"
+    },
+    "autoload" : {
+        "psr-4": {
+            "Pop\\Kettle\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.x-dev"
+        }
+    }
+}

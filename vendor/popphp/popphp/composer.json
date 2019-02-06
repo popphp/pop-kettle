@@ -1,0 +1,41 @@
+{
+    "name": "popphp/popphp",
+    "description": "Pop PHP Framework, a lightweight, robust PHP framework",
+    "keywords": [
+        "framework",
+        "php framework",
+        "pop",
+        "pop php"
+    ],
+    "homepage": "http://www.popphp.org/",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nick Sagona",
+            "email": "dev@nolainteractive.com",
+            "homepage": "http://www.nolainteractive.com/"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0.0",
+        "popphp/pop-config" : "^3.2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pop\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pop\\Test\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.3.x-dev"
+        }
+    }
+}
