@@ -13,6 +13,8 @@
  */
 namespace Pop\Kettle\Controller;
 
+use Pop\Console\Console;
+
 /**
  * Console abstract controller class
  *
@@ -34,6 +36,16 @@ class ConsoleController extends AbstractController
     public function help()
     {
         $this->console->help();
+    }
+
+    /**
+     * Version command
+     *
+     * @return void
+     */
+    public function version()
+    {
+        $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Module::VERSION, Console::BOLD_GREEN));
     }
 
 }

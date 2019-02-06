@@ -55,7 +55,8 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
         $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_YELLOW, Console::BOLD_GREEN);
         $this->console->addCommands([
-            new Command('./kettle help', null, "Show the help screen")
+            new Command('./kettle help', null, "Show the help screen"),
+            new Command('./kettle -v|--version', null, "Show the version")
         ]);
     }
 
