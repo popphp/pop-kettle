@@ -16,7 +16,7 @@ namespace Pop\Kettle\Controller;
 use Pop\Console\Console;
 
 /**
- * Console abstract controller class
+ * Console controller class
  *
  * @category   Pop\Kettle
  * @package    Pop\Kettle
@@ -27,6 +27,27 @@ use Pop\Console\Console;
  */
 class ConsoleController extends AbstractController
 {
+
+    /**
+     * Serve command
+     *
+     * @param  array $options
+     * @return void
+     */
+    public function serve($options = [])
+    {
+        $host   = (isset($options['host']))   ? $options['host']   : 'localhost';
+        $port   = (isset($options['port']))   ? $options['port']   : 8000;
+        $folder = (isset($options['folder'])) ? $options['folder'] : 'public';
+
+        $this->console->write(
+            'PHP web server running on the folder ' . $this->console->colorize($folder, Console::BOLD_YELLOW) .' at ' .
+            $this->console->colorize($host . ':' . $port, Console::BOLD_GREEN) . '... (Ctrl-C to stop)'
+        );
+        $this->console->write();
+
+        exec('php -S ' . $host . ':' . $port . ' -t ' . $folder);
+    }
 
     /**
      * Help command
