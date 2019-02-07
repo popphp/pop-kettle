@@ -53,19 +53,16 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->application = $application;
         $this->console     = $console;
 
-        $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_YELLOW);
+        $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_MAGENTA);
         $this->console->addCommands([
-            new Command('./kettle app:init', null, "Initialize an application"),
-            new Command('./kettle db:create', null, "Create a database"),
+            new Command('./kettle app:init', '[--web] [--api] [--cli] <namespace>', "Initialize an application" . PHP_EOL),
             new Command('./kettle db:init', null, "Initialize a database"),
             new Command('./kettle db:seed', null, "Seed a database with data"),
-            new Command('./kettle db:reset', null, "Reset a database with original data"),
-            new Command('./kettle db:clear', null, "Clear the data out of a database"),
-            new Command('./kettle migrate:create', null, "Create new database migration"),
-            new Command('./kettle migrate:run', null, "Perform forward database migration through most current"),
-            new Command('./kettle migrate:up', '[--steps=]', "Perform forward database migration"),
-            new Command('./kettle migrate:down', '[--steps=]', "Perform backward database migration"),
-            new Command('./kettle migrate:rollback', null, "Perform complete rollback of the database"),
+            new Command('./kettle db:reset', null, "Reset a database with original data" . PHP_EOL),
+            new Command('./kettle migrate:create', '<class>', "Create new database migration"),
+            new Command('./kettle migrate:run', null, "Perform forward database migration"),
+            new Command('./kettle migrate:rollback', '[<steps>]', "Perform backward database migration"),
+            new Command('./kettle migrate:reset', null, "Perform complete rollback of the database" . PHP_EOL),
             new Command('./kettle serve', '[--host=] [--port=] [--folder=]', "Start the web server"),
             new Command('./kettle help', null, "Show the help screen"),
             new Command('./kettle version', null, "Show the version")

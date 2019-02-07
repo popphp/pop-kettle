@@ -1,13 +1,9 @@
 <?php
 
 return [
-    'app:init' => [
+    'app:init [--web] [--api] [--cli] <namespace>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init'
-    ],
-    'db:create' => [
-        'controller' => 'Pop\Kettle\Controller\DatabaseController',
-        'action'     => 'create'
     ],
     'db:init' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
@@ -17,17 +13,25 @@ return [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'seed'
     ],
-    'db:clear' => [
-        'controller' => 'Pop\Kettle\Controller\DatabaseController',
-        'action'     => 'clear'
-    ],
     'db:reset' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'reset'
     ],
-    'db:migrate' => [
-        'controller' => 'Pop\Kettle\Controller\DatabaseController',
-        'action'     => 'migrate'
+    'migrate:create <class>' => [
+        'controller' => 'Pop\Kettle\Controller\MigrationController',
+        'action'     => 'create'
+    ],
+    'migrate:run [<steps>]' => [
+        'controller' => 'Pop\Kettle\Controller\MigrationController',
+        'action'     => 'run'
+    ],
+    'migrate:rollback [<steps>]' => [
+        'controller' => 'Pop\Kettle\Controller\MigrationController',
+        'action'     => 'rollback'
+    ],
+    'migrate:reset' => [
+        'controller' => 'Pop\Kettle\Controller\MigrationController',
+        'action'     => 'reset'
     ],
     'serve [--host=] [--port=] [--folder=]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',

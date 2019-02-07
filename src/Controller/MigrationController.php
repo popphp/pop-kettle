@@ -25,37 +25,46 @@ use Pop\Console\Console;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    0.0.1-alpha
  */
-class DatabaseController extends AbstractController
+class MigrationController extends AbstractController
 {
 
     /**
      * Create command
      *
+     * @param  string $class
      * @return void
      */
-    public function create()
+    public function create($class)
     {
-        $this->console->write('DB create!');
+        $this->console->write('Migration create! ' . $class);
     }
 
     /**
-     * Init command
+     * Run command
      *
+     * @param  int  $steps
      * @return void
      */
-    public function init()
+    public function run($steps = 1)
     {
-        $this->console->write('DB init!');
+        if (null === $steps) {
+            $steps = 1;
+        }
+        $this->console->write('Migration run! ' . $steps);
     }
 
     /**
-     * Seed command
+     * Rollback command
      *
+     * @param  int  $steps
      * @return void
      */
-    public function seed()
+    public function rollback($steps = 1)
     {
-        $this->console->write('DB seed!');
+        if (null === $steps) {
+            $steps = 1;
+        }
+        $this->console->write('Migration rollback! ' . $steps);
     }
 
     /**
@@ -65,17 +74,7 @@ class DatabaseController extends AbstractController
      */
     public function reset()
     {
-        $this->console->write('DB reset!');
-    }
-
-    /**
-     * Clear command
-     *
-     * @return void
-     */
-    public function clear()
-    {
-        $this->console->write('DB clear!');
+        $this->console->write('Migration reset!');
     }
 
 }

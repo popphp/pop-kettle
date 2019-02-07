@@ -31,11 +31,17 @@ class ApplicationController extends AbstractController
     /**
      * Init command
      *
+     * @param  string $namespace
+     * @param  array  $options
      * @return void
      */
-    public function init()
+    public function init($namespace, array $options = [])
     {
-        $this->console->write('App init!');
+        $web = (isset($options['web']));
+        $api = (isset($options['api']));
+        $cli = (isset($options['cli']));
+
+        $this->console->write('App init! ' . $namespace);
     }
 
 }
