@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
+use Pop\Kettle\Model;
 
 /**
  * Console application controller class
@@ -40,6 +41,9 @@ class ApplicationController extends AbstractController
         $web = (isset($options['web']));
         $api = (isset($options['api']));
         $cli = (isset($options['cli']));
+
+        $appModel = new Model\Application();
+        $appModel->init(getcwd(), $namespace, $web, $api, $cli);
 
         $this->console->write('App init! ' . $namespace);
     }
