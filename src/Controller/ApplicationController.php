@@ -43,9 +43,19 @@ class ApplicationController extends AbstractController
         $cli = (isset($options['cli']));
 
         $appModel = new Model\Application();
-        $appModel->init(getcwd(), $namespace, $web, $api, $cli);
+        $dbModel  = new Model\Database();
+        //$appModel->init(getcwd(), $namespace, $web, $api, $cli);
 
         $this->console->write("Installing files for '" . $namespace ."'...");
+        $this->console->write();
+
+        $createDb = $this->console->prompt(
+            'Would you like configure a database? [Y/N] ', ['y', 'n']
+        );
+
+        if (strtolower($createDb) == 'y') {
+            $dbModel->configureDb($this->console);
+        }
     }
 
 }

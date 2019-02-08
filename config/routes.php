@@ -9,6 +9,10 @@ return [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'init'
     ],
+    'db:test' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'test'
+    ],
     'db:seed' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'seed'

@@ -29,16 +29,6 @@ class DatabaseController extends AbstractController
 {
 
     /**
-     * Create command
-     *
-     * @return void
-     */
-    public function create()
-    {
-        $this->console->write('DB create!');
-    }
-
-    /**
      * Init command
      *
      * @return void
@@ -46,6 +36,16 @@ class DatabaseController extends AbstractController
     public function init()
     {
         $this->console->write('DB init!');
+    }
+
+    /**
+     * Test command
+     *
+     * @return void
+     */
+    public function test()
+    {
+        $this->console->write('DB test!');
     }
 
     /**
@@ -66,16 +66,6 @@ class DatabaseController extends AbstractController
     public function reset()
     {
         $this->console->write('DB reset!');
-    }
-
-    /**
-     * Clear command
-     *
-     * @return void
-     */
-    public function clear()
-    {
-        $this->console->write('DB clear!');
     }
 
 }

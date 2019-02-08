@@ -15,7 +15,7 @@ namespace Pop\Kettle\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
-use Pop\Console\Command;
+use Pop\Dir\Dir;
 
 /**
  * Console abstract controller class
@@ -54,19 +54,15 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->console     = $console;
 
         $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_MAGENTA);
-        $this->console->addCommands([
-            new Command('./kettle app:init', '[--web] [--api] [--cli] <namespace>', "Initialize an application" . PHP_EOL),
-            new Command('./kettle db:init', null, "Initialize a database"),
-            new Command('./kettle db:seed', null, "Seed a database with data"),
-            new Command('./kettle db:reset', null, "Reset a database with original data" . PHP_EOL),
-            new Command('./kettle migrate:create', '<class>', "Create new database migration"),
-            new Command('./kettle migrate:run', null, "Perform forward database migration"),
-            new Command('./kettle migrate:rollback', '[<steps>]', "Perform backward database migration"),
-            new Command('./kettle migrate:reset', null, "Perform complete rollback of the database" . PHP_EOL),
-            new Command('./kettle serve', '[--host=] [--port=] [--folder=]', "Start the web server"),
-            new Command('./kettle help', null, "Show the help screen"),
-            new Command('./kettle version', null, "Show the version")
-        ]);
+
+        $commands = new Dir(__DIR__ . '/../Command', ['filesOnly' => true]);
+        $files    = $commands->getFiles();
+        sort($files);
+
+        foreach ($files as $command) {
+            $command = 'Pop\Kettle\Command\\' . str_replace('.php', '', $command);
+            $this->console->addCommand(new $command());
+        }
     }
 
     /**

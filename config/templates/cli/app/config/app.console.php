@@ -10,5 +10,6 @@ return [
             'controller' => 'MyApp\Console\Controller\ConsoleController',
             'action'     => 'error'
         ]
-    ]
+    ],
+    'database' => include __DIR__ . 'database.php'
 ];

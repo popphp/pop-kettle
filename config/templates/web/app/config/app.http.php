@@ -10,5 +10,6 @@ return [
             'controller' => 'MyApp\Http\Controller\IndexController',
             'action'     => 'error'
         ]
-    ]
+    ],
+    'database' => include __DIR__ . 'database.php'
 ];
