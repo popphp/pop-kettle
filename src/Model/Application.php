@@ -88,7 +88,7 @@ class Application extends AbstractModel
         $dir = new Dir($location . DIRECTORY_SEPARATOR . 'app', [
             'filesOnly' => true,
             'recursive' => true,
-            'absolute' => true
+            'absolute'  => true
         ]);
 
         foreach ($dir as $file) {
@@ -101,6 +101,7 @@ class Application extends AbstractModel
                 str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . DIRECTORY_SEPARATOR . 'public/index.php'))
             );
         }
+
         if (file_exists($location . DIRECTORY_SEPARATOR . 'script')) {
             file_put_contents(
                 $location . DIRECTORY_SEPARATOR . 'script/myapp',

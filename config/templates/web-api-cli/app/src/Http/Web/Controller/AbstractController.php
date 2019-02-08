@@ -11,7 +11,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
      * View path
      * @var string
      */
-    protected $viewPath = __DIR__ . '/../../../view';
+    protected $viewPath = __DIR__ . '/../../../../view';
 
     /**
      * View object
