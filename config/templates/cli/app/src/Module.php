@@ -3,6 +3,7 @@
 namespace MyApp;
 
 use Pop\Application;
+use Pop\Db;
 use Pop\Console\Console;
 
 class Module extends \Pop\Module\Module
@@ -24,6 +25,10 @@ class Module extends \Pop\Module\Module
     {
         parent::register($application);
 
+        if (isset($this->application->config['database'])) {
+            $this->initDb($this->application->config['database']);
+        }
+
         if (null !== $this->application->router()) {
             $this->application->router()->addControllerParams(
                 '*', [
@@ -37,6 +42,45 @@ class Module extends \Pop\Module\Module
              ->on('app.dispatch.post', function() { echo PHP_EOL; });
 
         return $this;
+    }
+
+    /**
+     * Initialize database service
+     *
+     * @param  array $database
+     * @throws \Pop\Db\Adapter\Exception
+     * @return void
+     */
+    protected function initDb($database)
+    {
+        if (!empty($database['adapter'])) {
+            $adapter = $database['adapter'];
+            $options = [
+                'database' => $database['database'],
+                'username' => $database['username'],
+                'password' => $database['password'],
+                'host'     => $database['host'],
+                'type'     => $database['type']
+            ];
+
+            $check = Db\Db::check($adapter, $options);
+
+            if (null !== $check) {
+                throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
+            }
+
+            $this->application->services()->set('database', [
+                'call'   => 'Pop\Db\Db::connect',
+                'params' => [
+                    'adapter' => $adapter,
+                    'options' => $options
+                ]
+            ]);
+
+            if ($this->application->services()->isAvailable('database')) {
+                Db\Record::setDb($this->application->services['database']);
+            }
+        }
     }
 
     /**

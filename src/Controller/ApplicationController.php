@@ -45,7 +45,7 @@ class ApplicationController extends AbstractController
         $appModel = new Model\Application();
         $appModel->init(getcwd(), $namespace, $web, $api, $cli);
 
-        $this->console->write('App init! ' . $namespace);
+        $this->console->write("Installing files for '" . $namespace ."'...");
     }
 
 }

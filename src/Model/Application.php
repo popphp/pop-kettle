@@ -13,7 +13,7 @@
  */
 namespace Pop\Kettle\Model;
 
-use Pop\Code;
+use Pop\Dir\Dir;
 use Pop\Model\AbstractModel;
 
 /**
@@ -40,24 +40,51 @@ class Application extends AbstractModel
      */
     public function init($location, $namespace, $web = null, $api = null, $cli = null)
     {
-        // Web-only or API-only
-        if ((empty($web) && empty($api) && empty($cli)) ||
-            (($web === true) && empty($api) && empty($cli)) ||
-            (($api === true) && empty($web) && empty($cli))) {
-
+        // API-only
+        if (($api === true) && empty($web) && empty($cli)) {
+            $install = 'api';
         // Web+API
         } else if (($web === true) && ($api === true) && empty($cli)) {
-
-        // API+CLI or Web+CLI
-        } else if ((($api === true) && ($cli === true) && empty($web)) ||
-            (($web === true) && ($cli === true) && empty($api))) {
-
+            $install = 'web-api';
+        // API+CLI
+        } else if (($api === true) && ($cli === true) && empty($web)) {
+            $install = 'api-cli';
+        // Web+CLI
+        } else if (($web === true) && ($cli === true) && empty($api)) {
+            $install = 'web-cli';
         // CLI-only
         } else if (($cli === true) && empty($web) && empty($api)) {
-
+            $install = 'cli';
         // Install all
         } else if (($web === true) && ($api === true) && ($cli === true)) {
+            $install = 'web-api-cli';
+        // Default to web-only
+        } else {
+            $install = 'web';
+        }
 
+        $this->install($install, $location, $namespace);
+    }
+
+    /**
+     * Install application files
+     *
+     * @param string  $install
+     * @param string  $location
+     * @param string  $namespace
+     * @param boolean $web
+     * @param boolean $api
+     * @param boolean $cli
+     */
+    public function install($install, $location, $namespace)
+    {
+        $path = __DIR__ . '/../../config/templates/' . $install;
+        $dir  = new Dir($path);
+        foreach ($dir as $entry) {
+            if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
+                $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
+                $d->copyTo(__DIR__ . '/../../');
+            }
         }
     }
 
