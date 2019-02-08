@@ -83,7 +83,7 @@ class Application extends AbstractModel
         foreach ($dir as $entry) {
             if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
                 $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
-                $d->copyTo(__DIR__ . '/../../');
+                $d->copyTo($location);
             }
         }
     }
