@@ -1,6 +1,6 @@
 <?php
 
-$autoloader = include __DIR__ . '/../../../vendor/autoload.php';
+$autoloader = include __DIR__ . '/../vendor/autoload.php';
 $autoloader->addPsr4('MyApp\\', __DIR__ . '/../app/src');
 
 try {

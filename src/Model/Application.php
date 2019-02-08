@@ -72,19 +72,42 @@ class Application extends AbstractModel
      * @param string  $install
      * @param string  $location
      * @param string  $namespace
-     * @param boolean $web
-     * @param boolean $api
-     * @param boolean $cli
      */
     public function install($install, $location, $namespace)
     {
-        $path = __DIR__ . '/../../config/templates/' . $install;
-        $dir  = new Dir($path);
+        $script = strtolower(str_replace('\\', '-', $namespace));
+        $path   = __DIR__ . '/../../config/templates/' . $install;
+        $dir    = new Dir($path);
         foreach ($dir as $entry) {
             if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
                 $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
                 $d->copyTo($location);
             }
+        }
+
+        $dir = new Dir($location . DIRECTORY_SEPARATOR . 'app', [
+            'filesOnly' => true,
+            'recursive' => true,
+            'absolute' => true
+        ]);
+
+        foreach ($dir as $file) {
+            file_put_contents($file, str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($file)));
+        }
+
+        if (file_exists($location . DIRECTORY_SEPARATOR . 'public')) {
+            file_put_contents(
+                $location . DIRECTORY_SEPARATOR . 'public/index.php',
+                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . DIRECTORY_SEPARATOR . 'public/index.php'))
+            );
+        }
+        if (file_exists($location . DIRECTORY_SEPARATOR . 'script')) {
+            file_put_contents(
+                $location . DIRECTORY_SEPARATOR . 'script/myapp',
+                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . DIRECTORY_SEPARATOR . 'script/myapp'))
+            );
+            rename($location . DIRECTORY_SEPARATOR . 'script/myapp', $location . DIRECTORY_SEPARATOR . 'script/' . $script);
+            chmod($location . DIRECTORY_SEPARATOR . 'script/' . $script, 0755);
         }
     }
 
