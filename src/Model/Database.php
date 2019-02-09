@@ -36,6 +36,7 @@ class Database extends AbstractModel
      *
      * @param Console $console
      * @param string  $location
+     * @return void
      */
     public function configure(Console $console, $location)
     {
@@ -49,9 +50,15 @@ class Database extends AbstractModel
         $dbChoices  = [];
         $i          = 1;
 
-        mkdir($location . '/database');
-        mkdir($location . '/database/migrations');
-        mkdir($location . '/database/seeds');
+        if (!file_exists($location . '/database')) {
+            mkdir($location . '/database');
+        }
+        if (!file_exists($location . '/database/migrations')) {
+            mkdir($location . '/database/migrations');
+        }
+        if (!file_exists($location . '/database/seeds')) {
+            mkdir($location . '/database/seeds');
+        }
 
         foreach ($dbAdapters as $adapter => $result) {
             if ($adapter == 'pdo') {
