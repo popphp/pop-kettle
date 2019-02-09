@@ -34,8 +34,9 @@ class Database extends AbstractModel
      * Configure database
      *
      * @param Console $console
+     * @param string  $location
      */
-    public function configureDb(Console $console, $location)
+    public function configure(Console $console, $location)
     {
         $console->write();
 
@@ -46,6 +47,10 @@ class Database extends AbstractModel
         $dbAdapters = Db::getAvailableAdapters();
         $dbChoices  = [];
         $i          = 1;
+
+        mkdir($location . '/database');
+        mkdir($location . '/database/migrations');
+        mkdir($location . '/database/seeds');
 
         foreach ($dbAdapters as $adapter => $result) {
             if ($adapter == 'pdo') {
@@ -62,7 +67,7 @@ class Database extends AbstractModel
                 $console->write($i . ': ' . str_replace(
                     ['sqli', 'sql', 'Pg'], ['SQL', 'SQL', 'Postgre'], ucfirst($adapter))
                 );
-                $dbChoices[strtolower(str_replace('sqli', 'sql', $adapter))] = $i;
+                $dbChoices[strtolower(str_replace('ysqli', 'ysql', $adapter))] = $i;
                 $i++;
             }
         }
@@ -82,39 +87,52 @@ class Database extends AbstractModel
             $dbType      = null;
         }
 
-        $dbCheck = 1;
-        while (null !== $dbCheck) {
+        if (($dbInterface == 'Sqlite') || ($dbType == 'sqlite')) {
             $dbName     = $console->prompt('DB Name: ');
-            $dbUser     = $console->prompt('DB User: ');
-            $dbPass     = $console->prompt('DB Password: ');
-            $dbHost     = $console->prompt('DB Host: [localhost] ');
-            $realDbName = "'" . $dbName . "'";
-
-            if ($dbHost == '') {
-                $dbHost = 'localhost';
-            }
-
-            $dbCheck = Db::check($dbInterface, [
-                'database' => $dbName,
-                'username' => $dbUser,
-                'password' => $dbPass,
-                'host'     => $dbHost,
-                'type'     => $dbType,
-            ]);
-
-            if (null !== $dbCheck) {
-                $console->write();
-                $console->write($console->colorize(
-                    'Database configuration test failed. Please try again.', Console::BOLD_RED
-                ));
-            } else {
-                $console->write();
-                $console->write($console->colorize(
-                    'Database configuration test passed.', Console::BOLD_GREEN
-                ));
-            }
+            $sqliteFile = $dbName . ((strpos($dbName, '.sqlite') === false) ? '.sqlite' : '');
+            $sqliteFile = str_replace(' ', '_', $sqliteFile);
+            chmod($location . '/database', 0755);
+            touch($location . '/database/' . $sqliteFile);
+            chmod($location . '/database/' . $sqliteFile, 0777);
+            $realDbName = "__DIR__ . '/../../database/" . $sqliteFile . "'";
             $console->write();
+        } else {
+            $dbCheck = 1;
+            while (null !== $dbCheck) {
+                $dbName     = $console->prompt('DB Name: ');
+                $dbUser     = $console->prompt('DB User: ');
+                $dbPass     = $console->prompt('DB Password: ');
+                $dbHost     = $console->prompt('DB Host: [localhost] ');
+                $realDbName = "'" . $dbName . "'";
+
+                if ($dbHost == '') {
+                    $dbHost = 'localhost';
+                }
+
+                $dbCheck = Db::check($dbInterface, [
+                    'database' => $dbName,
+                    'username' => $dbUser,
+                    'password' => $dbPass,
+                    'host'     => $dbHost,
+                    'type'     => $dbType,
+                ]);
+
+                if (null !== $dbCheck) {
+                    $console->write();
+                    $console->write($console->colorize(
+                        'Database configuration test failed. Please try again.', Console::BOLD_RED
+                    ));
+                } else {
+                    $console->write();
+                    $console->write($console->colorize(
+                        'Database configuration test passed.', Console::BOLD_GREEN
+                    ));
+                }
+                $console->write();
+            }
         }
+
+        $console->write('Writing database configuration file...');
 
         // Write web config file
         $dbConfig = str_replace(

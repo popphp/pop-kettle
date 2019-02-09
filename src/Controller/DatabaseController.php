@@ -68,4 +68,14 @@ class DatabaseController extends AbstractController
         $this->console->write('DB reset!');
     }
 
+    /**
+     * Clear command
+     *
+     * @return void
+     */
+    public function clear()
+    {
+        $this->console->write('DB clear!');
+    }
+
 }

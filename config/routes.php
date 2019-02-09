@@ -21,6 +21,10 @@ return [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'reset'
     ],
+    'db:clear' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'clear'
+    ],
     'migrate:create <class>' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'create'

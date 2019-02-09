@@ -56,8 +56,11 @@ class ApplicationController extends AbstractController
         );
 
         if (strtolower($createDb) == 'y') {
-            $dbModel->configureDb($this->console, $location);
+            $dbModel->configure($this->console, $location);
         }
+
+        $this->console->write();
+        $this->console->write('Done!');
     }
 
 }

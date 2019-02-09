@@ -79,13 +79,13 @@ class Application extends AbstractModel
         $path   = __DIR__ . '/../../config/templates/' . $install;
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
-            if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
-                $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
+            if (is_dir($path . '/' . $entry)) {
+                $d = new Dir($path . '/' . $entry);
                 $d->copyTo($location);
             }
         }
 
-        $dir = new Dir($location . DIRECTORY_SEPARATOR . 'app', [
+        $dir = new Dir($location . '/app', [
             'filesOnly' => true,
             'recursive' => true,
             'absolute'  => true
@@ -95,20 +95,20 @@ class Application extends AbstractModel
             file_put_contents($file, str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($file)));
         }
 
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'public')) {
+        if (file_exists($location . '/public')) {
             file_put_contents(
-                $location . DIRECTORY_SEPARATOR . 'public/index.php',
-                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . DIRECTORY_SEPARATOR . 'public/index.php'))
+                $location . '/public/index.php',
+                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . '/public/index.php'))
             );
         }
 
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'script')) {
+        if (file_exists($location . '/script')) {
             file_put_contents(
-                $location . DIRECTORY_SEPARATOR . 'script/myapp',
-                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . DIRECTORY_SEPARATOR . 'script/myapp'))
+                $location . '/script/myapp',
+                str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($location . '/script/myapp'))
             );
-            rename($location . DIRECTORY_SEPARATOR . 'script/myapp', $location . DIRECTORY_SEPARATOR . 'script/' . $script);
-            chmod($location . DIRECTORY_SEPARATOR . 'script/' . $script, 0755);
+            rename($location . '/script/myapp', $location . '/script/' . $script);
+            chmod($location . '/script/' . $script, 0755);
         }
     }
 
