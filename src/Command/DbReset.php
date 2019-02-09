@@ -36,7 +36,7 @@ class DbReset extends Command
         parent::__construct(
             './kettle db:reset',
             null,
-            'Reset the database with original data'
+            'Reset the database with original seed data'
         );
     }
 

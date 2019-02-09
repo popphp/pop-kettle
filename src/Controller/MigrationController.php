@@ -14,6 +14,8 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
+use Pop\Db\Sql\Migrator;
+use Pop\Kettle\Model;
 
 /**
  * Console database controller class
@@ -36,7 +38,9 @@ class MigrationController extends AbstractController
      */
     public function create($class)
     {
-        $this->console->write('Migration create! ' . $class);
+        $class .= uniqid();
+        Migrator::create($class, getcwd() . '/database/migrations');
+        $this->console->write('Migration created (' . $class . ')');
     }
 
     /**
@@ -50,7 +54,23 @@ class MigrationController extends AbstractController
         if (null === $steps) {
             $steps = 1;
         }
-        $this->console->write('Migration run! ' . $steps);
+
+        $location = getcwd();
+        $dbModel  = new Model\Database();
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $this->console->write($this->console->colorize(
+                'The database configuration was not found.', Console::BOLD_RED
+            ));
+        } else {
+            $this->console->write('Running database migration...');
+
+            $db       = $dbModel->createAdapter(include $location . '/app/config/database.php');
+            $migrator = new Migrator($db, $location . '/database/migrations');
+            $migrator->run($steps);
+            $this->console->write();
+            $this->console->write('Done!');
+        }
     }
 
     /**
@@ -64,7 +84,23 @@ class MigrationController extends AbstractController
         if (null === $steps) {
             $steps = 1;
         }
-        $this->console->write('Migration rollback! ' . $steps);
+
+        $location = getcwd();
+        $dbModel  = new Model\Database();
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $this->console->write($this->console->colorize(
+                'The database configuration was not found.', Console::BOLD_RED
+            ));
+        } else {
+            $this->console->write('Rolling back database migration...');
+
+            $db       = $dbModel->createAdapter(include $location . '/app/config/database.php');
+            $migrator = new Migrator($db, $location . '/database/migrations');
+            $migrator->rollback($steps);
+            $this->console->write();
+            $this->console->write('Done!');
+        }
     }
 
     /**
@@ -74,7 +110,22 @@ class MigrationController extends AbstractController
      */
     public function reset()
     {
-        $this->console->write('Migration reset!');
+        $location = getcwd();
+        $dbModel  = new Model\Database();
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $this->console->write($this->console->colorize(
+                'The database configuration was not found.', Console::BOLD_RED
+            ));
+        } else {
+            $this->console->write('Resetting the database...');
+
+            $db       = $dbModel->createAdapter(include $location . '/app/config/database.php');
+            $migrator = new Migrator($db, $location . '/database/migrations');
+            $migrator->rollbackAll();
+            $this->console->write();
+            $this->console->write('Done!');
+        }
     }
 
 }

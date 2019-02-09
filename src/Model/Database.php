@@ -15,6 +15,7 @@ namespace Pop\Kettle\Model;
 
 use Pop\Console\Console;
 use Pop\Db\Db;
+use Pop\Db\Adapter;
 use Pop\Model\AbstractModel;
 
 /**
@@ -172,6 +173,26 @@ class Database extends AbstractModel
             'host'     => $database['host'],
             'type'     => $database['type'],
         ]);
+    }
+
+    /**
+     * Create database adapter
+     *
+     * @param  array $database
+     * @return Adapter\AbstractAdapter
+     */
+    public function createAdapter(array $database)
+    {
+        $adapter  = $database['adapter'];
+        $options  = [
+            'database' => $database['database'],
+            'username' => $database['username'],
+            'password' => $database['password'],
+            'host'     => $database['host'],
+            'type'     => $database['type']
+        ];
+
+        return Db::connect($adapter, $options);
     }
 
 }
