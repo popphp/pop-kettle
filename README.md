@@ -39,6 +39,7 @@ and migration commands.
 
 ```bash
 ./kettle db:clear                   Clear the database of all data
+./kettle db:config                  Configure the database
 ./kettle db:reset                   Reset the database with original seed data
 ./kettle db:seed                    Seed the database with data
 ./kettle db:test                    Test the database connection
