@@ -5,6 +5,10 @@ return [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init'
     ],
+    'db:config' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'config'
+    ],
     'db:test' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'test'

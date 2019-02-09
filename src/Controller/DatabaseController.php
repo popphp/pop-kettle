@@ -32,6 +32,17 @@ class DatabaseController extends AbstractController
 {
 
     /**
+     * Config command
+     *
+     * @return void
+     */
+    public function config()
+    {
+        $dbModel = new Model\Database();
+        $dbModel->configure($this->console, getcwd());
+    }
+
+    /**
      * Test command
      *
      * @return void
