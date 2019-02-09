@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
+use Pop\Db\Sql\Seeder\SeederInterface;
 use Pop\Dir\Dir;
 use Pop\Kettle\Model;
 
@@ -80,11 +81,18 @@ class DatabaseController extends AbstractController
             $this->console->write('Running database seeds...');
 
             foreach ($seeds as $seed) {
-                include $location . '/database/seeds/' . $seed;
-                $class = str_replace('.php', '', $seed);
-                $dbSeed = new $class();
-                if (method_exists($dbSeed, 'run')) {
-                    $dbSeed->run($db);
+                if (stripos($seed, '.sql') !== false) {
+                    $dbModel->install(
+                        include $location . '/app/config/database.php',
+                        $location . '/database/seeds/' . $seed
+                    );
+                } else if (stripos('.php', $seed) !== false) {
+                    include $location . '/database/seeds/' . $seed;
+                    $class  = str_replace('.php', '', $seed);
+                    $dbSeed = new $class();
+                    if ($dbSeed instanceof SeederInterface) {
+                        $dbSeed->run($db);
+                    }
                 }
             }
 

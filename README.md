@@ -38,15 +38,15 @@ Once the application is initialized, you can manage the database by using the da
 and migration commands.
 
 ```bash
-    ./kettle db:clear                   Clear the database of all data
-    ./kettle db:reset                   Reset the database with original seed data
-    ./kettle db:seed                    Seed the database with data
-    ./kettle db:test                    Test the database connection
+./kettle db:clear                   Clear the database of all data
+./kettle db:reset                   Reset the database with original seed data
+./kettle db:seed                    Seed the database with data
+./kettle db:test                    Test the database connection
 
-    ./kettle migrate:create <class>     Create new database migration
-    ./kettle migrate:reset              Perform complete rollback of the database
-    ./kettle migrate:rollback [<steps>] Perform backward database migration
-    ./kettle migrate:run [<steps>]      Perform forward database migration
+./kettle migrate:create <class>     Create new database migration
+./kettle migrate:reset              Perform complete rollback of the database
+./kettle migrate:rollback [<steps>] Perform backward database migration
+./kettle migrate:run [<steps>]      Perform forward database migration
 ```
 
 You can create the initial database migration that would create the tables by running
@@ -131,6 +131,11 @@ $ ./kettle db:seed
 ```
 
 will execute any seed files in the `seeds` folder and populate the database with the initial data.
+
+#### Seeding with SQL files
+
+Alternatively, you can place SQL files with the extension `.sql` in the `/database/seeds` folder
+and they will be executed when you run the `./kettle db:seed` command.
 
 ### Running the web server
 

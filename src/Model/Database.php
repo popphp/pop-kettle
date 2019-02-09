@@ -195,4 +195,25 @@ class Database extends AbstractModel
         return Db::connect($adapter, $options);
     }
 
+    /**
+     * Install SQL
+     *
+     * @param  array  $database
+     * @param  string $sqlFile
+     * @return void
+     */
+    public function install(array $database, $sqlFile)
+    {
+        $adapter  = $database['adapter'];
+        $options  = [
+            'database' => $database['database'],
+            'username' => $database['username'],
+            'password' => $database['password'],
+            'host'     => $database['host'],
+            'type'     => $database['type']
+        ];
+
+        Db::install($sqlFile, $adapter, $options);
+    }
+
 }
