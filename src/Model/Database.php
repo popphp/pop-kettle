@@ -157,4 +157,21 @@ class Database extends AbstractModel
         file_put_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php', $dbConfig);
     }
 
+    /**
+     * Test database connection
+     *
+     * @param array $database
+     * @return string
+     */
+    public function test(array $database)
+    {
+        return Db::check($database['adapter'], [
+            'database' => $database['database'],
+            'username' => $database['username'],
+            'password' => $database['password'],
+            'host'     => $database['host'],
+            'type'     => $database['type'],
+        ]);
+    }
+
 }

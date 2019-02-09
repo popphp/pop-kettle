@@ -13,7 +13,6 @@
  */
 namespace Pop\Kettle\Controller;
 
-use Pop\Console\Console;
 use Pop\Kettle\Model;
 
 /**

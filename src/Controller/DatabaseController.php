@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
+use Pop\Kettle\Model;
 
 /**
  * Console database controller class
@@ -45,7 +46,23 @@ class DatabaseController extends AbstractController
      */
     public function test()
     {
-        $this->console->write('DB test!');
+        $location = getcwd();
+
+        if (file_exists($location . '/app/config/database.php')) {
+            $dbModel = new Model\Database();
+            $result  = $dbModel->test(include $location . '/app/config/database.php');
+            if (null !== $result) {
+                $this->console->write($this->console->colorize($result, Console::BOLD_RED));
+            } else {
+                $this->console->write($this->console->colorize(
+                    'Database configuration test passed.', Console::BOLD_GREEN
+                ));
+            }
+        } else {
+            $this->console->write($this->console->colorize(
+                'The database configuration was not found.', Console::BOLD_RED
+            ));
+        }
     }
 
     /**
