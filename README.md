@@ -130,7 +130,7 @@ Then running the command:
 $ ./kettle db:seed
 ```
 
-will execute any seed files in the `seeds` folder.
+will execute any seed files in the `seeds` folder and populate the database with the initial data.
 
 ### Running the web server
 
