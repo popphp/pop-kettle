@@ -11,5 +11,5 @@ return [
             'action'     => 'error'
         ]
     ],
-    'database' => include __DIR__ . 'database.php'
+    'database' => include __DIR__ . '/database.php'
 ];

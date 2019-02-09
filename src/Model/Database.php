@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Model;
 
 use Pop\Console\Console;
+use Pop\Db\Db;
 use Pop\Model\AbstractModel;
 
 /**
@@ -37,44 +38,84 @@ class Database extends AbstractModel
     public function configureDb(Console $console, $location)
     {
         $console->write();
-        // Configure application database
-        $dbName     = '';
+
         $dbUser     = '';
         $dbPass     = '';
         $dbHost     = '';
         $realDbName = '';
-        $dbAdapters = [];
-        $pdoDrivers = (class_exists('Pdo', false)) ? \PDO::getAvailableDrivers() : [];
+        $dbAdapters = Db::getAvailableAdapters();
+        $dbChoices  = [];
+        $i          = 1;
 
-        if (class_exists('mysqli', false)) {
-            $dbAdapters['mysql'] = 'Mysql';
-        }
-        if (in_array('mysql', $pdoDrivers)) {
-            $dbAdapters['pdo_mysql'] = 'PDO Mysql';
-        }
-
-        $adapters  = array_keys($dbAdapters);
-        $dbChoices = [];
-        $i         = 1;
-
-        foreach ($dbAdapters as $a) {
-            $console->write($i . ': ' . $a);
-            $dbChoices[] = $i;
-            $i++;
+        foreach ($dbAdapters as $adapter => $result) {
+            if ($adapter == 'pdo') {
+                foreach ($result as $a => $r) {
+                    if ($r) {
+                        $console->write($i . ': PDO ' . str_replace(
+                            ['sql', 'Pg'], ['SQL', 'Postgre'], ucfirst($a))
+                        );
+                        $dbChoices[strtolower('pdo_' . $a)] = $i;
+                        $i++;
+                    }
+                }
+            } else if ($result) {
+                $console->write($i . ': ' . str_replace(
+                    ['sqli', 'sql', 'Pg'], ['SQL', 'SQL', 'Postgre'], ucfirst($adapter))
+                );
+                $dbChoices[strtolower(str_replace('sqli', 'sql', $adapter))] = $i;
+                $i++;
+            }
         }
 
         $console->write();
         $adapter = $console->prompt('Please select one of the above database adapters: ', $dbChoices);
         $console->write();
 
+        $dbAdapter = array_search($adapter, $dbChoices);
+
         // If PDO
-        if (stripos($adapters[$adapter - 1], 'pdo') !== false) {
+        if (strpos($dbAdapter, 'pdo') !== false) {
             $dbInterface = 'Pdo';
-            $dbType      = 'mysql';
+            $dbType      = substr($dbAdapter, (strpos($dbAdapter, '_') + 1));
         } else {
-            $dbInterface = ucfirst(strtolower($adapters[$adapter - 1]));
+            $dbInterface = ucfirst(strtolower($dbAdapter));
             $dbType      = null;
         }
+
+        $dbCheck = 1;
+        while (null !== $dbCheck) {
+            $dbName     = $console->prompt('DB Name: ');
+            $dbUser     = $console->prompt('DB User: ');
+            $dbPass     = $console->prompt('DB Password: ');
+            $dbHost     = $console->prompt('DB Host: [localhost] ');
+            $realDbName = "'" . $dbName . "'";
+
+            if ($dbHost == '') {
+                $dbHost = 'localhost';
+            }
+
+            $dbCheck = Db::check($dbInterface, [
+                'database' => $dbName,
+                'username' => $dbUser,
+                'password' => $dbPass,
+                'host'     => $dbHost,
+                'type'     => $dbType,
+            ]);
+
+            if (null !== $dbCheck) {
+                $console->write();
+                $console->write($console->colorize(
+                    'Database configuration test failed. Please try again.', Console::BOLD_RED
+                ));
+            } else {
+                $console->write();
+                $console->write($console->colorize(
+                    'Database configuration test passed.', Console::BOLD_GREEN
+                ));
+            }
+            $console->write();
+        }
+
         // Write web config file
         $dbConfig = str_replace(
             [
@@ -92,12 +133,10 @@ class Database extends AbstractModel
                 "'password' => '" . $dbPass . "',",
                 "'host'     => '" . $dbHost . "',",
                 "'type'     => '" . $dbType . "'"
-            ], file_get_contents(__DIR__ . '/../../../app/config/database.php')
+            ], file_get_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php')
         );
 
-        file_put_contents(__DIR__ . '/../../../app/config/database.php', $dbConfig);
-
-
+        file_put_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php', $dbConfig);
     }
 
 }

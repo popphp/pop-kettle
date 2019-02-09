@@ -44,7 +44,9 @@ class ApplicationController extends AbstractController
 
         $appModel = new Model\Application();
         $dbModel  = new Model\Database();
-        //$appModel->init(getcwd(), $namespace, $web, $api, $cli);
+        $location = getcwd();
+
+        $appModel->init($location, $namespace, $web, $api, $cli);
 
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
@@ -54,7 +56,7 @@ class ApplicationController extends AbstractController
         );
 
         if (strtolower($createDb) == 'y') {
-            $dbModel->configureDb($this->console);
+            $dbModel->configureDb($this->console, $location);
         }
     }
 
