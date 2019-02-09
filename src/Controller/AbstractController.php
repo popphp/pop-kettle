@@ -26,7 +26,7 @@ use Pop\Kettle\Command;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    0.0.1-alpha
+ * @version    1.0.0
  */
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
