@@ -36,7 +36,7 @@ class Help extends Command
         parent::__construct(
             './kettle help',
             null,
-            'Show the help screen' . PHP_EOL
+            'Show the help screen'
         );
     }
 

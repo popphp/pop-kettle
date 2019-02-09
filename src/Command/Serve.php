@@ -36,7 +36,7 @@ class Serve extends Command
         parent::__construct(
             './kettle serve',
             '[--host=] [--port=] [--folder=]',
-            'Start the web server' . PHP_EOL
+            'Start the web server'
         );
     }
 

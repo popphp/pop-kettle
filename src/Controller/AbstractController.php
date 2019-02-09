@@ -16,6 +16,7 @@ namespace Pop\Kettle\Controller;
 use Pop\Application;
 use Pop\Console\Console;
 use Pop\Dir\Dir;
+use Pop\Kettle\Command;
 
 /**
  * Console abstract controller class
@@ -60,9 +61,13 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         sort($files);
 
         foreach ($files as $command) {
-            $command = 'Pop\Kettle\Command\\' . str_replace('.php', '', $command);
-            $this->console->addCommand(new $command());
+            if ($command != 'Help.php') {
+                $command = 'Pop\Kettle\Command\\' . str_replace('.php', '', $command);
+                $this->console->addCommand(new $command());
+            }
         }
+
+        $this->console->addCommand(new Command\Help());
     }
 
     /**
