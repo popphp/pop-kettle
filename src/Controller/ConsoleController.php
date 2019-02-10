@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
+use Pop\Kettle\Exception;
 
 /**
  * Console controller class
@@ -32,10 +33,15 @@ class ConsoleController extends AbstractController
      * Serve command
      *
      * @param  array $options
+     * @throws Exception
      * @return void
      */
     public function serve($options = [])
     {
+        if (!function_exists('exec')) {
+            throw new Exception("Error: The `exec()` is not available. It is required to run PHP's web server.");
+        }
+
         $host   = (isset($options['host']))   ? $options['host']   : 'localhost';
         $port   = (isset($options['port']))   ? $options['port']   : 8000;
         $folder = (isset($options['folder'])) ? $options['folder'] : 'public';
