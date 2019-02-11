@@ -55,19 +55,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->console     = $console;
 
         $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_MAGENTA);
-
-        $commands = new Dir(__DIR__ . '/../Command', ['filesOnly' => true]);
-        $files    = $commands->getFiles();
-        sort($files);
-
-        foreach ($files as $command) {
-            if ($command != 'Help.php') {
-                $command = 'Pop\Kettle\Command\\' . str_replace('.php', '', $command);
-                $this->console->addCommand(new $command());
-            }
-        }
-
-        $this->console->addCommand(new Command\Help());
+        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './kettle');
     }
 
     /**
