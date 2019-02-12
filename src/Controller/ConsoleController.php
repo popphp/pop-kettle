@@ -39,7 +39,7 @@ class ConsoleController extends AbstractController
     public function serve($options = [])
     {
         if (!function_exists('exec')) {
-            throw new Exception("Error: The `exec()` is not available. It is required to run PHP's web server.");
+            throw new Exception("Error: The `exec()` function is not available. It is required to run PHP's web server.");
         }
 
         $host   = (isset($options['host']))   ? $options['host']   : 'localhost';

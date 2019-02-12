@@ -51,7 +51,7 @@ class ApplicationController extends AbstractController
         $this->console->write();
 
         $createDb = $this->console->prompt(
-            'Would you like configure a database? [Y/N] ', ['y', 'n']
+            'Would you like to configure a database? [Y/N] ', ['y', 'n']
         );
 
         if (strtolower($createDb) == 'y') {

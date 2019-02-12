@@ -33,9 +33,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->console     = $console;
 
         $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_MAGENTA);
-        $this->console->addCommands([
-            new Command('./myapp help', null, "Show the help screen")
-        ]);
+        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './myapp');
     }
 
     /**
