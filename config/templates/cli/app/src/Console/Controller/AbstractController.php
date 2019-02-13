@@ -4,7 +4,6 @@ namespace MyApp\Console\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
-use Pop\Console\Command;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {

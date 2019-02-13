@@ -15,8 +15,6 @@ namespace Pop\Kettle\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
-use Pop\Dir\Dir;
-use Pop\Kettle\Command;
 
 /**
  * Console abstract controller class
