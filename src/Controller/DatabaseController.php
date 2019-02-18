@@ -133,14 +133,16 @@ class DatabaseController extends AbstractController
             $schema = $db->createSchema();
             $tables = $db->getTables();
 
-            if (($db instanceof \Pop\Db\Adapter\Mysql) || (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
+            if (($db instanceof \Pop\Db\Adapter\Mysql) ||
+                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
                 $db->query('SET foreign_key_checks = 0');
                 foreach ($tables as $table) {
                     $schema->truncate($table);
                     $db->query($schema);
                 }
                 $db->query('SET foreign_key_checks = 1');
-            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) || (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
+            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
+                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
                 foreach ($tables as $table) {
                     $schema->truncate($table)->cascade();
                     $db->query($schema);
