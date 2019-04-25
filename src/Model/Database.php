@@ -142,6 +142,13 @@ class Database extends AbstractModel
 
         $console->write('Writing database configuration file...');
 
+        if (!file_exists($location . DIRECTORY_SEPARATOR . '/app/config/database.php')) {
+            copy(
+                __DIR__ . '/../../config/templates/api/app/config/database.php',
+                $location . DIRECTORY_SEPARATOR . '/app/config/database.php'
+            );
+        }
+
         // Write web config file
         $dbConfig = str_replace(
             [
