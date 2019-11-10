@@ -97,7 +97,7 @@ class DatabaseController extends AbstractController
                         include $location . '/app/config/database.php',
                         $location . '/database/seeds/' . $seed
                     );
-                } else if (stripos('.php', $seed) !== false) {
+                } else if (stripos($seed, '.php') !== false) {
                     include $location . '/database/seeds/' . $seed;
                     $class  = str_replace('.php', '', $seed);
                     $dbSeed = new $class();
@@ -167,7 +167,7 @@ class DatabaseController extends AbstractController
                         include $location . '/app/config/database.php',
                         $location . '/database/seeds/' . $seed
                     );
-                } else if (stripos('.php', $seed) !== false) {
+                } else if (stripos($seed, '.php') !== false) {
                     include $location . '/database/seeds/' . $seed;
                     $class  = str_replace('.php', '', $seed);
                     $dbSeed = new $class();
