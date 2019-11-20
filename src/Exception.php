@@ -21,7 +21,7 @@ namespace Pop\Kettle;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2018 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.0.0
+ * @version    1.0.2
  */
 class Exception extends \Exception
 {
