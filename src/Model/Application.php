@@ -76,11 +76,11 @@ class Application extends AbstractModel
     public function install($install, $location, $namespace)
     {
         $script = strtolower(str_replace('\\', '-', $namespace));
-        $path   = __DIR__ . '/../../config/templates/' . $install;
+        $path   = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $install;
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
-            if (is_dir($path . '/' . $entry)) {
-                $d = new Dir($path . '/' . $entry);
+            if ($path . DIRECTORY_SEPARATOR . $entry)) {
+                $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
                 $d->copyTo($location);
             }
         }
