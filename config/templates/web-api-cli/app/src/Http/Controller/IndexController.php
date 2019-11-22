@@ -19,10 +19,10 @@ class IndexController extends AbstractController
         if (stripos($this->request->getHeader('Accept'), 'text/html') !== false) {
             $view        = new View(__DIR__ . '/../../../view/error.phtml', $response);
             $view->title = $response['code'] . ' ' .$response['message'];
-            $this->response->setHeader('Content-Type', 'text/html');
+            $this->response->addHeader('Content-Type', 'text/html');
             $this->response->setBody($view->render());
         } else {
-            $this->response->setHeaders($this->application->config['http_options_headers']);
+            $this->response->addHeaders($this->application->config['http_options_headers']);
             $this->response->setBody(json_encode($response, JSON_PRETTY_PRINT) . PHP_EOL);
         }
 

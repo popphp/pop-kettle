@@ -93,7 +93,7 @@ class Module extends \Pop\Module\Module
     public function httpError(\Exception $exception)
     {
         $response = new Response();
-        $response->setHeader('Content-Type', 'application/json');
+        $response->addHeader('Content-Type', 'application/json');
         $response->setBody(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT) . PHP_EOL);
         $response->send(500);
         exit();

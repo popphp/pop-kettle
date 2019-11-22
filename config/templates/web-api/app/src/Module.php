@@ -100,10 +100,10 @@ class Module extends \Pop\Module\Module
             $view          = new View(__DIR__ . '/../view/exception.phtml');
             $view->title   = 'Exception';
             $view->message = $message;
-            $response->setHeader('Content-Type', 'text/html');
+            $response->addHeader('Content-Type', 'text/html');
             $response->setBody($view->render());
         } else {
-            $response->setHeaders($this->config['http_options_headers']);
+            $response->addHeaders($this->config['http_options_headers']);
             $response->setBody(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT) . PHP_EOL);
         }
         $response->send(500);

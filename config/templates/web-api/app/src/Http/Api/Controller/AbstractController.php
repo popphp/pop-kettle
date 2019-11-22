@@ -22,7 +22,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
             $this->response->setMessage($message);
         }
 
-        $this->response->setHeaders($this->application->config['http_options_headers']);
+        $this->response->addHeaders($this->application->config['http_options_headers']);
 
         $responseBody = (($this->response->getHeader('Content-Type') == 'application/json') && (null !== $body) && ($body != '')) ?
             json_encode($body, JSON_PRETTY_PRINT) : $body;
@@ -61,7 +61,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
 
         $this->response->setCode($code)
             ->setMessage($message)
-            ->setHeaders($this->application->config['http_options_headers'])
+            ->addHeaders($this->application->config['http_options_headers'])
             ->setBody($responseBody)
             ->sendAndExit();
     }
