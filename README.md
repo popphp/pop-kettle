@@ -63,14 +63,37 @@ $ ./kettle migrate:create <class>
 ```
 
 Where the `<class>` is the base class name of the migration class that will be created.
-From there, you can populate the initial migration class with the initial schema:
+You will see your new migration class template in the `/database/migrations` folder:
 
 ```php
 <?php
 
 use Pop\Db\Sql\Migration\AbstractMigration;
 
-class MyNewMigration extends AbstractMigration
+class MyFirstMigration5dd822cdede29 extends AbstractMigration
+{
+
+    public function up()
+    {
+
+    }
+
+    public function down()
+    {
+
+    }
+
+} 
+```
+
+From there, you can populate the `up()` and `down()` with the initial schema:
+
+```php
+<?php
+
+use Pop\Db\Sql\Migration\AbstractMigration;
+
+class MyFirstMigration5dd822cdede29 extends AbstractMigration
 {
 
     public function up()
@@ -108,10 +131,11 @@ SQL file with the extension `.sql` in the `/database/seeds` folder or you can wr
 a seed class using PHP. To get a seed class started, you can run
 
 ```bash
-$ ./kettle db:create-seed MySeeder
+$ ./kettle db:create-seed <class>
 ```
 
-And a template seed class will be copied to the `/database/seeds` folder:
+Where the `<class>` is the base class name of the seeder class that will be created.
+The template seeder class will be copied to the `/database/seeds` folder:
 
 ```php
 <?php
@@ -119,7 +143,7 @@ And a template seed class will be copied to the `/database/seeds` folder:
 use Pop\Db\Adapter\AbstractAdapter;
 use Pop\Db\Sql\Seeder\AbstractSeeder;
 
-class MySeeder extends AbstractSeeder
+class MyFirstSeeder extends AbstractSeeder
 {
 
     public function run(AbstractAdapter $db)
