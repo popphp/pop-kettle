@@ -52,6 +52,8 @@ and migration commands.
 ./kettle migrate:reset              Perform complete rollback of the database
 ```
 
+#### Database migrations
+
 You can create the initial database migration that would create the tables by running
 the command:
 
@@ -98,9 +100,13 @@ Then by running the command:
 $ ./kettle migrate:run
 ```
 
-it will run the initial migration and create the `users` table, which can then been seeded with data.
-You can either place a SQL file with the extension `.sql` in the `/database/seeds` folder or you can
-write a seed class using PHP. To get a seed class started, you can run
+it will run the initial migration and create the `users` table.
+ 
+#### Seeding the database
+ 
+You can then seed the database with data in one of two ways. You can either place a
+SQL file with the extension `.sql` in the `/database/seeds` folder or you can write
+a seed class using PHP. To get a seed class started, you can run
 
 ```bash
 $ ./kettle db:create-seed MySeeder
