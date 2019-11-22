@@ -10,12 +10,13 @@ the Pop PHP Framework as the command `kettle` within the main directory.
 
 ## BASIC USAGE
 
-* [Initializing an application](#initializing-an-application)
-* [Managing the database](#managing-the-database)
-* [Running the web server](#Running-the-web-server)
-* [Accessing the application](#Accessing-the-application)
+* [Initializing an Application](#initializing-an-application)
+* [Managing the Database](#managing-the-database)
+* [Running the Web Server](#unning-the-web-server)
+* [Accessing the Application](#accessing-the-application)
+* [Using on Windows](#Using on Windows)
 
-### Initializing an application
+### Initializing an Application
 
 By running the following command, you can set up the basic files and folders
 required to run an application:
@@ -33,7 +34,7 @@ After the application files and folders are copied over, you will be asked if yo
 would like to configure a database. Follow those steps to configure a database and
 create the database configuration file.
 
-### Managing the database
+### Managing the Database
 
 Once the application is initialized, you can manage the database by using the database
 and migration commands.
@@ -52,7 +53,7 @@ and migration commands.
 ./kettle migrate:reset              Perform complete rollback of the database
 ```
 
-#### Database migrations
+#### Database Migrations
 
 You can create the initial database migration that would create the tables by running
 the command:
@@ -100,7 +101,7 @@ You can run the initial migration and create the `users` table by running the co
 $ ./kettle migrate:run
 ```
 
-#### Seeding the database
+#### Seeding the Database
  
 You can then seed the database with data in one of two ways. You can either place a
 SQL file with the extension `.sql` in the `/database/seeds` folder or you can write
@@ -163,7 +164,7 @@ in the seeder classes:
 $ ./kettle db:seed
 ```
 
-### Running the web server
+### Running the Web Server
 
 `pop-kettle` also provides a simple way to run PHP's built-in web-server, by running the command:
 
@@ -174,7 +175,7 @@ $ ./kettle serve [--host=] [--port=] [--folder=]
 This is for development environments only and it is strongly advised against using the built-in
 web server in a production environment in any way.
 
-### Accessing the application
+### Accessing the Application
 
 If you have wired up the beginnings of an application, you can then access the default routes
 in the following ways. Assuming you've started the web server as described above using
@@ -195,4 +196,14 @@ route available to the CLI application is the `help` route:
 $ ./myapp help
 ```
 
+### Using on Windows
 
+Most UNIX-based environments should recognize the main `kettle` application script as a PHP
+script and run it accordingly, without having to explicitly call the `php` command and pass
+the script and its parameters into it. However, if you're on an environment like Windows,
+depending on your exact environment set up, you will most likely have to prepend all of the
+command calls with the `php` command, for example:
+
+```bash
+C:\popphp\pop-kettle>php kettle help
+``` 
