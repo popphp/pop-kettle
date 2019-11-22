@@ -103,6 +103,7 @@ class MyFirstMigration5dd822cdede29 extends AbstractMigration
             ->int('id', 16)->increment()
             ->varchar('username', 255)
             ->varchar('password', 255)
+            ->varchar('email', 255)
             ->primary('id');
         
         $this->db->query($schema);        
