@@ -168,7 +168,7 @@ And, if you `cd script`, you'll see the default CLI application that was created
 route available to the CLI application is the `help` route:
 
 ```bash
-$ ./app help
+$ ./myapp help
 ```
 
 
