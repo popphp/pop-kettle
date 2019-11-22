@@ -69,6 +69,22 @@ class DatabaseController extends AbstractController
     }
 
     /**
+     * Create seed command
+     *
+     * @param  string $class
+     * @return void
+     */
+    public function createSeed($class)
+    {
+        $classContents = str_replace(
+            'DatabaseSeeder', $class, file_get_contents(__DIR__ . '/../../config/templates/db/DatabaseSeeder.php')
+        );
+        file_put_contents(getcwd() . '/database/seeds/' . $class . '.php', $classContents);
+        $this->console->write('Database seed class created (' . $class . ')');
+    }
+
+
+    /**
      * Seed command
      *
      * @return void

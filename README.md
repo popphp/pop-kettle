@@ -97,9 +97,34 @@ Then by running the command:
 $ ./kettle migrate:run
 ```
 
-it will run the initial migration and create the `users` table, which can then been seeded,
-as shown below. You can write your own seed files under the `/database/seeds` folder. An
-example be:
+it will run the initial migration and create the `users` table, which can then been seeded with data.
+You can either place a SQL file with the extension `.sql` in the `/database/seeds` folder or you can
+write a seed class using PHP. To get a seed class started, you can run
+
+```bash
+$ ./kettle db:create-seed MySeeder
+```
+
+And a template seed class will be copied to the `/database/seeds` folder:
+
+```php
+<?php
+
+use Pop\Db\Adapter\AbstractAdapter;
+use Pop\Db\Sql\Seeder\AbstractSeeder;
+
+class MySeeder extends AbstractSeeder
+{
+
+    public function run(AbstractAdapter $db)
+    {
+        
+    }
+
+}
+```
+
+From there you can fill in the `run()` method with the SQL you need to seed your data:
 
 ```php
 <?php
@@ -126,7 +151,8 @@ class DatabaseSeeder extends AbstractSeeder
 }
 ```
 
-Then running the command:
+Then running the following command will execute any SQL in any SQL files or any of the SQL
+in the seeder classes:
 
 ```bash
 $ ./kettle db:seed

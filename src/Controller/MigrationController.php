@@ -40,7 +40,7 @@ class MigrationController extends AbstractController
     {
         $class .= uniqid();
         Migrator::create($class, getcwd() . '/database/migrations');
-        $this->console->write('Migration created (' . $class . ')');
+        $this->console->write('Migration class created (' . $class . ')');
     }
 
     /**
