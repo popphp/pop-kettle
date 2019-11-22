@@ -41,6 +41,7 @@ and migration commands.
 ```bash
 ./kettle db:config                  Configure the database
 ./kettle db:test                    Test the database connection
+./kettle db:create-seed <class>     Create database seed class
 ./kettle db:seed                    Seed the database with data
 ./kettle db:reset                   Reset the database with original seed data
 ./kettle db:clear                   Clear the database of all data
