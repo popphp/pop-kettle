@@ -94,14 +94,12 @@ class MyNewMigration extends AbstractMigration
 }
 ```
 
-Then by running the command:
+You can run the initial migration and create the `users` table by running the command:
 
 ```bash
 $ ./kettle migrate:run
 ```
 
-it will run the initial migration and create the `users` table.
- 
 #### Seeding the database
  
 You can then seed the database with data in one of two ways. You can either place a
