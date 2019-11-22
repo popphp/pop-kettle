@@ -159,13 +159,6 @@ in the seeder classes:
 $ ./kettle db:seed
 ```
 
-will execute any seed files in the `seeds` folder and populate the database with the initial data.
-
-#### Seeding with SQL files
-
-Alternatively, you can place SQL files with the extension `.sql` in the `/database/seeds` folder
-and they will be executed when you run the `./kettle db:seed` command.
-
 ### Running the web server
 
 `pop-kettle` also provides a simple way to run PHP's built-in web-server, by running the command:
