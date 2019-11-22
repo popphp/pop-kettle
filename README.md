@@ -12,9 +12,9 @@ the Pop PHP Framework as the command `kettle` within the main directory.
 
 * [Initializing an Application](#initializing-an-application)
 * [Managing the Database](#managing-the-database)
-* [Running the Web Server](#unning-the-web-server)
+* [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
-* [Using on Windows](#Using on Windows)
+* [Using on Windows](#using-on-Windows)
 
 ### Initializing an Application
 
