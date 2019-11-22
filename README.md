@@ -30,7 +30,7 @@ application, a CLI-driven console application or any combination thereof.
 
 After the application files and folders are copied over, you will be asked if you
 would like to configure a database. Follow those steps to configure a database and
-create the database configuration file. 
+create the database configuration file.
 
 ### Managing the database
 
@@ -148,3 +148,26 @@ $ ./kettle serve [--host=] [--port=] [--folder=]
 
 This is for development environments only and it is strongly advised against using the built-in
 web server in a production environment in any way.
+
+### Accessing the application
+
+If you have wired up the beginnings of an application, you can then access the default routes
+in the following ways. Assuming you've started the web server as described above using
+`./kettle serve`, you can access the web application by going to the address `http://localhost:8000/`
+in any web browser and seeing the default index web page.
+
+If you want to access the API application, the default route for that is `http://localhost:8000/api`
+and you can access it like this:
+
+```bash
+$ curl -i -X GET http://localhost:8000/api
+```
+
+And, if you `cd script`, you'll see the default CLI application that was created. The default
+route available to the CLI application is the `help` route:
+
+```bash
+$ ./app help
+```
+
+

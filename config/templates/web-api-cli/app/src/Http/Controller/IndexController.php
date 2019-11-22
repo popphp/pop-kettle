@@ -16,7 +16,7 @@ class IndexController extends AbstractController
     {
         $response = ['code' => 404, 'message' => 'Not Found'];
 
-        if (stripos($this->request->getHeader('Accept'), 'text/html') !== false) {
+        if (stripos($this->request->getHeader('Accept')->getValue(), 'text/html') !== false) {
             $view        = new View(__DIR__ . '/../../../view/error.phtml', $response);
             $view->title = $response['code'] . ' ' .$response['message'];
             $this->response->addHeader('Content-Type', 'text/html');

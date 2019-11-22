@@ -96,7 +96,7 @@ class Module extends \Pop\Module\Module
         $request  = new Request();
         $response = new Response();
         $message  = $exception->getMessage();
-        if (stripos($request->getHeader('Accept'), 'text/html') !== false) {
+        if (stripos($request->getHeader('Accept')->getValue(), 'text/html') !== false) {
             $view          = new View(__DIR__ . '/../view/exception.phtml');
             $view->title   = 'Exception';
             $view->message = $message;
