@@ -23,7 +23,7 @@ use Pop\Application;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.0.2
+ * @version    1.1.0
  */
 class Module extends \Pop\Module\Module
 {
@@ -38,7 +38,7 @@ class Module extends \Pop\Module\Module
      * Application version
      * @var string
      */
-    const VERSION = '1.0.2';
+    const VERSION = '1.1.0';
 
     /**
      * Register module
