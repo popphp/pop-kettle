@@ -13,7 +13,7 @@
         "php": ">=7.1.0",
         "popphp/popcorn": "^3.3.0",
         "popphp/pop-console": "^3.1.1",
-        "popphp/pop-db": "^4.5.7",
+        "popphp/pop-db": "^5.0.0",
         "popphp/pop-dir": "^3.0.3"
     },
     "autoload" : {

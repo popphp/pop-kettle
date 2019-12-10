@@ -57,8 +57,8 @@ class DatabaseController extends AbstractController
                 'The database configuration was not found.', Console::BOLD_RED
             ));
         } else {
-            $result  = $dbModel->test(include $location . '/app/config/database.php');
-            if (null !== $result) {
+            $result = $dbModel->test(include $location . '/app/config/database.php');
+            if ($result !== true) {
                 $this->console->write($this->console->colorize($result, Console::BOLD_RED));
             } else {
                 $this->console->write($this->console->colorize(

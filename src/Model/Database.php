@@ -105,8 +105,8 @@ class Database extends AbstractModel
             $realDbName = "__DIR__ . '/../../database/" . $sqliteFile . "'";
             $console->write();
         } else {
-            $dbCheck = 1;
-            while (null !== $dbCheck) {
+            $dbCheck = false;
+            while ($dbCheck !== true) {
                 $dbName     = $console->prompt('DB Name: ');
                 $dbUser     = $console->prompt('DB User: ');
                 $dbPass     = $console->prompt('DB Password: ');
@@ -125,10 +125,11 @@ class Database extends AbstractModel
                     'type'     => $dbType,
                 ]);
 
-                if (null !== $dbCheck) {
+                if ($dbCheck !== true) {
                     $console->write();
                     $console->write($console->colorize(
-                        'Database configuration test failed. Please try again.', Console::BOLD_RED
+                        'Database configuration test failed. Please try again. ' . PHP_EOL . PHP_EOL .
+                        '    ' . $dbCheck, Console::BOLD_RED
                     ));
                 } else {
                     $console->write();
@@ -176,7 +177,7 @@ class Database extends AbstractModel
      * Test database connection
      *
      * @param array $database
-     * @return string
+     * @return string|boolean
      */
     public function test(array $database)
     {
@@ -227,7 +228,7 @@ class Database extends AbstractModel
             'type'     => $database['type']
         ];
 
-        Db::install($sqlFile, $adapter, $options);
+        Db::executeSqlFile($sqlFile, $adapter, $options);
     }
 
 }

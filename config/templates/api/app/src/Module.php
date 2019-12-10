@@ -66,7 +66,7 @@ class Module extends \Pop\Module\Module
 
             $check = Db\Db::check($adapter, $options);
 
-            if (null !== $check) {
+            if ($check !== true) {
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
