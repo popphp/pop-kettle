@@ -14,8 +14,6 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
-use Pop\Db\Sql\Seeder\SeederInterface;
-use Pop\Dir\Dir;
 use Pop\Kettle\Model;
 
 /**
@@ -32,23 +30,51 @@ class DatabaseController extends AbstractController
 {
 
     /**
-     * Config command
+     * Install command
      *
+     * @param  string $database
      * @return void
      */
-    public function config()
+    public function install($database = 'default')
     {
+        if (null === $database) {
+            $database = 'default';
+        }
+
+        $location = getcwd();
+        $dbModel  = new Model\Database();
+        $dbModel->configure($this->console, $location, $database)
+            ->seed($this->console, $location, $database);
+    }
+
+    /**
+     * Config command
+     *
+     * @param  string $database
+     * @return void
+     */
+    public function config($database = 'default')
+    {
+        if (null === $database) {
+            $database = 'default';
+        }
+
         $dbModel = new Model\Database();
-        $dbModel->configure($this->console, getcwd());
+        $dbModel->configure($this->console, getcwd(), $database);
     }
 
     /**
      * Test command
      *
+     * @param  string $database
      * @return void
      */
-    public function test()
+    public function test($database = 'default')
     {
+        if (null === $database) {
+            $database = 'default';
+        }
+
         $location = getcwd();
         $dbModel  = new Model\Database();
 
@@ -57,12 +83,12 @@ class DatabaseController extends AbstractController
                 'The database configuration was not found.', Console::BOLD_RED
             ));
         } else {
-            $result = $dbModel->test(include $location . '/app/config/database.php');
+            $result = $dbModel->test(include $location . '/app/config/database.php', $database);
             if ($result !== true) {
                 $this->console->write($this->console->colorize($result, Console::BOLD_RED));
             } else {
                 $this->console->write($this->console->colorize(
-                    'Database configuration test passed.', Console::BOLD_GREEN
+                    "Database configuration test for '" . $database . "' passed.", Console::BOLD_GREEN
                 ));
             }
         }
@@ -83,170 +109,52 @@ class DatabaseController extends AbstractController
         $this->console->write('Database seed class created (' . $class . ')');
     }
 
-
     /**
      * Seed command
      *
+     * @param  string $database
      * @return void
      */
-    public function seed()
+    public function seed($database = 'default')
     {
-        $location = getcwd();
-        $dbModel  = new Model\Database();
-
-        if (!file_exists($location . '/app/config/database.php')) {
-            $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
-            ));
-        } else {
-            $db    = $dbModel->createAdapter(include $location . '/app/config/database.php');
-            $dir   = new Dir($location . '/database/seeds', ['filesOnly' => true]);
-            $seeds = $dir->getFiles();
-
-            sort($seeds);
-
-            $this->console->write('Running database seeds...');
-
-            foreach ($seeds as $seed) {
-                if (stripos($seed, '.sql') !== false) {
-                    $dbModel->install(
-                        include $location . '/app/config/database.php',
-                        $location . '/database/seeds/' . $seed
-                    );
-                } else if (stripos($seed, '.php') !== false) {
-                    include $location . '/database/seeds/' . $seed;
-                    $class  = str_replace('.php', '', $seed);
-                    $dbSeed = new $class();
-                    if ($dbSeed instanceof SeederInterface) {
-                        $dbSeed->run($db);
-                    }
-                }
-            }
-
-            $this->console->write();
-            $this->console->write('Done!');
+        if (null === $database) {
+            $database = 'default';
         }
+
+        $dbModel  = new Model\Database();
+        $dbModel->seed($this->console, getcwd(), $database);
     }
 
     /**
      * Reset command
      *
+     * @param  string $database
      * @return void
      */
-    public function reset()
+    public function reset($database = 'default')
     {
-        $location = getcwd();
-        $dbModel  = new Model\Database();
-
-        if (!file_exists($location . '/app/config/database.php')) {
-            $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
-            ));
-        } else {
-            $this->console->write('Resetting database data...');
-
-            $db     = $dbModel->createAdapter(include $location . '/app/config/database.php');
-            $schema = $db->createSchema();
-            $tables = $db->getTables();
-
-            if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                $db->query('SET foreign_key_checks = 0');
-                foreach ($tables as $table) {
-                    $schema->truncate($table);
-                    $db->query($schema);
-                }
-                $db->query('SET foreign_key_checks = 1');
-            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
-                foreach ($tables as $table) {
-                    $schema->truncate($table)->cascade();
-                    $db->query($schema);
-                }
-            } else {
-                foreach ($tables as $table) {
-                    $schema->truncate($table);
-                    $db->query($schema);
-                }
-            }
-
-            $dir   = new Dir($location . '/database/seeds', ['filesOnly' => true]);
-            $seeds = $dir->getFiles();
-
-            sort($seeds);
-
-            $this->console->write('Re-running database seeds...');
-
-            foreach ($seeds as $seed) {
-                if (stripos($seed, '.sql') !== false) {
-                    $dbModel->install(
-                        include $location . '/app/config/database.php',
-                        $location . '/database/seeds/' . $seed
-                    );
-                } else if (stripos($seed, '.php') !== false) {
-                    include $location . '/database/seeds/' . $seed;
-                    $class  = str_replace('.php', '', $seed);
-                    $dbSeed = new $class();
-                    if ($dbSeed instanceof SeederInterface) {
-                        $dbSeed->run($db);
-                    }
-                }
-            }
-
-            $this->console->write();
-            $this->console->write('Done!');
+        if (null === $database) {
+            $database = 'default';
         }
+
+        $dbModel  = new Model\Database();
+        $dbModel->reset($this->console, getcwd(), $database);
     }
 
     /**
      * Clear command
      *
+     * @param  string $database
      * @return void
      */
-    public function clear()
+    public function clear($database = 'default')
     {
-        $location = getcwd();
-        $dbModel  = new Model\Database();
-
-        if (!file_exists($location . '/app/config/database.php')) {
-            $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
-            ));
-        } else {
-            $this->console->write('Clearing database data...');
-
-            $db     = $dbModel->createAdapter(include $location . '/app/config/database.php');
-            $schema = $db->createSchema();
-            $tables = $db->getTables();
-
-            if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                $db->query('SET foreign_key_checks = 0');
-                foreach ($tables as $table) {
-                    $schema->drop($table);
-                    $db->query($schema);
-                }
-                $db->query('SET foreign_key_checks = 1');
-            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
-                foreach ($tables as $table) {
-                    $schema->drop($table)->cascade();
-                    $db->query($schema);
-                }
-            } else {
-                foreach ($tables as $table) {
-                    $schema->drop($table);
-                    $db->query($schema);
-                }
-            }
-
-            if (file_exists($location . '/database/migrations/.current')) {
-                unlink($location . '/database/migrations/.current');
-            }
-
-            $this->console->write();
-            $this->console->write('Done!');
+        if (null === $database) {
+            $database = 'default';
         }
+
+        $dbModel  = new Model\Database();
+        $dbModel->clear($this->console, getcwd(), $database);
     }
 
 }

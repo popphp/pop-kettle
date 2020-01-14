@@ -6,12 +6,17 @@ return [
         'action'     => 'init',
         'help'       => 'Initialize an application' . PHP_EOL
     ],
-    'db:config' => [
+    'db:install [<database>]' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'install',
+        'help'       => 'Install the database (Runs the config, test and seed commands)'
+    ],
+    'db:config [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'config',
         'help'       => 'Configure the database'
     ],
-    'db:test' => [
+    'db:test [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'test',
         'help'       => 'Test the database connection'
@@ -21,17 +26,17 @@ return [
         'action'     => 'createSeed',
         'help'       => 'Create database seed class'
     ],
-    'db:seed' => [
+    'db:seed [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'seed',
         'help'       => 'Seed the database with data'
     ],
-    'db:reset' => [
+    'db:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'reset',
         'help'       => 'Reset the database with original seed data'
     ],
-    'db:clear' => [
+    'db:clear [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'clear',
         'help'       => 'Clear the database of all data' . PHP_EOL

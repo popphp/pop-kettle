@@ -1,10 +1,12 @@
 <?php
 
 return [
-    'adapter'  => '',
-    'database' => '',
-    'username' => '',
-    'password' => '',
-    'host'     => '',
-    'type'     => ''
+    'default' => [
+        'adapter'  => '',
+        'database' => '',
+        'username' => '',
+        'password' => '',
+        'host'     => '',
+        'type'     => ''
+    ]
 ];
