@@ -110,6 +110,10 @@ class DatabaseController extends AbstractController
      */
     public function createSeed($class, $database = 'default')
     {
+        if (null === $database) {
+            $database = 'default';
+        }
+
         $location = getcwd();
 
         if (!file_exists($location . '/database/seeds/' . $database)) {
@@ -118,6 +122,7 @@ class DatabaseController extends AbstractController
 
         if (substr(strtolower($class), -4) == '.sql') {
             touch($location . '/database/seeds/' . $database .'/' . $class);
+            $this->console->write("Database seed file '" . $class . "' created for '" . $database . "'.");
         } else {
             $classContents = str_replace(
                 'DatabaseSeeder', $class, file_get_contents(__DIR__ . '/../../config/templates/db/DatabaseSeeder.php')

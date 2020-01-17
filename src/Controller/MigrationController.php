@@ -82,7 +82,7 @@ class MigrationController extends AbstractController
                 "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
             ));
         } else {
-            $this->console->write('Running database migration...');
+            $this->console->write("Running database migration for '" . $database . "'...");
 
             $dbConfig = include $location . '/app/config/database.php';
             if (!isset($dbConfig[$database])) {
@@ -127,7 +127,7 @@ class MigrationController extends AbstractController
                 "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
             ));
         } else {
-            $this->console->write('Rolling back database migration...');
+            $this->console->write("Rolling back database migration for '" . $database . "'...");
 
             $dbConfig = include $location . '/app/config/database.php';
             if (!isset($dbConfig[$database])) {
@@ -168,7 +168,7 @@ class MigrationController extends AbstractController
                 "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
             ));
         } else {
-            $this->console->write('Resetting the database...');
+            $this->console->write("Resetting the database for '" . $database . "'...");
 
             $dbConfig = include $location . '/app/config/database.php';
             if (!isset($dbConfig[$database])) {

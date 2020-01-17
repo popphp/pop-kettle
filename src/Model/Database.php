@@ -127,7 +127,6 @@ class Database extends AbstractModel
                 $dbUser     = $console->prompt('DB User: ');
                 $dbPass     = $console->prompt('DB Password: ');
                 $dbHost     = $console->prompt('DB Host: [localhost] ');
-                $realDbName = $dbName;
 
                 if (($dbName == '') && ($database != 'default')) {
                     $dbName = $database;
@@ -135,6 +134,8 @@ class Database extends AbstractModel
                 if ($dbHost == '') {
                     $dbHost = 'localhost';
                 }
+
+                $realDbName = $dbName;
 
                 $dbCheck = Db::check($dbInterface, [
                     'database' => $dbName,
@@ -270,9 +271,9 @@ class Database extends AbstractModel
 
                 foreach ($seeds as $seed) {
                     if (stripos($seed, '.sql') !== false) {
-                        $this->install($dbConfig[$database], $location . '/database/seeds/' . $seed);
+                        $this->install($dbConfig[$database], $location . '/database/seeds/' . $database . '/' . $seed);
                     } else if (stripos($seed, '.php') !== false) {
-                        include $location . '/database/seeds/' . $seed;
+                        include $location . '/database/seeds/' . $database . '/' . $seed;
                         $class  = str_replace('.php', '', $seed);
                         $dbSeed = new $class();
                         if ($dbSeed instanceof SeederInterface) {
