@@ -40,8 +40,8 @@ create the database configuration file.
 ### Managing the Database
 
 Once the application is initialized, you can manage the database, or multiple databases,
-by using the `db` and `migrate` commands. If you don't pass anything in the `[<database>]`
-parameter, it will default to the `default` database.
+by using the `db` and `migrate` commands. If you don't pass anything in the optional
+`[<database>]` parameter, it will default to the `default` database.
 
 ```bash
 ./kettle db:install [<database>]                    Install the database (Runs the config, test and seed commands)
@@ -60,16 +60,16 @@ parameter, it will default to the `default` database.
 
 #### Seeding the Database
  
-You can then seed the database with data in one of two ways. You can either place a
-SQL file with the extension `.sql` in the `/database/seeds` folder or you can write
-a seed class using PHP. To get a seed class started, you can run
+You can seed the database with data in one of two ways. You can either utilize a
+SQL file with the extension `.sql` in the `/database/seeds/<database>` folder or you
+can write a seeder class using PHP. To get a seed started, you can run
 
 ```bash
 $ ./kettle db:create-seed <seed> [<database>]
 ```
 
-Where the `<seed>` is either the base class name of the seeder class that will be created,
-or the name of a SQL file (i.e., `seed.sql`) that will be populated later with raw SQL by the user.
+Where the `<seed>` is either the base class name of the seeder class that will be created, or
+the name of a SQL file (i.e., `seed.sql`) that will be populated later with raw SQL by the user.
 The template seeder class will be copied to the `/database/seeds/<database>` folder:
 
 ```php
@@ -89,7 +89,8 @@ class MyFirstSeeder extends AbstractSeeder
 }
 ```
 
-From there you can fill in the `run()` method with the SQL you need to seed your data:
+From there, you can populate your SQL file with the raw SQL needed, or you can fill in
+the `run()` method in the seeder class with the SQL you need to seed your data:
 
 ```php
 <?php
@@ -125,8 +126,8 @@ $ ./kettle db:seed
 
 #### Database Migrations
 
-You can create the initial database migration that would create the tables by running
-the command:
+You can create the initial database migration that would modify your database schema as
+your application grows by running the command:
 
 ```bash
 $ ./kettle migrate:create <class> [<database>]
@@ -156,7 +157,7 @@ class MyFirstMigration5dd822cdede29 extends AbstractMigration
 } 
 ```
 
-From there, you can populate the `up()` and `down()` with the initial schema:
+From there, you can populate the `up()` and `down()` with the schema to modify your database:
 
 ```php
 <?php
@@ -189,10 +190,16 @@ class MyFirstMigration5dd822cdede29 extends AbstractMigration
 }
 ```
 
-You can run the initial migration and create the `users` table by running the command:
+You can run the migration and create the `users` table by running the command:
 
 ```bash
 $ ./kettle migrate:run
+```
+
+And you can rollback the migration and drop the `users` table by running the command:
+
+```bash
+$ ./kettle migrate:rollback
 ```
 
 ### Running the Web Server
