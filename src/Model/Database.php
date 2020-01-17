@@ -13,6 +13,7 @@
  */
 namespace Pop\Kettle\Model;
 
+use Pop\Code\Generator;
 use Pop\Console\Console;
 use Pop\Db\Db;
 use Pop\Db\Adapter;
@@ -36,9 +37,9 @@ class Database extends AbstractModel
     /**
      * Configure database
      *
-     * @param Console $console
-     * @param string  $location
-     * @param string  $database
+     * @param  Console $console
+     * @param  string  $location
+     * @param  string  $database
      * @return Database
      */
     public function configure(Console $console, $location, $database = 'default')
@@ -61,6 +62,12 @@ class Database extends AbstractModel
         }
         if (!file_exists($location . '/database/seeds')) {
             mkdir($location . '/database/seeds');
+        }
+        if (!file_exists($location . '/database/migrations/' . $database)) {
+            mkdir($location . '/database/migrations/' . $database);
+        }
+        if (!file_exists($location . '/database/seeds/' . $database)) {
+            mkdir($location . '/database/seeds/' . $database);
         }
 
         foreach ($dbAdapters as $adapter => $result) {
@@ -88,6 +95,7 @@ class Database extends AbstractModel
         $console->write();
 
         $dbAdapter = array_search($adapter, $dbChoices);
+        $sqliteDb  = null;
 
         // If PDO
         if (strpos($dbAdapter, 'pdo') !== false) {
@@ -102,20 +110,28 @@ class Database extends AbstractModel
             $dbName     = $console->prompt('DB Name: ');
             $sqliteFile = $dbName . ((strpos($dbName, '.sqlite') === false) ? '.sqlite' : '');
             $sqliteFile = str_replace(' ', '_', $sqliteFile);
+
             chmod($location . '/database', 0755);
             touch($location . '/database/' . $sqliteFile);
             chmod($location . '/database/' . $sqliteFile, 0777);
-            $realDbName = "__DIR__ . '/../../database/" . $sqliteFile . "'";
+
+            $sqliteDb   = "__DIR__ . '/../../database/" . $sqliteFile . "'";
+            $realDbName = '[{SQLITE_DB}]';
+
             $console->write();
         } else {
             $dbCheck = false;
             while ($dbCheck !== true) {
-                $dbName     = $console->prompt('DB Name: ');
+                $dbName     = ($database != 'default') ?
+                    $console->prompt('DB Name: [' . $database .']') : $console->prompt('DB Name: ');
                 $dbUser     = $console->prompt('DB User: ');
                 $dbPass     = $console->prompt('DB Password: ');
                 $dbHost     = $console->prompt('DB Host: [localhost] ');
-                $realDbName = "'" . $dbName . "'";
+                $realDbName = $dbName;
 
+                if (($dbName == '') && ($database != 'default')) {
+                    $dbName = $database;
+                }
                 if ($dbHost == '') {
                     $dbHost = 'localhost';
                 }
@@ -153,71 +169,52 @@ class Database extends AbstractModel
             mkdir($location . '/app/config');
         }
 
-        /*
         if (!file_exists($location . DIRECTORY_SEPARATOR . '/app/config/database.php')) {
             copy(
                 __DIR__ . '/../../config/templates/api/app/config/database.php',
                 $location . DIRECTORY_SEPARATOR . '/app/config/database.php'
             );
         }
-        */
 
-        // Write web config file
-        $dbConfigContents = file_get_contents(__DIR__ . '/../../config/templates/api/app/config/database.php');
-        $newDbConfig      = substr($dbConfigContents, strpos($dbConfigContents, "'default'"));
-        $newDbConfig      = substr($newDbConfig, 0, (strpos($newDbConfig, ']') + 1));
-        $newDbConfig      = str_replace("'default'", "'" . $database . "'", $newDbConfig);
+        $dbConfig = include $location . DIRECTORY_SEPARATOR . '/app/config/database.php';
 
-        $newDbConfig = str_replace(
-            [
-                "'adapter'  => '',",
-                "'database' => '',",
-                "'username' => '',",
-                "'password' => '',",
-                "'host'     => '',",
-                "'type'     => ''"
-            ],
-            [
-                "'adapter'  => '" . strtolower($dbInterface) . "',",
-                "'database' => " . $realDbName . ",",
-                "'username' => '" . $dbUser . "',",
-                "'password' => '" . $dbPass . "',",
-                "'host'     => '" . $dbHost . "',",
-                "'type'     => '" . $dbType . "'"
-            ], $newDbConfig
-        );
-
-        if (!file_exists($location . DIRECTORY_SEPARATOR . '/app/config/database.php')) {
-
+        if (!isset($dbConfig[$database])) {
+            $dbConfig[$database] = [
+                'adapter'  => '',
+                'database' => '',
+                'username' => '',
+                'password' => '',
+                'host'     => '',
+                'type'     => ''
+            ];
         }
 
-        /*
-            $dbConfig = str_replace(
-                ']' . PHP_EOL . '];', '],' . PHP_EOL . '    ' . $newDbConfig . PHP_EOL . '];', $dbConfigContents
+        $dbConfig[$database]['adapter']  = strtolower($dbInterface);
+        $dbConfig[$database]['database'] = $realDbName;
+        $dbConfig[$database]['username'] = $dbUser;
+        $dbConfig[$database]['password'] = $dbPass;
+        $dbConfig[$database]['host']     = $dbHost;
+        $dbConfig[$database]['type']     = $dbType;
+
+        $configBody = new Generator\BodyGenerator();
+        $configBody->setIndent(0);
+        $configBody->createReturnConfig($dbConfig);
+
+        $code = new Generator($configBody);
+        $code->setIndent(0);
+        $code->writeToFile($location . DIRECTORY_SEPARATOR . '/app/config/database.php');
+
+        if (null !== $sqliteDb) {
+            file_put_contents(
+                $location . DIRECTORY_SEPARATOR . '/app/config/database.php',
+                str_replace(
+                    "'[{SQLITE_DB}]'",
+                    $sqliteDb,
+                    file_get_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php')
+                )
             );
+        }
 
-            $dbConfig = str_replace(
-                [
-                    "'adapter'  => '',",
-                    "'database' => '',",
-                    "'username' => '',",
-                    "'password' => '',",
-                    "'host'     => '',",
-                    "'type'     => ''"
-                ],
-                [
-                    "'adapter'  => '" . strtolower($dbInterface) . "',",
-                    "'database' => " . $realDbName . ",",
-                    "'username' => '" . $dbUser . "',",
-                    "'password' => '" . $dbPass . "',",
-                    "'host'     => '" . $dbHost . "',",
-                    "'type'     => '" . $dbType . "'"
-                ], $dbConfigContents
-            );
-
-
-        file_put_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php', $dbConfig);
-*/
         return $this;
     }
 
@@ -225,10 +222,9 @@ class Database extends AbstractModel
      * Test database connection
      *
      * @param  array  $database
-     * @param  string $dbName
      * @return string|boolean
      */
-    public function test(array $database, $dbName = 'default')
+    public function test(array $database)
     {
         return Db::check($database['adapter'], [
             'database' => $database['database'],
@@ -251,35 +247,43 @@ class Database extends AbstractModel
     {
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+            ));
+        } else if (!file_exists($location . '/database/seeds/' . $database)) {
+            $console->write($console->colorize(
+                "The database seed folder was not found for '" . $database . "'.", Console::BOLD_RED
             ));
         } else {
-            $db    = $this->createAdapter(include $location . '/app/config/database.php');
-            $dir   = new Dir($location . '/database/seeds', ['filesOnly' => true]);
-            $seeds = $dir->getFiles();
+            $dbConfig = include $location . '/app/config/database.php';
+            if (!isset($dbConfig[$database])) {
+                $console->write($console->colorize(
+                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                ));
+            } else {
+                $db    = $this->createAdapter($dbConfig[$database]);
+                $dir   = new Dir($location . '/database/seeds/' . $database, ['filesOnly' => true]);
+                $seeds = $dir->getFiles();
 
-            sort($seeds);
+                sort($seeds);
 
-            $console->write('Running database seeds...');
+                $console->write('Running database seeds...');
 
-            foreach ($seeds as $seed) {
-                if (stripos($seed, '.sql') !== false) {
-                    $this->install(
-                        include $location . '/app/config/database.php',
-                        $location . '/database/seeds/' . $seed
-                    );
-                } else if (stripos($seed, '.php') !== false) {
-                    include $location . '/database/seeds/' . $seed;
-                    $class  = str_replace('.php', '', $seed);
-                    $dbSeed = new $class();
-                    if ($dbSeed instanceof SeederInterface) {
-                        $dbSeed->run($db);
+                foreach ($seeds as $seed) {
+                    if (stripos($seed, '.sql') !== false) {
+                        $this->install($dbConfig[$database], $location . '/database/seeds/' . $seed);
+                    } else if (stripos($seed, '.php') !== false) {
+                        include $location . '/database/seeds/' . $seed;
+                        $class  = str_replace('.php', '', $seed);
+                        $dbSeed = new $class();
+                        if ($dbSeed instanceof SeederInterface) {
+                            $dbSeed->run($db);
+                        }
                     }
                 }
-            }
 
-            $console->write();
-            $console->write('Done!');
+                $console->write();
+                $console->write('Done!');
+            }
         }
 
         return $this;
@@ -331,9 +335,9 @@ class Database extends AbstractModel
     /**
      * Reset database
      *
-     * @param Console $console
-     * @param string  $location
-     * @param string  $database
+     * @param  Console $console
+     * @param  string  $location
+     * @param  string  $database
      * @return Database
      */
     public function reset(Console $console, $location, $database = 'default')
@@ -342,59 +346,46 @@ class Database extends AbstractModel
             $console->write($console->colorize(
                 'The database configuration was not found.', Console::BOLD_RED
             ));
+        } else if (!file_exists($location . '/database/seeds/' . $database)) {
+            $console->write($console->colorize(
+                "The database seed folder was not found for '" . $database . "'.", Console::BOLD_RED
+            ));
         } else {
             $console->write('Resetting database data...');
 
-            $db     = $this->createAdapter(include $location . '/app/config/database.php');
-            $schema = $db->createSchema();
-            $tables = $db->getTables();
-
-            if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                $db->query('SET foreign_key_checks = 0');
-                foreach ($tables as $table) {
-                    $schema->truncate($table);
-                    $db->query($schema);
-                }
-                $db->query('SET foreign_key_checks = 1');
-            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
-                foreach ($tables as $table) {
-                    $schema->truncate($table)->cascade();
-                    $db->query($schema);
-                }
+            $dbConfig = include $location . '/app/config/database.php';
+            if (!isset($dbConfig[$database])) {
+                $console->write($console->colorize(
+                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                ));
             } else {
-                foreach ($tables as $table) {
-                    $schema->truncate($table);
-                    $db->query($schema);
-                }
-            }
+                $db     = $this->createAdapter($dbConfig[$database]);
+                $schema = $db->createSchema();
+                $tables = $db->getTables();
 
-            $dir   = new Dir($location . '/database/seeds', ['filesOnly' => true]);
-            $seeds = $dir->getFiles();
-
-            sort($seeds);
-
-            $console->write('Re-running database seeds...');
-
-            foreach ($seeds as $seed) {
-                if (stripos($seed, '.sql') !== false) {
-                    $this->install(
-                        include $location . '/app/config/database.php',
-                        $location . '/database/seeds/' . $seed
-                    );
-                } else if (stripos($seed, '.php') !== false) {
-                    include $location . '/database/seeds/' . $seed;
-                    $class  = str_replace('.php', '', $seed);
-                    $dbSeed = new $class();
-                    if ($dbSeed instanceof SeederInterface) {
-                        $dbSeed->run($db);
+                if (($db instanceof \Pop\Db\Adapter\Mysql) ||
+                    (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
+                    $db->query('SET foreign_key_checks = 0');
+                    foreach ($tables as $table) {
+                        $schema->truncate($table);
+                        $db->query($schema);
+                    }
+                    $db->query('SET foreign_key_checks = 1');
+                } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
+                    (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
+                    foreach ($tables as $table) {
+                        $schema->truncate($table)->cascade();
+                        $db->query($schema);
+                    }
+                } else {
+                    foreach ($tables as $table) {
+                        $schema->truncate($table);
+                        $db->query($schema);
                     }
                 }
-            }
 
-            $console->write();
-            $console->write('Done!');
+                $this->seed($console, $location, $database);
+            }
         }
 
         return $this;
@@ -403,9 +394,9 @@ class Database extends AbstractModel
     /**
      * Clear database
      *
-     * @param Console $console
-     * @param string  $location
-     * @param string  $database
+     * @param  Console $console
+     * @param  string  $location
+     * @param  string  $database
      * @return Database
      */
     public function clear(Console $console, $location, $database = 'default')
@@ -417,37 +408,44 @@ class Database extends AbstractModel
         } else {
             $console->write('Clearing database data...');
 
-            $db     = $this->createAdapter(include $location . '/app/config/database.php');
-            $schema = $db->createSchema();
-            $tables = $db->getTables();
-
-            if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                $db->query('SET foreign_key_checks = 0');
-                foreach ($tables as $table) {
-                    $schema->drop($table);
-                    $db->query($schema);
-                }
-                $db->query('SET foreign_key_checks = 1');
-            } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
-                foreach ($tables as $table) {
-                    $schema->drop($table)->cascade();
-                    $db->query($schema);
-                }
+            $dbConfig = include $location . '/app/config/database.php';
+            if (!isset($dbConfig[$database])) {
+                $console->write($console->colorize(
+                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                ));
             } else {
-                foreach ($tables as $table) {
-                    $schema->drop($table);
-                    $db->query($schema);
+                $db     = $this->createAdapter($dbConfig[$database]);
+                $schema = $db->createSchema();
+                $tables = $db->getTables();
+
+                if (($db instanceof \Pop\Db\Adapter\Mysql) ||
+                    (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
+                    $db->query('SET foreign_key_checks = 0');
+                    foreach ($tables as $table) {
+                        $schema->drop($table);
+                        $db->query($schema);
+                    }
+                    $db->query('SET foreign_key_checks = 1');
+                } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
+                    (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
+                    foreach ($tables as $table) {
+                        $schema->drop($table)->cascade();
+                        $db->query($schema);
+                    }
+                } else {
+                    foreach ($tables as $table) {
+                        $schema->drop($table);
+                        $db->query($schema);
+                    }
                 }
-            }
 
-            if (file_exists($location . '/database/migrations/.current')) {
-                unlink($location . '/database/migrations/.current');
-            }
+                if (file_exists($location . '/database/migrations/' . $database . '/.current')) {
+                    unlink($location . '/database/migrations/' . $database . '/.current');
+                }
 
-            $console->write();
-            $console->write('Done!');
+                $console->write();
+                $console->write('Done!');
+            }
         }
 
         return $this;

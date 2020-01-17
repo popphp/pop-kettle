@@ -21,7 +21,7 @@ return [
         'action'     => 'test',
         'help'       => 'Test the database connection'
     ],
-    'db:create-seed <class>' => [
+    'db:create-seed <seed> [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'createSeed',
         'help'       => 'Create database seed class'
