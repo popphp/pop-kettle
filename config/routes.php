@@ -41,22 +41,22 @@ return [
         'action'     => 'clear',
         'help'       => 'Clear the database of all data' . PHP_EOL
     ],
-    'migrate:create <class>' => [
+    'migrate:create <class> [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'create',
         'help'       => 'Create new database migration class'
     ],
-    'migrate:run [<steps>]' => [
+    'migrate:run [<steps>] [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'run',
         'help'       => 'Perform forward database migration'
     ],
-    'migrate:rollback [<steps>]' => [
+    'migrate:rollback [<steps>] [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'rollback',
         'help'       => 'Perform backward database migration'
     ],
-    'migrate:reset' => [
+    'migrate:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'reset',
         'help'       => 'Perform complete rollback of the database' . PHP_EOL
