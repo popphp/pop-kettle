@@ -39,9 +39,9 @@ create the database configuration file.
 
 ### Managing the Database
 
-Once the application is initialized, you can manage the database by using the database
-and migration commands. If you don't pass anything in the `[<database>]` parameter,
-it will default to the `default` database.
+Once the application is initialized, you can manage the database, or multiple databases,
+by using the `db` and `migrate` commands. If you don't pass anything in the `[<database>]`
+parameter, it will default to the `default` database.
 
 ```bash
 ./kettle db:install [<database>]                    Install the database (Runs the config, test and seed commands)
