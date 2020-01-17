@@ -58,6 +58,71 @@ it will default to the `default` database.
 ./kettle migrate:reset [<database>]                 Perform complete rollback of the database
 ```
 
+#### Seeding the Database
+ 
+You can then seed the database with data in one of two ways. You can either place a
+SQL file with the extension `.sql` in the `/database/seeds` folder or you can write
+a seed class using PHP. To get a seed class started, you can run
+
+```bash
+$ ./kettle db:create-seed <seed> [<database>]
+```
+
+Where the `<seed>` is either the base class name of the seeder class that will be created,
+or the name of a SQL file (i.e., `seed.sql`) that will be populated later with raw SQL by the user.
+The template seeder class will be copied to the `/database/seeds/<database>` folder:
+
+```php
+<?php
+
+use Pop\Db\Adapter\AbstractAdapter;
+use Pop\Db\Sql\Seeder\AbstractSeeder;
+
+class MyFirstSeeder extends AbstractSeeder
+{
+
+    public function run(AbstractAdapter $db)
+    {
+        
+    }
+
+}
+```
+
+From there you can fill in the `run()` method with the SQL you need to seed your data:
+
+```php
+<?php
+
+use Pop\Db\Adapter\AbstractAdapter;
+use Pop\Db\Sql\Seeder\AbstractSeeder;
+
+class DatabaseSeeder extends AbstractSeeder
+{
+    
+    public function run(AbstractAdapter $db)
+    {
+        $sql = $db->createSql();
+        
+        $sql->insert('users')->values([
+            'username' => 'testuser',
+            'password' => '12test34',
+            'email'    => 'test@test.com'
+        ]);
+        
+        $db->query($sql);
+    }
+    
+}
+```
+
+Then running the following command will execute any SQL in any SQL files or any of the SQL
+in the seeder classes:
+
+```bash
+$ ./kettle db:seed
+```
+
 #### Database Migrations
 
 You can create the initial database migration that would create the tables by running
@@ -128,71 +193,6 @@ You can run the initial migration and create the `users` table by running the co
 
 ```bash
 $ ./kettle migrate:run
-```
-
-#### Seeding the Database
- 
-You can then seed the database with data in one of two ways. You can either place a
-SQL file with the extension `.sql` in the `/database/seeds` folder or you can write
-a seed class using PHP. To get a seed class started, you can run
-
-```bash
-$ ./kettle db:create-seed <seed> [<database>]
-```
-
-Where the `<seed>` is either the base class name of the seeder class that will be created,
-or the name of a SQL file (i.e., `seed.sql`) that will be populated later with raw SQL by the user.
-The template seeder class will be copied to the `/database/seeds/<database>` folder:
-
-```php
-<?php
-
-use Pop\Db\Adapter\AbstractAdapter;
-use Pop\Db\Sql\Seeder\AbstractSeeder;
-
-class MyFirstSeeder extends AbstractSeeder
-{
-
-    public function run(AbstractAdapter $db)
-    {
-        
-    }
-
-}
-```
-
-From there you can fill in the `run()` method with the SQL you need to seed your data:
-
-```php
-<?php
-
-use Pop\Db\Adapter\AbstractAdapter;
-use Pop\Db\Sql\Seeder\AbstractSeeder;
-
-class DatabaseSeeder extends AbstractSeeder
-{
-    
-    public function run(AbstractAdapter $db)
-    {
-        $sql = $db->createSql();
-        
-        $sql->insert('users')->values([
-            'username' => 'testuser',
-            'password' => '12test34',
-            'email'    => 'test@test.com'
-        ]);
-        
-        $db->query($sql);
-    }
-    
-}
-```
-
-Then running the following command will execute any SQL in any SQL files or any of the SQL
-in the seeder classes:
-
-```bash
-$ ./kettle db:seed
 ```
 
 ### Running the Web Server
