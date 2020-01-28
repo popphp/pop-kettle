@@ -24,7 +24,7 @@ use Pop\Kettle\Exception;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.1.0
+ * @version    1.2.1
  */
 class ConsoleController extends AbstractController
 {
