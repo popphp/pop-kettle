@@ -292,10 +292,7 @@ class Database extends AbstractModel
      */
     public function createAdapter(array $database)
     {
-        $adapter  = $database['adapter'];
-        $options  = array_diff_key($database, array_flip(['adapter']));
-
-        return Db::connect($adapter, $options);
+        return Db::connect($database['adapter'], array_diff_key($database, array_flip(['adapter'])));
     }
 
     /**
@@ -307,10 +304,7 @@ class Database extends AbstractModel
      */
     public function install(array $database, $sqlFile)
     {
-        $adapter  = $database['adapter'];
-        $options  = array_diff_key($database, array_flip(['adapter']));
-
-        Db::executeSqlFile($sqlFile, $adapter, $options);
+        Db::executeSqlFile($sqlFile, $database['adapter'], array_diff_key($database, array_flip(['adapter'])));
 
         return $this;
     }
