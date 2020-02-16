@@ -4,8 +4,8 @@ namespace MyApp;
 
 use Pop\Application;
 use Pop\Db;
-use Pop\Http\Request;
-use Pop\Http\Response;
+use Pop\Http\Server\Request;
+use Pop\Http\Server\Response;
 use Pop\View\View;
 
 class Module extends \Pop\Module\Module

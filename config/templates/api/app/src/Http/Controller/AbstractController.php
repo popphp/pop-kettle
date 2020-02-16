@@ -3,8 +3,8 @@
 namespace MyApp\Http\Controller;
 
 use Pop\Application;
-use Pop\Http\Request;
-use Pop\Http\Response;
+use Pop\Http\Server\Request;
+use Pop\Http\Server\Response;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
