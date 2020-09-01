@@ -12,6 +12,7 @@ the Pop PHP Framework as the command `kettle` within the main directory.
 
 * [Initializing an Application](#initializing-an-application)
 * [Managing the Database](#managing-the-database)
+* [Creating Application Files](#creating-application-files)
 * [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
 * [Using on Windows](#using-on-Windows)
@@ -201,6 +202,20 @@ And you can rollback the migration and drop the `users` table by running the com
 ```bash
 $ ./kettle migrate:rollback
 ```
+
+### Creating Application Files
+
+You can create skeleton application files with the `create` commands to assist you in wiring up various
+MVC-based components, such as models, views and controllers: 
+
+```bash
+./kettle create:ctrl [--web] [--api] [--cli] <ctrl>      Create a new controller class
+./kettle create:model <model>                            Create a new model class
+./kettle create:view <view>                              Create a new view file
+```
+
+Once the respective class files or view scripts are created in the appropriate folders, you can then
+open them up and begin writing your application code. 
 
 ### Running the Web Server
 
