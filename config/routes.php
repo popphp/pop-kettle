@@ -61,6 +61,21 @@ return [
         'action'     => 'reset',
         'help'       => 'Perform complete rollback of the database' . PHP_EOL
     ],
+    'create:ctrl [--web] [--api] [--cli] <ctrl>' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'createController',
+        'help'       => 'Create a new controller class'
+    ],
+    'create:model <model>' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'createModel',
+        'help'       => 'Create a new model class'
+    ],
+    'create:view <view>' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'createView',
+        'help'       => 'Create a new view file' . PHP_EOL
+    ],
     'serve [--host=] [--port=] [--folder=]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',
         'action'     => 'serve',

@@ -62,4 +62,60 @@ class ApplicationController extends AbstractController
         $this->console->write('Done!');
     }
 
+    /**
+     * Create controller command
+     *
+     * @param  string $ctrl
+     * @param  array  $options
+     * @return void
+     */
+    public function createController($ctrl, array $options = [])
+    {
+        $web = (isset($options['web']));
+        $api = (isset($options['api']));
+        $cli = (isset($options['cli']));
+
+        $appModel    = new Model\Application();
+        $ctrlClasses = $appModel->createController($ctrl, getcwd(), $web, $api, $cli);
+
+        foreach ($ctrlClasses as $ctrlClass) {
+            $this->console->write("Controller class '" . $ctrlClass ."' created.");
+        }
+
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
+    /**
+     * Create model command
+     *
+     * @param  string $model
+     * @return void
+     */
+    public function createModel($model)
+    {
+        $appModel   = new Model\Application();
+        $modelClass = $appModel->createModel($model, getcwd());
+
+        $this->console->write("Model class '" . $modelClass ."' created.");
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
+    /**
+     * Create view command
+     *
+     * @param  string $view
+     * @return void
+     */
+    public function createView($view)
+    {
+        $appModel = new Model\Application();
+        $viewFile = $appModel->createView($view, getcwd());
+
+        $this->console->write("View file '" . $viewFile ."' created.");
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
 }
