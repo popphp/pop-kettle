@@ -21,7 +21,7 @@ namespace Pop\Kettle\Event;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.3.0
+ * @version    1.4.0
  */
 class Console
 {
