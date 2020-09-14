@@ -362,6 +362,10 @@ class Database extends AbstractModel
                 }
 
                 $this->seed($console, $location, $database);
+
+                if (file_exists($location . '/database/migrations/' . $database . '/.current')) {
+                    unlink($location . '/database/migrations/' . $database . '/.current');
+                }
             }
         }
 
