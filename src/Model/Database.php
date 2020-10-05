@@ -240,14 +240,14 @@ class Database extends AbstractModel
      */
     public function seed(Console $console, $location, $database = 'default')
     {
-        $databases = [];
-
-        if ($database == 'all') {
+        if (null === $database) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
-        } else if (null === $database) {
-            $databases = ['default'];
+        } else {
+            $databases = [$database];
         }
 
         if (!file_exists($location . '/app/config/database.php')) {
@@ -267,13 +267,13 @@ class Database extends AbstractModel
                             "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
                         ));
                     } else {
-                        $db    = $this->createAdapter($dbConfig[$db]);
-                        $dir   = new Dir($location . '/database/seeds/' . $db, ['filesOnly' => true]);
-                        $seeds = $dir->getFiles();
+                        $dbAdapter = $this->createAdapter($dbConfig[$db]);
+                        $dir       = new Dir($location . '/database/seeds/' . $db, ['filesOnly' => true]);
+                        $seeds     = $dir->getFiles();
 
                         sort($seeds);
 
-                        $console->write('Running database seeds...');
+                        $console->write("Running database seeds for '" . $db . "'...");
 
                         foreach ($seeds as $seed) {
                             if (stripos($seed, '.sql') !== false) {
@@ -283,13 +283,12 @@ class Database extends AbstractModel
                                 $class  = str_replace('.php', '', $seed);
                                 $dbSeed = new $class();
                                 if ($dbSeed instanceof SeederInterface) {
-                                    $dbSeed->run($db);
+                                    $dbSeed->run($dbAdapter);
                                 }
                             }
                         }
-
-                        $console->write();
                         $console->write('Done!');
+                        $console->write();
                     }
                 }
             }
@@ -333,14 +332,14 @@ class Database extends AbstractModel
      */
     public function reset(Console $console, $location, $database = 'default')
     {
-        $databases = [];
-
-        if ($database == 'all') {
+        if (null === $database) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
-        } else if (null === $database) {
-            $databases = ['default'];
+        } else {
+            $databases = [$database];
         }
 
         if (!file_exists($location . '/app/config/database.php')) {
@@ -362,28 +361,28 @@ class Database extends AbstractModel
                             "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
                         ));
                     } else {
-                        $db = $this->createAdapter($dbConfig[$db]);
-                        $schema = $db->createSchema();
-                        $tables = $db->getTables();
+                        $dbAdapter = $this->createAdapter($dbConfig[$db]);
+                        $schema    = $dbAdapter->createSchema();
+                        $tables    = $dbAdapter->getTables();
 
-                        if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                            (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                            $db->query('SET foreign_key_checks = 0');
+                        if (($dbAdapter instanceof \Pop\Db\Adapter\Mysql) ||
+                            (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'mysql'))) {
+                            $dbAdapter->query('SET foreign_key_checks = 0');
                             foreach ($tables as $table) {
                                 $schema->truncate($table);
-                                $db->query($schema);
+                                $dbAdapter->query($schema);
                             }
-                            $db->query('SET foreign_key_checks = 1');
-                        } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                            (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
+                            $dbAdapter->query('SET foreign_key_checks = 1');
+                        } else if (($dbAdapter instanceof \Pop\Db\Adapter\Pgsql) ||
+                            (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'pgsql'))) {
                             foreach ($tables as $table) {
                                 $schema->truncate($table)->cascade();
-                                $db->query($schema);
+                                $dbAdapter->query($schema);
                             }
                         } else {
                             foreach ($tables as $table) {
                                 $schema->truncate($table);
-                                $db->query($schema);
+                                $dbAdapter->query($schema);
                             }
                         }
 
@@ -410,14 +409,14 @@ class Database extends AbstractModel
      */
     public function clear(Console $console, $location, $database = 'default')
     {
-        $databases = [];
-
-        if ($database == 'all') {
+        if (null === $database) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
-        } else if (null === $database) {
-            $databases = ['default'];
+        } else {
+            $databases = [$database];
         }
 
         if (!file_exists($location . '/app/config/database.php')) {
@@ -429,38 +428,38 @@ class Database extends AbstractModel
                 $console->write('Clearing database data...');
 
                 $dbConfig = include $location . '/app/config/database.php';
-                if (!isset($dbConfig[$database])) {
+                if (!isset($dbConfig[$db])) {
                     $console->write($console->colorize(
-                        "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
                     ));
                 } else {
-                    $db     = $this->createAdapter($dbConfig[$database]);
-                    $schema = $db->createSchema();
-                    $tables = $db->getTables();
+                    $dbAdapter = $this->createAdapter($dbConfig[$db]);
+                    $schema    = $dbAdapter->createSchema();
+                    $tables    = $dbAdapter->getTables();
 
-                    if (($db instanceof \Pop\Db\Adapter\Mysql) ||
-                        (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'mysql'))) {
-                        $db->query('SET foreign_key_checks = 0');
+                    if (($dbAdapter instanceof \Pop\Db\Adapter\Mysql) ||
+                        (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'mysql'))) {
+                        $dbAdapter->query('SET foreign_key_checks = 0');
                         foreach ($tables as $table) {
                             $schema->drop($table);
-                            $db->query($schema);
+                            $dbAdapter->query($schema);
                         }
-                        $db->query('SET foreign_key_checks = 1');
-                    } else if (($db instanceof \Pop\Db\Adapter\Pgsql) ||
-                        (($db instanceof \Pop\Db\Adapter\Pdo) && ($db->getType() == 'pgsql'))) {
+                        $dbAdapter->query('SET foreign_key_checks = 1');
+                    } else if (($dbAdapter instanceof \Pop\Db\Adapter\Pgsql) ||
+                        (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'pgsql'))) {
                         foreach ($tables as $table) {
                             $schema->drop($table)->cascade();
-                            $db->query($schema);
+                            $dbAdapter->query($schema);
                         }
                     } else {
                         foreach ($tables as $table) {
                             $schema->drop($table);
-                            $db->query($schema);
+                            $dbAdapter->query($schema);
                         }
                     }
 
-                    if (file_exists($location . '/database/migrations/' . $database . '/.current')) {
-                        unlink($location . '/database/migrations/' . $database . '/.current');
+                    if (file_exists($location . '/database/migrations/' . $db . '/.current')) {
+                        unlink($location . '/database/migrations/' . $db . '/.current');
                     }
 
                     $console->write();

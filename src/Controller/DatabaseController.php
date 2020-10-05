@@ -71,31 +71,39 @@ class DatabaseController extends AbstractController
      */
     public function test($database = 'default')
     {
-        if (null === $database) {
-            $database = 'default';
-        }
-
         $location = getcwd();
         $dbModel  = new Model\Database();
+
+        if (null === $database) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else {
+            $databases = [$database];
+        }
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
                 'The database configuration was not found.', Console::BOLD_RED
             ));
         } else {
-            $dbConfig = include $location . '/app/config/database.php';
-            if (!isset($dbConfig[$database])) {
-                $this->console->write($this->console->colorize(
-                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
-                ));
-            } else {
-                $result = $dbModel->test($dbConfig[$database]);
-                if ($result !== true) {
-                    $this->console->write($this->console->colorize($result, Console::BOLD_RED));
-                } else {
+            foreach ($databases as $db) {
+                $dbConfig = include $location . '/app/config/database.php';
+                if (!isset($dbConfig[$db])) {
                     $this->console->write($this->console->colorize(
-                        "Database configuration test for '" . $database . "' passed.", Console::BOLD_GREEN
+                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
                     ));
+                } else {
+                    $result = $dbModel->test($dbConfig[$db]);
+                    if ($result !== true) {
+                        $this->console->write($this->console->colorize($result, Console::BOLD_RED));
+                    } else {
+                        $this->console->write($this->console->colorize(
+                            "Database configuration test for '" . $db . "' passed.", Console::BOLD_GREEN
+                        ));
+                    }
                 }
             }
         }
@@ -110,26 +118,34 @@ class DatabaseController extends AbstractController
      */
     public function createSeed($class, $database = 'default')
     {
-        if (null === $database) {
-            $database = 'default';
-        }
-
         $location = getcwd();
 
-        if (!file_exists($location . '/database/seeds/' . $database)) {
-            mkdir($location . '/database/seeds/' . $database);
+        if (null === $database) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else {
+            $databases = [$database];
         }
 
-        if (substr(strtolower($class), -4) == '.sql') {
-            touch($location . '/database/seeds/' . $database .'/' . $class);
-            $this->console->write("Database seed file '" . $class . "' created for '" . $database . "'.");
-        } else {
-            $classContents = str_replace(
-                'DatabaseSeeder', $class, file_get_contents(__DIR__ . '/../../config/templates/db/DatabaseSeeder.php')
-            );
+        foreach ($databases as $db) {
+            if (!file_exists($location . '/database/seeds/' . $db)) {
+                mkdir($location . '/database/seeds/' . $db);
+            }
 
-            file_put_contents($location . '/database/seeds/' . $database .'/' . $class . '.php', $classContents);
-            $this->console->write("Database seed class '" . $class . "' created for '" . $database . "'.");
+            if (substr(strtolower($class), -4) == '.sql') {
+                touch($location . '/database/seeds/' . $db .'/' . $class);
+                $this->console->write("Database seed file '" . $class . "' created for '" . $db . "'.");
+            } else {
+                $classContents = str_replace(
+                    'DatabaseSeeder', $class, file_get_contents(__DIR__ . '/../../config/templates/db/DatabaseSeeder.php')
+                );
+
+                file_put_contents($location . '/database/seeds/' . $db .'/' . $class . '.php', $classContents);
+                $this->console->write("Database seed class '" . $class . "' created for '" . $db . "'.");
+            }
         }
     }
 
