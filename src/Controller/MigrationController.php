@@ -39,19 +39,26 @@ class MigrationController extends AbstractController
      */
     public function create($class, $database = 'default')
     {
-        if (null === $database) {
-            $database = 'default';
+        $location  = getcwd();
+        $databases = [];
+
+        if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else if (null === $database) {
+            $databases = ['default'];
         }
 
-        $location = getcwd();
+        foreach ($databases as $db) {
+            if (!file_exists($location . '/database/migrations/' . $db)) {
+                mkdir($location . '/database/migrations/' . $db);
+            }
 
-        if (!file_exists($location . '/database/migrations/' . $database)) {
-            mkdir($location . '/database/migrations/' . $database);
+            $migrationClass = $class . uniqid();
+            Migrator::create($migrationClass, $location . '/database/migrations/' . $db);
+            $this->console->write("Migration class '" . $migrationClass . "' created for '" . $db . "'.");
         }
-
-        $class .= uniqid();
-        Migrator::create($class, $location . '/database/migrations/' . $database);
-        $this->console->write("Migration class '" . $class . "' created for '" . $database . "'.");
     }
 
     /**
@@ -63,38 +70,48 @@ class MigrationController extends AbstractController
      */
     public function run($steps = 1, $database = 'default')
     {
+        $location  = getcwd();
+        $databases = [];
+        $dbModel   = new Model\Database();
+
+        if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else if (null === $database) {
+            $databases = ['default'];
+        }
+
         if (null === $steps) {
             $steps = 1;
         }
-        if (null === $database) {
-            $database = 'default';
-        }
-
-        $location = getcwd();
-        $dbModel  = new Model\Database();
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
                 'The database configuration was not found.', Console::BOLD_RED
             ));
-        } else if (!file_exists($location . '/database/migrations/' . $database)) {
-            $this->console->write($this->console->colorize(
-                "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
-            ));
         } else {
-            $this->console->write("Running database migration for '" . $database . "'...");
+            foreach ($databases as $db) {
+                if (!file_exists($location . '/database/migrations/' . $db)) {
+                    $this->console->write($this->console->colorize(
+                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                    ));
+                } else {
+                    $this->console->write("Running database migration for '" . $db . "'...");
 
-            $dbConfig = include $location . '/app/config/database.php';
-            if (!isset($dbConfig[$database])) {
-                $this->console->write($this->console->colorize(
-                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
-                ));
-            } else {
-                $db = $dbModel->createAdapter($dbConfig[$database]);
-                $migrator = new Migrator($db, $location . '/database/migrations/' . $database);
-                $migrator->run($steps);
-                $this->console->write();
-                $this->console->write('Done!');
+                    $dbConfig = include $location . '/app/config/database.php';
+                    if (!isset($dbConfig[$db])) {
+                        $this->console->write($this->console->colorize(
+                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        ));
+                    } else {
+                        $db = $dbModel->createAdapter($dbConfig[$db]);
+                        $migrator = new Migrator($db, $location . '/database/migrations/' . $db);
+                        $migrator->run($steps);
+                        $this->console->write();
+                        $this->console->write('Done!');
+                    }
+                }
             }
         }
     }
@@ -108,38 +125,48 @@ class MigrationController extends AbstractController
      */
     public function rollback($steps = 1, $database = 'default')
     {
+        $location  = getcwd();
+        $databases = [];
+        $dbModel   = new Model\Database();
+
+        if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else if (null === $database) {
+            $databases = ['default'];
+        }
+
         if (null === $steps) {
             $steps = 1;
         }
-        if (null === $database) {
-            $database = 'default';
-        }
-
-        $location = getcwd();
-        $dbModel  = new Model\Database();
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
                 'The database configuration was not found.', Console::BOLD_RED
             ));
-        } else if (!file_exists($location . '/database/migrations/' . $database)) {
-            $this->console->write($this->console->colorize(
-                "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
-            ));
         } else {
-            $this->console->write("Rolling back database migration for '" . $database . "'...");
+            foreach ($databases as $db) {
+                if (!file_exists($location . '/database/migrations/' . $db)) {
+                    $this->console->write($this->console->colorize(
+                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                    ));
+                } else {
+                    $this->console->write("Rolling back database migration for '" . $db . "'...");
 
-            $dbConfig = include $location . '/app/config/database.php';
-            if (!isset($dbConfig[$database])) {
-                $this->console->write($this->console->colorize(
-                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
-                ));
-            } else {
-                $db       = $dbModel->createAdapter($dbConfig[$database]);
-                $migrator = new Migrator($db, $location . '/database/migrations/' . $database);
-                $migrator->rollback($steps);
-                $this->console->write();
-                $this->console->write('Done!');
+                    $dbConfig = include $location . '/app/config/database.php';
+                    if (!isset($dbConfig[$db])) {
+                        $this->console->write($this->console->colorize(
+                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        ));
+                    } else {
+                        $db       = $dbModel->createAdapter($dbConfig[$db]);
+                        $migrator = new Migrator($db, $location . '/database/migrations/' . $db);
+                        $migrator->rollback($steps);
+                        $this->console->write();
+                        $this->console->write('Done!');
+                    }
+                }
             }
         }
     }
@@ -152,35 +179,44 @@ class MigrationController extends AbstractController
      */
     public function reset($database = 'default')
     {
-        if (null === $database) {
-            $database = 'default';
-        }
+        $location  = getcwd();
+        $databases = [];
+        $dbModel   = new Model\Database();
 
-        $location = getcwd();
-        $dbModel  = new Model\Database();
+        if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else if (null === $database) {
+            $databases = ['default'];
+        }
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
                 'The database configuration was not found.', Console::BOLD_RED
             ));
-        } else if (!file_exists($location . '/database/migrations/' . $database)) {
-            $this->console->write($this->console->colorize(
-                "The database migration folder was not found for '" . $database . "'.", Console::BOLD_RED
-            ));
         } else {
-            $this->console->write("Resetting the database for '" . $database . "'...");
+            foreach ($databases as $db) {
+                if (!file_exists($location . '/database/migrations/' . $db)) {
+                    $this->console->write($this->console->colorize(
+                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                    ));
+                } else {
+                    $this->console->write("Resetting the database for '" . $db . "'...");
 
-            $dbConfig = include $location . '/app/config/database.php';
-            if (!isset($dbConfig[$database])) {
-                $this->console->write($this->console->colorize(
-                    "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
-                ));
-            } else {
-                $db       = $dbModel->createAdapter($dbConfig[$database]);
-                $migrator = new Migrator($db, $location . '/database/migrations/' . $database);
-                $migrator->rollbackAll();
-                $this->console->write();
-                $this->console->write('Done!');
+                    $dbConfig = include $location . '/app/config/database.php';
+                    if (!isset($dbConfig[$db])) {
+                        $this->console->write($this->console->colorize(
+                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        ));
+                    } else {
+                        $db       = $dbModel->createAdapter($dbConfig[$db]);
+                        $migrator = new Migrator($db, $location . '/database/migrations/' . $db);
+                        $migrator->rollbackAll();
+                        $this->console->write();
+                        $this->console->write('Done!');
+                    }
+                }
             }
         }
     }
