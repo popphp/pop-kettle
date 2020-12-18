@@ -49,7 +49,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
      */
     public function redirect($url, $code = 302, $version = '1.1')
     {
-        \Pop\Http\Response::redirect($url, $code, $version);
+        \Pop\Http\Server\Response::redirect($url, $code, $version);
         exit();
     }
 

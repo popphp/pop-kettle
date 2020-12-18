@@ -54,7 +54,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     public function error($code = 404, $message = null)
     {
         if (null === $message) {
-            $message = \Pop\Http\Response::getMessageFromCode($code);
+            $message = \Pop\Http\Server\Response::getMessageFromCode($code);
         }
 
         $responseBody = json_encode(['code' => $code, 'message' => $message], JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL;
