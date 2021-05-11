@@ -107,7 +107,7 @@ class Database extends AbstractModel
         }
 
         if (($dbInterface == 'Sqlite') || ($dbType == 'sqlite')) {
-            $dbName     = $console->prompt('DB Name: ');
+            $dbName     = $console->prompt('DB Name: ', NULL, TRUE);
             $sqliteFile = $dbName . ((strpos($dbName, '.sqlite') === false) ? '.sqlite' : '');
             $sqliteFile = str_replace(' ', '_', $sqliteFile);
 
@@ -123,10 +123,10 @@ class Database extends AbstractModel
             $dbCheck = false;
             while ($dbCheck !== true) {
                 $dbName     = ($database != 'default') ?
-                    $console->prompt('DB Name: [' . $database .']') : $console->prompt('DB Name: ');
-                $dbUser     = $console->prompt('DB User: ');
-                $dbPass     = $console->prompt('DB Password: ');
-                $dbHost     = $console->prompt('DB Host: [localhost] ');
+                    $console->prompt('DB Name: [' . $database .']') : $console->prompt('DB Name: ', NULL, TRUE);
+                $dbUser     = $console->prompt('DB User: ', NULL, TRUE);
+                $dbPass     = $console->prompt('DB Password: ', NULL, TRUE);
+                $dbHost     = $console->prompt('DB Host: [localhost] ', NULL, TRUE);
 
                 if (($dbName == '') && ($database != 'default')) {
                     $dbName = $database;
