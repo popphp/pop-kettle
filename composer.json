@@ -10,12 +10,12 @@
         }
     ],
     "require": {
-        "php": ">=7.3.0",
-        "popphp/popcorn": "^3.4.0",
-        "popphp/pop-code": "^4.1.0",
-        "popphp/pop-console": "^3.2.0",
-        "popphp/pop-db": "^5.3.0",
-        "popphp/pop-dir": "^3.2.0"
+        "php": ">=7.4.0",
+        "popphp/popcorn": "^3.4.1",
+        "popphp/pop-code": "^4.1.1",
+        "popphp/pop-console": "^3.2.1",
+        "popphp/pop-db": "^5.3.4",
+        "popphp/pop-dir": "^3.2.1"
     },
     "autoload" : {
         "psr-4": {
