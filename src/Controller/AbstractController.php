@@ -24,7 +24,7 @@ use Pop\Console\Console;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.1
+ * @version    1.6.2
  */
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
