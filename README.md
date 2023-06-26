@@ -57,6 +57,7 @@ by using the `db` and `migrate` commands. If you don't pass anything in the opti
 ./kettle migrate:create <class> [<database>]        Create new database migration class
 ./kettle migrate:run [<steps>] [<database>]         Perform forward database migration
 ./kettle migrate:rollback [<steps>] [<database>]    Perform backward database migration
+./kettle migrate:point [<id>] [<database>]          Point current to a specific migration, without running
 ./kettle migrate:reset [<database>]                 Perform complete rollback of the database
 ```
 

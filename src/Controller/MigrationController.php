@@ -175,6 +175,66 @@ class MigrationController extends AbstractController
     }
 
     /**
+     * Point command
+     *
+     * @param  mixed  $id
+     * @param  string $database
+     * @return void
+     */
+    public function point($id = 'latest', $database = 'default')
+    {
+        $location = getcwd();
+
+        if (null === $id) {
+            $id = 'latest';
+        }
+        if (null === $database) {
+            $database = 'default';
+        }
+
+        if (!file_exists($location . '/database/migrations/' . $database)) {
+            $this->console->write($this->console->colorize(
+                "The database '" . $database . "' does not exist in the migration folder.", Console::BOLD_RED
+            ));
+        } else {
+            $ids = array_map(function($value) {
+                    return substr($value, 0, strpos($value, '_'));
+                },
+                array_values(array_filter(scandir($location . '/database/migrations/' . $database), function ($value){
+                    if (($value != '.') && ($value != '..') && ($value != '.current') && ($value != '.empty') && (stripos($value, '_') !== false)) {
+                        return $value;
+                    }
+                })
+            ));
+
+            if (!empty($ids) && is_array($ids)) {
+                sort($ids, SORT_NUMERIC);
+            }
+
+            if (empty($ids)) {
+                $this->console->write($this->console->colorize(
+                    "No migrations for the database '" . $database . "' were found.", Console::BOLD_RED
+                ));
+            } else if (is_numeric($id)) {
+                if (!in_array($id, $ids)) {
+                    $this->console->write($this->console->colorize(
+                        "The migration '" . $id . "' for the database '" . $database . "' does not exist.", Console::BOLD_RED
+                    ));
+                } else {
+                    file_put_contents($location . '/database/migrations/' . $database . '/.current', $id);
+                    $this->console->write();
+                    $this->console->write('Done!');
+                }
+            } else if ($id == 'latest') {
+                $id = end($ids);
+                file_put_contents($location . '/database/migrations/' . $database . '/.current', $id);
+                $this->console->write();
+                $this->console->write('Done!');
+            }
+        }
+    }
+
+    /**
      * Reset command
      *
      * @param  string $database
