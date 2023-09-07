@@ -45,6 +45,10 @@ class ApplicationController extends AbstractController
         $dbModel  = new Model\Database();
         $location = getcwd();
 
+        if (empty($namespace)) {
+            $namespace = 'MyApp';
+        }
+
         $appModel->init($location, $namespace, $web, $api, $cli);
 
         $this->console->write("Installing files for '" . $namespace ."'...");

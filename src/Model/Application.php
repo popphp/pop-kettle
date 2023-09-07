@@ -364,8 +364,8 @@ class Application extends AbstractModel
     {
         if (file_exists($location . DIRECTORY_SEPARATOR . 'app') &&
             file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php')) {
-            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php');
+            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php')) {
+            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php');
             $namespace    = substr($fileContents, (strpos($fileContents, 'namespace ') + 10));
             $namespace    = substr($namespace, 0, strpos($namespace, ';'));
 

@@ -29,7 +29,7 @@ class Module extends \Pop\Module\Module
 {
 
     /**
-     * Module name
+     * Application name
      * @var string
      */
     protected $name = 'pop-kettle';

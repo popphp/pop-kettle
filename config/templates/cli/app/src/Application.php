@@ -2,57 +2,46 @@
 
 namespace MyApp;
 
-use Pop\Application;
 use Pop\Db;
 use Pop\Console\Console;
-use Pop\Http\Server\Request;
-use Pop\Http\Server\Response;
-use Pop\View\View;
 
-class Module extends \Pop\Module\Module
+class Application extends \Pop\Application
 {
 
     /**
-     * Module name
+     * Application name
      * @var string
      */
     protected $name = 'myapp';
 
     /**
-     * Register module
-     *
-     * @param  Application $application
-     * @return Module
+     * Application version
+     * @var string
      */
-    public function register(Application $application)
+    protected $version = '1.0.0';
+
+    /**
+     * Load application
+     *
+     * @return Application
+     */
+    public function load()
     {
-        parent::register($application);
-
-        if (isset($this->application->config['database'])) {
-            $this->initDb($this->application->config['database']);
+        if (isset($this->config['database'])) {
+            $this->initDb($this->config['database']);
         }
 
-        if (null !== $this->application->router()) {
-            if ($this->application->router()->isHttp()) {
-                $this->application->router()->addControllerParams(
-                    '*', [
-                        'application' => $this->application,
-                        'request'     => new Request(),
-                        'response'    => new Response()
-                    ]
-                );
-            } else if ($this->application->router()->isCli()) {
-                $this->application->router()->addControllerParams(
-                    '*', [
-                        'application' => $this->application,
-                        'console'     => new Console(120, '    ')
-                    ]
-                );
-
-                $this->application->on('app.route.pre', function() { echo PHP_EOL; })
-                     ->on('app.dispatch.post', function() { echo PHP_EOL; });
-            }
+        if (null !== $this->router()) {
+            $this->router()->addControllerParams(
+                '*', [
+                    'application' => $this,
+                    'console'     => new Console(120, '    ')
+                ]
+            );
         }
+
+        $this->on('app.route.pre', function() { echo PHP_EOL; })
+             ->on('app.dispatch.post', function() { echo PHP_EOL; });
 
         return $this;
     }
@@ -83,7 +72,7 @@ class Module extends \Pop\Module\Module
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
-            $this->application->services()->set('database', [
+            $this->services()->set('database', [
                 'call'   => 'Pop\Db\Db::connect',
                 'params' => [
                     'adapter' => $adapter,
@@ -91,27 +80,10 @@ class Module extends \Pop\Module\Module
                 ]
             ]);
 
-            if ($this->application->services()->isAvailable('database')) {
-                Db\Record::setDb($this->application->services['database']);
+            if ($this->services()->isAvailable('database')) {
+                Db\Record::setDb($this->services['database']);
             }
         }
-    }
-
-    /**
-     * HTTP error handler method
-     *
-     * @param  \Exception $exception
-     * @return void
-     */
-    public function httpError(\Exception $exception)
-    {
-        $response      = new Response();
-        $view          = new View(__DIR__ . '/../view/exception.phtml');
-        $view->title   = 'Exception';
-        $view->message = $exception->getMessage();
-        $response->setBody($view->render());
-        $response->send(500);
-        exit();
     }
 
     /**

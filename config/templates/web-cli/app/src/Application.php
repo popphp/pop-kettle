@@ -2,62 +2,56 @@
 
 namespace MyApp;
 
-use Pop\Application;
 use Pop\Db;
 use Pop\Console\Console;
 use Pop\Http\Server\Request;
 use Pop\Http\Server\Response;
 use Pop\View\View;
 
-class Module extends \Pop\Module\Module
+class Application extends \Pop\Application
 {
 
     /**
-     * Module name
+     * Application name
      * @var string
      */
     protected $name = 'myapp';
 
     /**
-     * Module version
+     * Application version
      * @var string
      */
     protected $version = '1.0.0';
 
     /**
-     * Register module
+     * Load application
      *
-     * @param  Application $application
-     * @return Module
+     * @return Application
      */
-    public function register(Application $application)
+    public function load()
     {
-        parent::register($application);
-
-        if (isset($this->application->config['database'])) {
-            $this->initDb($this->application->config['database']);
+        if (isset($this->config['database'])) {
+            $this->initDb($this->config['database']);
         }
 
-        if (null !== $this->application->router()) {
-            if ($this->application->router()->isHttp()) {
-                $this->application->router()->addControllerParams(
+        if (null !== $this->router()) {
+            if ($this->router()->isHttp()) {
+                $this->router()->addControllerParams(
                     '*', [
-                        'application' => $this->application,
+                        'application' => $this,
                         'request'     => new Request(),
                         'response'    => new Response()
                     ]
                 );
-
-                $this->application->on('app.dispatch.pre', 'MyApp\Http\Api\Event\Options::send', 1);
-            } else if ($this->application->router()->isCli()) {
-                $this->application->router()->addControllerParams(
+            } else if ($this->router()->isCli()) {
+                $this->router()->addControllerParams(
                     '*', [
-                        'application' => $this->application,
+                        'application' => $this,
                         'console'     => new Console(120, '    ')
                     ]
                 );
 
-                $this->application->on('app.route.pre', function() { echo PHP_EOL; })
+                $this->on('app.route.pre', function() { echo PHP_EOL; })
                      ->on('app.dispatch.post', function() { echo PHP_EOL; });
             }
         }
@@ -91,7 +85,7 @@ class Module extends \Pop\Module\Module
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
-            $this->application->services()->set('database', [
+            $this->services()->set('database', [
                 'call'   => 'Pop\Db\Db::connect',
                 'params' => [
                     'adapter' => $adapter,
@@ -99,8 +93,8 @@ class Module extends \Pop\Module\Module
                 ]
             ]);
 
-            if ($this->application->services()->isAvailable('database')) {
-                Db\Record::setDb($this->application->services['database']);
+            if ($this->services()->isAvailable('database')) {
+                Db\Record::setDb($this->services['database']);
             }
         }
     }
@@ -113,19 +107,11 @@ class Module extends \Pop\Module\Module
      */
     public function httpError(\Exception $exception)
     {
-        $request  = new Request();
-        $response = new Response();
-        $message  = $exception->getMessage();
-        if (stripos($request->getHeader('Accept')->getValue(), 'text/html') !== false) {
-            $view          = new View(__DIR__ . '/../view/exception.phtml');
-            $view->title   = 'Exception';
-            $view->message = $message;
-            $response->addHeader('Content-Type', 'text/html');
-            $response->setBody($view->render());
-        } else {
-            $response->addHeaders($this->config['http_options_headers']);
-            $response->setBody(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT) . PHP_EOL);
-        }
+        $response      = new Response();
+        $view          = new View(__DIR__ . '/../view/exception.phtml');
+        $view->title   = 'Exception';
+        $view->message = $exception->getMessage();
+        $response->setBody($view->render());
         $response->send(500);
         exit();
     }

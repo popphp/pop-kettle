@@ -2,46 +2,46 @@
 
 namespace MyApp;
 
-use Pop\Application;
 use Pop\Db;
 use Pop\Http\Server\Request;
 use Pop\Http\Server\Response;
 use Pop\View\View;
 
-class Module extends \Pop\Module\Module
+class Application extends \Pop\Application
 {
 
     /**
-     * Module name
+     * Application name
      * @var string
      */
     protected $name = 'myapp';
 
     /**
-     * Register module
-     *
-     * @param  Application $application
-     * @return Module
+     * Application version
+     * @var string
      */
-    public function register(Application $application)
-    {
-        parent::register($application);
+    protected $version = '1.0.0';
 
-        if (isset($this->application->config['database'])) {
-            $this->initDb($this->application->config['database']);
+    /**
+     * Load application
+     *
+     * @return Application
+     */
+    public function load()
+    {
+        if (isset($this->config['database'])) {
+            $this->initDb($this->config['database']);
         }
 
-        if (null !== $this->application->router()) {
-            $this->application->router()->addControllerParams(
+        if (null !== $this->router()) {
+            $this->router()->addControllerParams(
                 '*', [
-                    'application' => $this->application,
+                    'application' => $this,
                     'request'     => new Request(),
                     'response'    => new Response()
                 ]
             );
         }
-
-        $this->application->on('app.dispatch.pre', 'MyApp\Http\Api\Event\Options::send', 1);
 
         return $this;
     }
@@ -72,7 +72,7 @@ class Module extends \Pop\Module\Module
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
-            $this->application->services()->set('database', [
+            $this->services()->set('database', [
                 'call'   => 'Pop\Db\Db::connect',
                 'params' => [
                     'adapter' => $adapter,
@@ -80,8 +80,8 @@ class Module extends \Pop\Module\Module
                 ]
             ]);
 
-            if ($this->application->services()->isAvailable('database')) {
-                Db\Record::setDb($this->application->services['database']);
+            if ($this->services()->isAvailable('database')) {
+                Db\Record::setDb($this->services['database']);
             }
         }
     }
@@ -94,19 +94,11 @@ class Module extends \Pop\Module\Module
      */
     public function httpError(\Exception $exception)
     {
-        $request  = new Request();
-        $response = new Response();
-        $message  = $exception->getMessage();
-        if (stripos($request->getHeader('Accept')->getValue(), 'text/html') !== false) {
-            $view          = new View(__DIR__ . '/../view/exception.phtml');
-            $view->title   = 'Exception';
-            $view->message = $message;
-            $response->addHeader('Content-Type', 'text/html');
-            $response->setBody($view->render());
-        } else {
-            $response->addHeaders($this->config['http_options_headers']);
-            $response->setBody(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT) . PHP_EOL);
-        }
+        $response      = new Response();
+        $view          = new View(__DIR__ . '/../view/exception.phtml');
+        $view->title   = 'Exception';
+        $view->message = $exception->getMessage();
+        $response->setBody($view->render());
         $response->send(500);
         exit();
     }

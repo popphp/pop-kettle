@@ -3,14 +3,18 @@
 return [
     'routes' => [
         'get' => [
+            '/api[/]' => [
+                'controller' => 'TestApp\Http\Api\Controller\IndexController',
+                'action'     => 'index'
+            ],
             '[/]' => [
-                'controller' => 'MyApp\Http\Controller\IndexController',
+                'controller' => 'TestApp\Http\Web\Controller\IndexController',
                 'action'     => 'index'
             ],
         ],
         '*' => [
             '*'    => [
-                'controller' => 'MyApp\Http\Controller\IndexController',
+                'controller' => 'TestApp\Http\Controller\IndexController',
                 'action'     => 'error'
             ]
         ]
