@@ -11,22 +11,22 @@ class Application extends \Popcorn\Pop
 
     /**
      * Application name
-     * @var string
+     * @var ?string
      */
-    protected $name = 'myapp';
+    protected ?string $name = 'myapp';
 
     /**
      * Application version
-     * @var string
+     * @var ?string
      */
-    protected $version = '1.0.0';
+    protected ?string $version = '1.0.0';
 
     /**
      * Load application
      *
      * @return Application
      */
-    public function load()
+    public function load(): Application
     {
         if (isset($this->config['database'])) {
             $this->initDb($this->config['database']);
@@ -54,7 +54,7 @@ class Application extends \Popcorn\Pop
      * @throws \Pop\Db\Adapter\Exception
      * @return void
      */
-    protected function initDb($database)
+    protected function initDb(array $database): void
     {
         if (isset($database['default']) &&
             !empty($database['default']['adapter']) && !empty($database['default']['database'])) {
@@ -93,7 +93,7 @@ class Application extends \Popcorn\Pop
      * @param  \Exception $exception
      * @return void
      */
-    public function httpError(\Exception $exception)
+    public function httpError(\Exception $exception): void
     {
         $response = new Response();
         $response->addHeader('Content-Type', 'application/json');

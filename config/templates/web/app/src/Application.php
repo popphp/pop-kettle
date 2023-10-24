@@ -53,7 +53,7 @@ class Application extends \Pop\Application
      * @throws \Pop\Db\Adapter\Exception
      * @return void
      */
-    protected function initDb($database)
+    protected function initDb(array $database): void
     {
         if (isset($database['default']) &&
             !empty($database['default']['adapter']) && !empty($database['default']['database'])) {
@@ -92,7 +92,7 @@ class Application extends \Pop\Application
      * @param  \Exception $exception
      * @return void
      */
-    public function httpError(\Exception $exception)
+    public function httpError(\Exception $exception): void
     {
         $response      = new Response();
         $view          = new View(__DIR__ . '/../view/exception.phtml');

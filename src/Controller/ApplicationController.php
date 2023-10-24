@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Kettle\Model;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class ApplicationController extends AbstractController
 {
@@ -35,7 +35,7 @@ class ApplicationController extends AbstractController
      * @param  array  $options
      * @return void
      */
-    public function init($namespace, array $options = [])
+    public function init(string $namespace, array $options = []): void
     {
         $web = (isset($options['web']));
         $api = (isset($options['api']));
@@ -73,7 +73,7 @@ class ApplicationController extends AbstractController
      * @param  array  $options
      * @return void
      */
-    public function createController($ctrl, array $options = [])
+    public function createController(string $ctrl, array $options = []): void
     {
         $web = (isset($options['web']));
         $api = (isset($options['api']));
@@ -96,7 +96,7 @@ class ApplicationController extends AbstractController
      * @param  string $model
      * @return void
      */
-    public function createModel($model)
+    public function createModel(string $model): void
     {
         $appModel   = new Model\Application();
         $modelClass = $appModel->createModel($model, getcwd());
@@ -112,7 +112,7 @@ class ApplicationController extends AbstractController
      * @param  string $view
      * @return void
      */
-    public function createView($view)
+    public function createView(string $view): void
     {
         $appModel = new Model\Application();
         $viewFile = $appModel->createView($view, getcwd());

@@ -32,7 +32,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     /**
      * Determine if the controller has a view
      *
-     * @return boolean
+     * @return bool
      */
     public function hasView()
     {

@@ -11,21 +11,21 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
     /**
      * Application object
-     * @var Application
+     * @var ?Application
      */
-    protected $application = null;
+    protected ?Application $application = null;
 
     /**
      * Request object
-     * @var Request
+     * @var ?Request
      */
-    protected $request = null;
+    protected ?Request $request = null;
 
     /**
      * Response object
-     * @var Response
+     * @var ?Response
      */
-    protected $response = null;
+    protected ?Response $response = null;
 
     /**
      * Constructor for the controller
@@ -46,7 +46,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Application
      */
-    public function application()
+    public function application(): Application
     {
         return $this->application;
     }
@@ -56,7 +56,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Request
      */
-    public function request()
+    public function request(): Request
     {
         return $this->request;
     }
@@ -66,7 +66,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Response
      */
-    public function response()
+    public function response(): Response
     {
         return $this->response;
     }
@@ -74,13 +74,13 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Send response
      *
-     * @param  int    $code
-     * @param  string $body
-     * @param  string $message
-     * @param  array  $headers
+     * @param  int     $code
+     * @param  mixed   $body
+     * @param  ?string $message
+     * @param  ?array  $headers
      * @return void
      */
-    public function send($code = 200, $body = null, $message = null, array $headers = null)
+    public function send(int $code = 200, mixed $body = null, ?string $message = null, ?array $headers = null): void
     {
         $this->response->setCode($code);
 
@@ -100,12 +100,12 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Send options
      *
-     * @param  int    $code
-     * @param  string $message
-     * @param  array  $headers
+     * @param  int     $code
+     * @param  ?string $message
+     * @param  ?array  $headers
      * @return void
      */
-    public function sendOptions($code = 200, $message = null, array $headers = null)
+    public function sendOptions(int $code = 200, ?string $message = null, ?array $headers = null): void
     {
         $this->send($code, '', $message, $headers);
     }
@@ -113,11 +113,11 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Send error
      *
-     * @param  int    $code
-     * @param  string $message
+     * @param  int     $code
+     * @param  ?string $message
      * @return void
      */
-    public function error($code = 404, $message = null)
+    public function error(int $code = 404, ?string $message = null): void
     {
         if (null === $message) {
             $message = Response::getMessageFromCode($code);

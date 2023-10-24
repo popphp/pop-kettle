@@ -13,7 +13,7 @@ class Options
      * @param  Application $application
      * @return void
      */
-    public static function send(Application $application)
+    public static function send(Application $application): void
     {
         if (($application->router()->hasController()) && (null !== $application->router()->getController()->request()) &&
             ($application->router()->getController()->request()->isOptions())) {

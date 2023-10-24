@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -22,9 +22,9 @@ use Pop\Kettle\Exception;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class ConsoleController extends AbstractController
 {
@@ -36,7 +36,7 @@ class ConsoleController extends AbstractController
      * @throws Exception
      * @return void
      */
-    public function serve($options = [])
+    public function serve(array $options = []): void
     {
         if (!function_exists('exec')) {
             throw new Exception("Error: The `exec()` function is not available. It is required to run PHP's web server.");
@@ -60,7 +60,7 @@ class ConsoleController extends AbstractController
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $this->console->help();
     }
@@ -70,7 +70,7 @@ class ConsoleController extends AbstractController
      *
      * @return void
      */
-    public function version()
+    public function version(): void
     {
         $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Module::VERSION, Console::BOLD_GREEN));
     }

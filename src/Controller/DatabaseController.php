@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -22,9 +22,9 @@ use Pop\Kettle\Model;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class DatabaseController extends AbstractController
 {
@@ -35,9 +35,9 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function install($database = 'default')
+    public function install(string $database = 'default'): void
     {
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 
@@ -53,9 +53,9 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function config($database = 'default')
+    public function config(string $database = 'default'): void
     {
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 
@@ -69,12 +69,12 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function test($database = 'default')
+    public function test(string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -116,11 +116,11 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function createSeed($class, $database = 'default')
+    public function createSeed(string $class, string $database = 'default'): void
     {
         $location = getcwd();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -135,7 +135,7 @@ class DatabaseController extends AbstractController
                 mkdir($location . '/database/seeds/' . $db);
             }
 
-            if (substr(strtolower($class), -4) == '.sql') {
+            if (str_ends_with(strtolower($class), '.sql')) {
                 touch($location . '/database/seeds/' . $db .'/' . $class);
                 $this->console->write("Database seed file '" . $class . "' created for '" . $db . "'.");
             } else {
@@ -155,9 +155,9 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function seed($database = 'default')
+    public function seed(string $database = 'default'): void
     {
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 
@@ -171,9 +171,9 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function reset($database = 'default')
+    public function reset(string $database = 'default'): void
     {
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 
@@ -187,9 +187,9 @@ class DatabaseController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function clear($database = 'default')
+    public function clear(string $database = 'default'): void
     {
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 

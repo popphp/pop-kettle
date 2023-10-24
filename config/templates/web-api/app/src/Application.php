@@ -55,7 +55,7 @@ class Application extends \Popcorn\Pop
      * @throws \Pop\Db\Adapter\Exception
      * @return void
      */
-    protected function initDb($database)
+    protected function initDb(array $database): void
     {
         if (isset($database['default']) &&
             !empty($database['default']['adapter']) && !empty($database['default']['database'])) {
@@ -94,7 +94,7 @@ class Application extends \Popcorn\Pop
      * @param  \Exception $exception
      * @return void
      */
-    public function httpError(\Exception $exception)
+    public function httpError(\Exception $exception): void
     {
         $request  = new Request();
         $response = new Response();

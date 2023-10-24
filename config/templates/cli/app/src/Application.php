@@ -53,7 +53,7 @@ class Application extends \Pop\Application
      * @throws \Pop\Db\Adapter\Exception
      * @return void
      */
-    protected function initDb($database)
+    protected function initDb(array $database): void
     {
         if (isset($database['default']) &&
             !empty($database['default']['adapter']) && !empty($database['default']['database'])) {

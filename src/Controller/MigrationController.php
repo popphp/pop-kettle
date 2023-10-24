@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -23,9 +23,9 @@ use Pop\Kettle\Model;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class MigrationController extends AbstractController
 {
@@ -37,11 +37,11 @@ class MigrationController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function create($class, $database = 'default')
+    public function create(string $class, string $database = 'default'): void
     {
         $location  = getcwd();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -69,12 +69,12 @@ class MigrationController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function run($steps = 1, $database = 'default')
+    public function run(int $steps = 1, string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -84,7 +84,7 @@ class MigrationController extends AbstractController
             $databases = [$database];
         }
 
-        if (null === $steps) {
+        if ($steps === null) {
             $steps = 1;
         }
 
@@ -125,12 +125,12 @@ class MigrationController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function rollback($steps = 1, $database = 'default')
+    public function rollback(int $steps = 1, string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -140,7 +140,7 @@ class MigrationController extends AbstractController
             $databases = [$database];
         }
 
-        if (null === $steps) {
+        if ($steps === null) {
             $steps = 1;
         }
 
@@ -181,14 +181,14 @@ class MigrationController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function point($id = 'latest', $database = 'default')
+    public function point(mixed $id = 'latest', string $database = 'default'): void
     {
         $location = getcwd();
 
-        if (null === $id) {
+        if ($id === null) {
             $id = 'latest';
         }
-        if (null === $database) {
+        if ($database === null) {
             $database = 'default';
         }
 
@@ -240,12 +240,12 @@ class MigrationController extends AbstractController
      * @param  string $database
      * @return void
      */
-    public function reset($database = 'default')
+    public function reset(string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
 
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {

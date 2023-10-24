@@ -10,7 +10,7 @@ class IndexController extends AbstractController
      *
      * @return void
      */
-    public function index()
+    public function index(): void
     {
         $this->send(200, ['message' => 'Index page']);
     }

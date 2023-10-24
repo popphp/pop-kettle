@@ -32,7 +32,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     /**
      * Determine if the controller has a view
      *
-     * @return boolean
+     * @return bool
      */
     public function hasView()
     {
@@ -64,7 +64,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
      */
     public function send($code = 200, $body = null, $message = null, array $headers = null)
     {
-        if ((null === $body) && (null !== $this->view)) {
+        if (($body === null) && (null !== $this->view)) {
             $body = $this->view->render();
         }
 

@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -15,6 +15,7 @@ namespace Pop\Kettle\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
+use Pop\Kettle\Exception;
 
 /**
  * Console abstract controller class
@@ -22,24 +23,24 @@ use Pop\Console\Console;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
 
     /**
      * Application object
-     * @var Application
+     * @var ?Application
      */
-    protected $application = null;
+    protected ?Application $application = null;
 
     /**
      * Console object
-     * @var \Pop\Console\Console
+     * @var ?Console
      */
-    protected $console = null;
+    protected ?Console $console = null;
 
     /**
      * Constructor for the controller
@@ -61,7 +62,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Application
      */
-    public function application()
+    public function application(): Application
     {
         return $this->application;
     }
@@ -71,7 +72,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Console
      */
-    public function console()
+    public function console(): Console
     {
         return $this->console;
     }
@@ -79,12 +80,12 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Default error action method
      *
-     * @throws \Pop\Kettle\Exception
+     * @throws Exception
      * @return void
      */
-    public function error()
+    public function error(): void
     {
-        throw new \Pop\Kettle\Exception('Invalid Command');
+        throw new Exception('Invalid Command');
     }
 
 }

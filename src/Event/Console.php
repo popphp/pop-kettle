@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/pop-bootstrap
  * @author     Nick Sagona, III <nick@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Kettle\Event;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class Console
 {
@@ -31,7 +31,7 @@ class Console
      *
      * @return void
      */
-    public static function header()
+    public static function header(): void
     {
         echo PHP_EOL . '    Pop Kettle' . PHP_EOL;
         echo '    ==========' . PHP_EOL . PHP_EOL;
@@ -42,7 +42,7 @@ class Console
      *
      * @return void
      */
-    public static function footer()
+    public static function footer(): void
     {
         echo PHP_EOL;
     }

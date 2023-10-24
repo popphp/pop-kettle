@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -14,6 +14,7 @@
 namespace Pop\Kettle;
 
 use Pop\Application;
+use Pop\Console\Console;
 
 /**
  * Main module class
@@ -21,9 +22,9 @@ use Pop\Application;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class Module extends \Pop\Module\Module
 {
@@ -32,28 +33,28 @@ class Module extends \Pop\Module\Module
      * Application name
      * @var string
      */
-    protected $name = 'pop-kettle';
+    protected string $name = 'pop-kettle';
 
     /**
      * Application version
      * @var string
      */
-    const VERSION = '1.6.2';
+    const VERSION = '2.0.0';
 
     /**
      * Register module
      *
      * @param  Application $application
      */
-    public function register(Application $application)
+    public function register(Application $application): void
     {
         parent::register($application);
 
-        if (null !== $this->application->router()) {
+        if ($this->application->router() !== null) {
             $this->application->router()->addControllerParams(
                 '*', [
                     'application' => $this->application,
-                    'console'     => new \Pop\Console\Console(120, '    ')
+                    'console'     => new Console(120, '    ')
                 ]
             );
         }
@@ -68,7 +69,7 @@ class Module extends \Pop\Module\Module
      * @param  \Exception $exception
      * @return void
      */
-    public function cliError(\Exception $exception)
+    public function cliError(\Exception $exception): void
     {
         $message = strip_tags($exception->getMessage());
 

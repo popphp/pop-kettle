@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -24,9 +24,9 @@ use Pop\Kettle\Exception;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class Application extends AbstractModel
 {
@@ -34,13 +34,16 @@ class Application extends AbstractModel
     /**
      * Init application
      *
-     * @param string  $location
-     * @param string  $namespace
-     * @param boolean $web
-     * @param boolean $api
-     * @param boolean $cli
+     * @param string $location
+     * @param string $namespace
+     * @param ?bool  $web
+     * @param ?bool  $api
+     * @param ?bool  $cli
+     * @return void
      */
-    public function init($location, $namespace, $web = null, $api = null, $cli = null)
+    public function init(
+        string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null
+    ): void
     {
         // API-only
         if (($api === true) && empty($web) && empty($cli)) {
@@ -71,11 +74,12 @@ class Application extends AbstractModel
     /**
      * Install application files
      *
-     * @param string  $install
-     * @param string  $location
-     * @param string  $namespace
+     * @param  string $install
+     * @param  string $location
+     * @param  string $namespace
+     * @return void
      */
-    public function install($install, $location, $namespace)
+    public function install(string $install, string $location, string $namespace): void
     {
         $script = strtolower(str_replace('\\', '-', $namespace));
         $path   = realpath(__DIR__ . '/../../config/templates/' . $install);
@@ -128,13 +132,15 @@ class Application extends AbstractModel
      *
      * @param  string $ctrl
      * @param  string $location
-     * @param  boolean $web
-     * @param  boolean $api
-     * @param  boolean $cli
+     * @param  ?bool  $web
+     * @param  ?bool  $api
+     * @param  ?bool  $cli
      * @throws Exception
      * @return array
      */
-    public function createController($ctrl, $location, $web = null, $api = null, $cli = null)
+    public function createController(
+        string $ctrl, string $location, ?bool $web = null, ?bool $api = null, ?bool $cli = null
+    ): array
     {
         $namespace = $this->getNamespace($location);
 
@@ -285,7 +291,7 @@ class Application extends AbstractModel
      * @param  string $location
      * @return string
      */
-    public function createModel($model, $location)
+    public function createModel(string $model, string $location): string
     {
         $namespace   = $this->getNamespace($location) . "\\Model";
         $modelFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Model';
@@ -326,7 +332,7 @@ class Application extends AbstractModel
      * @param  string $location
      * @return string
      */
-    public function createView($view, $location)
+    public function createView(string $view, string $location): string
     {
         $origView   = $view;
         $viewFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view';
@@ -360,7 +366,7 @@ class Application extends AbstractModel
      * @throws Exception
      * @return string
      */
-    public function getNamespace($location)
+    public function getNamespace(string $location): string
     {
         if (file_exists($location . DIRECTORY_SEPARATOR . 'app') &&
             file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src') &&

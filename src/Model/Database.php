@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -27,9 +27,9 @@ use Pop\Model\AbstractModel;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    1.6.2
+ * @version    2.0.0
  */
 class Database extends AbstractModel
 {
@@ -42,7 +42,7 @@ class Database extends AbstractModel
      * @param  string  $database
      * @return Database
      */
-    public function configure(Console $console, $location, $database = 'default')
+    public function configure(Console $console, string $location, string $database = 'default'): Database
     {
         $console->write();
 
@@ -98,7 +98,7 @@ class Database extends AbstractModel
         $sqliteDb  = null;
 
         // If PDO
-        if (strpos($dbAdapter, 'pdo') !== false) {
+        if (str_contains($dbAdapter, 'pdo')) {
             $dbInterface = 'Pdo';
             $dbType      = substr($dbAdapter, (strpos($dbAdapter, '_') + 1));
         } else {
@@ -108,7 +108,7 @@ class Database extends AbstractModel
 
         if (($dbInterface == 'Sqlite') || ($dbType == 'sqlite')) {
             $dbName     = $console->prompt('DB Name: ', null, true);
-            $sqliteFile = $dbName . ((strpos($dbName, '.sqlite') === false) ? '.sqlite' : '');
+            $sqliteFile = $dbName . ((!str_contains($dbName, '.sqlite')) ? '.sqlite' : '');
             $sqliteFile = str_replace(' ', '_', $sqliteFile);
 
             chmod($location . '/database', 0755);
@@ -205,7 +205,7 @@ class Database extends AbstractModel
         $code->setIndent(0);
         $code->writeToFile($location . DIRECTORY_SEPARATOR . '/app/config/database.php');
 
-        if (null !== $sqliteDb) {
+        if ($sqliteDb !== null) {
             file_put_contents(
                 $location . DIRECTORY_SEPARATOR . '/app/config/database.php',
                 str_replace(
@@ -223,9 +223,9 @@ class Database extends AbstractModel
      * Test database connection
      *
      * @param  array  $database
-     * @return string|boolean
+     * @return string|bool
      */
-    public function test(array $database)
+    public function test(array $database): string|bool
     {
         return Db::check($database['adapter'], array_diff_key($database, array_flip(['adapter'])));
     }
@@ -238,9 +238,9 @@ class Database extends AbstractModel
      * @param  string  $database
      * @return Database
      */
-    public function seed(Console $console, $location, $database = 'default')
+    public function seed(Console $console, string $location, string $database = 'default'): Database
     {
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -303,7 +303,7 @@ class Database extends AbstractModel
      * @param  array $database
      * @return Adapter\AbstractAdapter
      */
-    public function createAdapter(array $database)
+    public function createAdapter(array $database): Adapter\AbstractAdapter
     {
         return Db::connect($database['adapter'], array_diff_key($database, array_flip(['adapter'])));
     }
@@ -315,7 +315,7 @@ class Database extends AbstractModel
      * @param  string $sqlFile
      * @return Database
      */
-    public function install(array $database, $sqlFile)
+    public function install(array $database, string $sqlFile): Database
     {
         Db::executeSqlFile($sqlFile, $database['adapter'], array_diff_key($database, array_flip(['adapter'])));
 
@@ -330,9 +330,9 @@ class Database extends AbstractModel
      * @param  string  $database
      * @return Database
      */
-    public function reset(Console $console, $location, $database = 'default')
+    public function reset(Console $console, string $location, string $database = 'default'): Database
     {
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
@@ -407,9 +407,9 @@ class Database extends AbstractModel
      * @param  string  $database
      * @return Database
      */
-    public function clear(Console $console, $location, $database = 'default')
+    public function clear(Console $console, string $location, string $database = 'default'): Database
     {
-        if (null === $database) {
+        if ($database === null) {
             $databases = ['default'];
         } else if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {

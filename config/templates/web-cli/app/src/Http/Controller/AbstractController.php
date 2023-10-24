@@ -97,7 +97,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Determine if the controller has a view
      *
-     * @return boolean
+     * @return bool
      */
     public function hasView()
     {
