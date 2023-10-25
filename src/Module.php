@@ -31,9 +31,9 @@ class Module extends \Pop\Module\Module
 
     /**
      * Application name
-     * @var string
+     * @var ?string
      */
-    protected string $name = 'pop-kettle';
+    protected ?string $name = 'pop-kettle';
 
     /**
      * Application version
@@ -44,9 +44,10 @@ class Module extends \Pop\Module\Module
     /**
      * Register module
      *
-     * @param  Application $application
+     * @param Application $application
+     * @return static
      */
-    public function register(Application $application): void
+    public function register(Application $application): static
     {
         parent::register($application);
 
@@ -61,6 +62,8 @@ class Module extends \Pop\Module\Module
 
         $this->application->on('app.route.pre', 'Pop\Kettle\Event\Console::header')
              ->on('app.dispatch.post', 'Pop\Kettle\Event\Console::footer');
+
+        return $this;
     }
 
     /**
