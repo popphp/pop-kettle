@@ -65,11 +65,11 @@ class MigrationController extends AbstractController
     /**
      * Run command
      *
-     * @param  ?int    $steps
-     * @param  ?string $database
+     * @param  int|string|null $steps
+     * @param  ?string         $database
      * @return void
      */
-    public function run(?int $steps = 1, ?string $database = 'default'): void
+    public function run(int|string|null $steps = 1, ?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
@@ -121,11 +121,11 @@ class MigrationController extends AbstractController
     /**
      * Rollback command
      *
-     * @param  ?int    $steps
-     * @param  ?string $database
+     * @param  int|string|null $steps
+     * @param  ?string         $database
      * @return void
      */
-    public function rollback(?int $steps = 1, ?string $database = 'default'): void
+    public function rollback(int|string|null $steps = 1, ?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
@@ -196,16 +196,16 @@ class MigrationController extends AbstractController
             $this->console->write($this->console->colorize(
                 "The database '" . $database . "' does not exist in the migration folder.", Console::BOLD_RED
             ));
-        } else {
+        } else if (file_exists($location . '/database/migrations/' . $database . '/.current')) {
             $ids = array_map(function($value) {
-                    return substr($value, 0, strpos($value, '_'));
-                },
+                return substr($value, 0, strpos($value, '_'));
+            },
                 array_values(array_filter(scandir($location . '/database/migrations/' . $database), function ($value){
-                    if (($value != '.') && ($value != '..') && ($value != '.current') && ($value != '.empty') && (stripos($value, '_') !== false)) {
-                        return $value;
-                    }
-                })
-            ));
+                        if (($value != '.') && ($value != '..') && ($value != '.current') && ($value != '.empty') && (stripos($value, '_') !== false)) {
+                            return $value;
+                        }
+                    })
+                ));
 
             if (!empty($ids) && is_array($ids)) {
                 sort($ids, SORT_NUMERIC);
