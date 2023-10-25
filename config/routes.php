@@ -34,12 +34,12 @@ return [
     'db:export [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'export',
-        'help'       => 'Export the database to a file'
+        'help'       => 'Export the database to a file (MySQL only)'
     ],
     'db:import <file> [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'import',
-        'help'       => 'Import the database from a file'
+        'help'       => 'Import the database from a file (MySQL only)'
     ],
     'db:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
