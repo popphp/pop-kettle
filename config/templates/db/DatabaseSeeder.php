@@ -6,7 +6,7 @@ use Pop\Db\Sql\Seeder\AbstractSeeder;
 class DatabaseSeeder extends AbstractSeeder
 {
 
-    public function run(AbstractAdapter $db)
+    public function run(AbstractAdapter $db): void
     {
 
     }

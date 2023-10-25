@@ -12,28 +12,28 @@ class Application extends \Popcorn\Pop
 
     /**
      * Application name
-     * @var string
+     * @var ?string
      */
-    protected $name = 'myapp';
+    protected ?string $name = 'myapp';
 
     /**
      * Application version
-     * @var string
+     * @var ?string
      */
-    protected $version = '1.0.0';
+    protected ?string $version = '1.0.0';
 
     /**
      * Load application
      *
      * @return Application
      */
-    public function load()
+    public function load(): Application
     {
         if (isset($this->config['database'])) {
             $this->initDb($this->config['database']);
         }
 
-        if (null !== $this->router()) {
+        if ($this->router() !== null) {
             $this->router()->addControllerParams(
                 '*', [
                     'application' => $this,

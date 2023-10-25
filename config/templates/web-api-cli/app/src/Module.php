@@ -14,15 +14,15 @@ class Module extends \Pop\Module\Module
 
     /**
      * Module name
-     * @var string
+     * @var ?string
      */
-    protected $name = 'myapp';
+    protected ?string $name = 'myapp';
 
     /**
      * Module version
-     * @var string
+     * @var ?string
      */
-    protected $version = '1.0.0';
+    protected ?string $version = '1.0.0';
 
     /**
      * Register module
@@ -30,7 +30,7 @@ class Module extends \Pop\Module\Module
      * @param  Application $application
      * @return Module
      */
-    public function register(Application $application)
+    public function register(Application $application): Module
     {
         parent::register($application);
 
@@ -38,7 +38,7 @@ class Module extends \Pop\Module\Module
             $this->initDb($this->application->config['database']);
         }
 
-        if (null !== $this->application->router()) {
+        if ($this->application->router() !== null) {
             if ($this->application->router()->isHttp()) {
                 $this->application->router()->addControllerParams(
                     '*', [
@@ -136,7 +136,7 @@ class Module extends \Pop\Module\Module
      * @param  \Exception $exception
      * @return void
      */
-    public function cliError(\Exception $exception)
+    public function cliError(\Exception $exception): void
     {
         $message = strip_tags($exception->getMessage());
 

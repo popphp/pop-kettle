@@ -36,7 +36,7 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
      */
     public function hasView()
     {
-        return (null !== $this->view);
+        return ($this->view !== null);
     }
 
     /**
@@ -64,11 +64,11 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
      */
     public function send($code = 200, $body = null, $message = null, array $headers = null)
     {
-        if (($body === null) && (null !== $this->view)) {
+        if (($body === null) && ($this->view !== null)) {
             $body = $this->view->render();
         }
 
-        if (null !== $message) {
+        if ($message !== null) {
             $this->response->setMessage($message);
         }
 

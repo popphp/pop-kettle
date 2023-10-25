@@ -32,7 +32,7 @@ class Application extends \Popcorn\Pop
             $this->initDb($this->config['database']);
         }
 
-        if (null !== $this->router()) {
+        if ($this->router() !== null) {
             $this->router()->addControllerParams(
                 '*', [
                     'application' => $this,

@@ -10,15 +10,15 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
     /**
      * Application object
-     * @var Application
+     * @var ?Application
      */
-    protected $application = null;
+    protected ?Application $application = null;
 
     /**
      * Console object
-     * @var Console
+     * @var ?Console
      */
-    protected $console = null;
+    protected ?Console $console = null;
 
     /**
      * Constructor for the controller
@@ -40,7 +40,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Application
      */
-    public function application()
+    public function application(): Application
     {
         return $this->application;
     }
@@ -50,7 +50,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Console
      */
-    public function console()
+    public function console(): Console
     {
         return $this->console;
     }
@@ -61,7 +61,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      * @throws \MyApp\Exception
      * @return void
      */
-    public function error()
+    public function error(): void
     {
         throw new \MyApp\Exception('Invalid Command');
     }

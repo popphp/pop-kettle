@@ -12,7 +12,7 @@ class IndexController extends AbstractController
      *
      * @return void
      */
-    public function error()
+    public function error(): void
     {
         $response = ['code' => 404, 'message' => 'Not Found'];
 

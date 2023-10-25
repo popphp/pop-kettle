@@ -15,7 +15,7 @@ class Options
      */
     public static function send(Application $application): void
     {
-        if (($application->router()->hasController()) && (null !== $application->router()->getController()->request()) &&
+        if (($application->router()->hasController()) && ($application->router()->getController()->request() !== null) &&
             ($application->router()->getController()->request()->isOptions())) {
             $application->router()->getController()->sendOptions();
             exit();

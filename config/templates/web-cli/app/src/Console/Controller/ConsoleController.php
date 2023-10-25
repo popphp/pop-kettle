@@ -10,7 +10,7 @@ class ConsoleController extends AbstractController
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $this->console->help();
     }

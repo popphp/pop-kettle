@@ -10,7 +10,7 @@ class IndexController extends AbstractController
      *
      * @return void
      */
-    public function index()
+    public function index(): void
     {
         $this->prepareView('index.phtml');
         $this->view->title = 'Index';
@@ -22,7 +22,7 @@ class IndexController extends AbstractController
      *
      * @return void
      */
-    public function error()
+    public function error(): void
     {
         $this->prepareView('error.phtml');
         $this->view->title = 'Error';

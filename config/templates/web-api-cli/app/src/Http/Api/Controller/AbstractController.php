@@ -8,23 +8,23 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     /**
      * Send response
      *
-     * @param  int    $code
-     * @param  string $body
-     * @param  string $message
-     * @param  array  $headers
+     * @param  int     $code
+     * @param  mixed   $body
+     * @param  ?string $message
+     * @param  ?array  $headers
      * @return void
      */
-    public function send($code = 200, $body = null, $message = null, array $headers = null)
+    public function send(int $code = 200, mixed $body = null, ?string $message = null, ?array $headers = null): void
     {
         $this->response->setCode($code);
 
-        if (null !== $message) {
+        if ($message !== null) {
             $this->response->setMessage($message);
         }
 
         $this->response->addHeaders($this->application->config['http_options_headers']);
 
-        $responseBody = (($this->response->getHeader('Content-Type')->getValue() == 'application/json') && (null !== $body) && ($body != '')) ?
+        $responseBody = (($this->response->getHeader('Content-Type')->getValue() == 'application/json') && ($body  !== null) && ($body != '')) ?
             json_encode($body, JSON_PRETTY_PRINT) : $body;
 
         $this->response->setBody($responseBody . PHP_EOL . PHP_EOL);
@@ -34,12 +34,12 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     /**
      * Send options
      *
-     * @param  int    $code
-     * @param  string $message
-     * @param  array  $headers
+     * @param  int     $code
+     * @param  ?string $message
+     * @param  ?array  $headers
      * @return void
      */
-    public function sendOptions($code = 200, $message = null, array $headers = null)
+    public function sendOptions(int $code = 200, ?string $message = null, ?array $headers = null): void
     {
         $this->send($code, '', $message, $headers);
     }
@@ -47,13 +47,13 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
     /**
      * Send error
      *
-     * @param  int    $code
-     * @param  string $message
+     * @param  int     $code
+     * @param  ?string $message
      * @return void
      */
-    public function error($code = 404, $message = null)
+    public function error(int $code = 404, ?string $message = null): void
     {
-        if (null === $message) {
+        if ($message === null) {
             $message = \Pop\Http\Server\Response::getMessageFromCode($code);
         }
 

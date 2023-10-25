@@ -84,13 +84,13 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     {
         $this->response->setCode($code);
 
-        if (null !== $message) {
+        if ($message !== null) {
             $this->response->setMessage($message);
         }
 
         $this->response->addHeaders($this->application->config['http_options_headers']);
 
-        $responseBody = (($this->response->getHeader('Content-Type')->getValue() == 'application/json') && (null !== $body) && ($body != '')) ?
+        $responseBody = (($this->response->getHeader('Content-Type')->getValue() == 'application/json') && ($body  !== null) && ($body != '')) ?
             json_encode($body, JSON_PRETTY_PRINT) : $body;
 
         $this->response->setBody($responseBody . PHP_EOL . PHP_EOL);
@@ -119,7 +119,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      */
     public function error(int $code = 404, ?string $message = null): void
     {
-        if (null === $message) {
+        if ($message === null) {
             $message = Response::getMessageFromCode($code);
         }
 

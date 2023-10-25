@@ -11,21 +11,21 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
     /**
      * Application object
-     * @var Application
+     * @var ?Application
      */
-    protected $application = null;
+    protected ?Application $application = null;
 
     /**
      * Request object
-     * @var Request
+     * @var ?Request
      */
-    protected $request = null;
+    protected ?Request $request = null;
 
     /**
      * Response object
-     * @var Response
+     * @var ?Response
      */
-    protected $response = null;
+    protected ?Response $response = null;
 
     /**
      * Constructor for the controller
@@ -46,7 +46,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Application
      */
-    public function application()
+    public function application(): Application
     {
         return $this->application;
     }
@@ -56,7 +56,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Request
      */
-    public function request()
+    public function request(): Request
     {
         return $this->request;
     }
@@ -66,7 +66,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return Response
      */
-    public function response()
+    public function response(): Response
     {
         return $this->response;
     }
