@@ -33,11 +33,11 @@ class MigrationController extends AbstractController
     /**
      * Create command
      *
-     * @param  string $class
-     * @param  string $database
+     * @param  string  $class
+     * @param  ?string $database
      * @return void
      */
-    public function create(string $class, string $database = 'default'): void
+    public function create(string $class, ?string $database = 'default'): void
     {
         $location  = getcwd();
 
@@ -65,11 +65,11 @@ class MigrationController extends AbstractController
     /**
      * Run command
      *
-     * @param  int    $steps
-     * @param  string $database
+     * @param  ?int    $steps
+     * @param  ?string $database
      * @return void
      */
-    public function run(int $steps = 1, string $database = 'default'): void
+    public function run(?int $steps = 1, ?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
@@ -121,11 +121,11 @@ class MigrationController extends AbstractController
     /**
      * Rollback command
      *
-     * @param  int    $steps
-     * @param  string $database
+     * @param  ?int    $steps
+     * @param  ?string $database
      * @return void
      */
-    public function rollback(int $steps = 1, string $database = 'default'): void
+    public function rollback(?int $steps = 1, ?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
@@ -177,11 +177,11 @@ class MigrationController extends AbstractController
     /**
      * Point command
      *
-     * @param  mixed  $id
-     * @param  string $database
+     * @param  mixed   $id
+     * @param  ?string $database
      * @return void
      */
-    public function point(mixed $id = 'latest', string $database = 'default'): void
+    public function point(mixed $id = 'latest', ?string $database = 'default'): void
     {
         $location = getcwd();
 
@@ -237,10 +237,10 @@ class MigrationController extends AbstractController
     /**
      * Reset command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function reset(string $database = 'default'): void
+    public function reset(?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();

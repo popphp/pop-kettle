@@ -63,11 +63,17 @@ class Database extends AbstractModel
         if (!file_exists($location . '/database/seeds')) {
             mkdir($location . '/database/seeds');
         }
+        if (!file_exists($location . '/database/snapshots')) {
+            mkdir($location . '/database/snapshots');
+        }
         if (!file_exists($location . '/database/migrations/' . $database)) {
             mkdir($location . '/database/migrations/' . $database);
         }
         if (!file_exists($location . '/database/seeds/' . $database)) {
             mkdir($location . '/database/seeds/' . $database);
+        }
+        if (!file_exists($location . '/database/snapshots/' . $database)) {
+            mkdir($location . '/database/snapshots/' . $database);
         }
 
         foreach ($dbAdapters as $adapter => $result) {
@@ -290,6 +296,112 @@ class Database extends AbstractModel
                         $console->write('Done!');
                         $console->write();
                     }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Export database
+     *
+     * @param  Console $console
+     * @param  string  $location
+     * @param  string  $database
+     * @return Database
+     */
+    public function export(Console $console, string $location, string $database = 'default'): Database
+    {
+        if ($database === null) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else {
+            $databases = [$database];
+        }
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $console->write($console->colorize(
+                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+            ));
+        } else {
+            $timestamp = date('YmdHis');
+            $dbConfig  = include $location . '/app/config/database.php';
+            foreach ($databases as $db) {
+                if (!isset($dbConfig[$db])) {
+                    $console->write($console->colorize(
+                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                    ));
+                } else if (($dbConfig[$db]['adapter'] != 'mysql') && ($dbConfig[$db]['type'] != 'mysql')) {
+                    $console->write($console->colorize(
+                        "The database is not MySQL. It must be MySQL to perform the export", Console::BOLD_RED
+                    ));
+                } else {
+                    $sqlFile = $dbConfig[$db]['database'] . '-' . $timestamp . '.sql';
+                    $command = 'mysqldump --user=' . $dbConfig[$db]['username'] . ' --password=' .
+                        $dbConfig[$db]['password'] . ' --host=' . $dbConfig[$db]['host'] . ' ' .
+                        $dbConfig[$db]['database'] . ' > ' . $location . '/database/snapshots/' . $db . '/' .$sqlFile;
+
+                    exec($command);
+
+                    $console->write($sqlFile . ' Exported!');
+                    $console->write();
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Import database
+     *
+     * @param  Console $console
+     * @param  string  $location
+     * @param  string  $importFile
+     * @param  string  $database
+     * @return Database
+     */
+    public function import(Console $console, string $location, string $importFile, string $database = 'default'): Database
+    {
+        if ($database === null) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else {
+            $databases = [$database];
+        }
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $console->write($console->colorize(
+                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+            ));
+        } else {
+            $sqlImportFile = $location . '/' . $importFile;
+            $dbConfig   = include $location . '/app/config/database.php';
+            foreach ($databases as $db) {
+                if (!isset($dbConfig[$db])) {
+                    $console->write($console->colorize(
+                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                    ));
+                } else if (($dbConfig[$db]['adapter'] != 'mysql') && ($dbConfig[$db]['type'] != 'mysql')) {
+                    $console->write($console->colorize(
+                        "The database is not MySQL. It must be MySQL to perform the export", Console::BOLD_RED
+                    ));
+                } else {
+                    $command = 'mysql --user=' . $dbConfig[$db]['username'] . ' --password=' .
+                        $dbConfig[$db]['password'] . ' --host=' . $dbConfig[$db]['host'] . ' ' .
+                        $dbConfig[$db]['database'] . ' < ' . $sqlImportFile;
+
+                    exec($command);
+
+                    $console->write($importFile . ' Imported!');
+                    $console->write();
                 }
             }
         }

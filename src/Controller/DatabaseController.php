@@ -32,10 +32,10 @@ class DatabaseController extends AbstractController
     /**
      * Install command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function install(string $database = 'default'): void
+    public function install(?string $database = 'default'): void
     {
         if ($database === null) {
             $database = 'default';
@@ -50,10 +50,10 @@ class DatabaseController extends AbstractController
     /**
      * Config command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function config(string $database = 'default'): void
+    public function config(?string $database = 'default'): void
     {
         if ($database === null) {
             $database = 'default';
@@ -66,10 +66,10 @@ class DatabaseController extends AbstractController
     /**
      * Test command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function test(string $database = 'default'): void
+    public function test(?string $database = 'default'): void
     {
         $location = getcwd();
         $dbModel  = new Model\Database();
@@ -112,11 +112,11 @@ class DatabaseController extends AbstractController
     /**
      * Create seed command
      *
-     * @param  string $class
-     * @param  string $database
+     * @param  string  $class
+     * @param  ?string $database
      * @return void
      */
-    public function createSeed(string $class, string $database = 'default'): void
+    public function createSeed(string $class, ?string $database = 'default'): void
     {
         $location = getcwd();
 
@@ -152,10 +152,10 @@ class DatabaseController extends AbstractController
     /**
      * Seed command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function seed(string $database = 'default'): void
+    public function seed(?string $database = 'default'): void
     {
         if ($database === null) {
             $database = 'default';
@@ -166,12 +166,84 @@ class DatabaseController extends AbstractController
     }
 
     /**
-     * Reset command
+     * Export command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function reset(string $database = 'default'): void
+    public function export(?string $database = 'default'): void
+    {
+        if ($database === null) {
+            $database = 'default';
+        }
+
+        $disabled = explode(',', ini_get('disable_functions'));
+
+        if (in_array('exec', $disabled)) {
+            $this->console->write($this->console->colorize(
+                "The 'exec' function is not enabled.", Console::BOLD_RED
+            ));
+        } else {
+            $output = null;
+            exec('which mysqldump', $output);
+
+            if (empty($output)) {
+                $this->console->write($this->console->colorize(
+                    "The 'mysqldump' program was not found.", Console::BOLD_RED
+                ));
+            } else {
+                $dbModel  = new Model\Database();
+                $dbModel->export($this->console, getcwd(), $database);
+            }
+        }
+    }
+
+    /**
+     * Import command
+     *
+     * @param  string  $importFile
+     * @param  ?string $database
+     * @return void
+     */
+    public function import(string $importFile,  ?string $database = 'default'): void
+    {
+        if ($database === null) {
+            $database = 'default';
+        }
+
+        $location = getcwd();
+        $disabled = explode(',', ini_get('disable_functions'));
+
+        if (in_array('exec', $disabled)) {
+            $this->console->write($this->console->colorize(
+                "The 'exec' function is not enabled.", Console::BOLD_RED
+            ));
+        } else if (!file_exists($location . '/' . $importFile)) {
+            $this->console->write($this->console->colorize(
+                'The database import file was not found.', Console::BOLD_RED
+            ));
+        } else {
+            $output = null;
+            exec('which mysql', $output);
+
+            if (empty($output)) {
+                $this->console->write($this->console->colorize(
+                    "The 'mysql' program was not found.", Console::BOLD_RED
+                ));
+            } else {
+                $dbModel  = new Model\Database();
+                $dbModel->import($this->console, getcwd(), $importFile, $database);
+            }
+        }
+    }
+
+    /**
+     * Reset command
+     *
+     * @param  ?string $database
+     * @return void
+     */
+    public function reset(?string $database = 'default'): void
     {
         if ($database === null) {
             $database = 'default';
@@ -184,10 +256,10 @@ class DatabaseController extends AbstractController
     /**
      * Clear command
      *
-     * @param  string $database
+     * @param  ?string $database
      * @return void
      */
-    public function clear(string $database = 'default'): void
+    public function clear(?string $database = 'default'): void
     {
         if ($database === null) {
             $database = 'default';

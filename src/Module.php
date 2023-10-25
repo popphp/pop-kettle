@@ -15,6 +15,7 @@ namespace Pop\Kettle;
 
 use Pop\Application;
 use Pop\Console\Console;
+use Pop\Db;
 
 /**
  * Main module class
@@ -50,6 +51,11 @@ class Module extends \Pop\Module\Module
     public function register(Application $application): static
     {
         parent::register($application);
+
+        $dir = getcwd();
+        if (file_exists($dir . '/app/config/database.php')) {
+            $this->initDb(include $dir . '/app/config/database.php');
+        }
 
         if ($this->application->router() !== null) {
             $this->application->router()->addControllerParams(
@@ -90,6 +96,36 @@ class Module extends \Pop\Module\Module
         echo PHP_EOL;
 
         exit(127);
+    }
+
+    /**
+     * Initialize database service
+     *
+     * @param  array $database
+     * @throws \Pop\Db\Adapter\Exception
+     * @return void
+     */
+    protected function initDb(array $database): void
+    {
+        if (isset($database['default']) &&
+            !empty($database['default']['adapter']) && !empty($database['default']['database'])) {
+            $adapter = $database['default']['adapter'];
+            $options = [
+                'database' => $database['default']['database'],
+                'username' => $database['default']['username'] ?? null,
+                'password' => $database['default']['password'] ?? null,
+                'host'     => $database['default']['host'] ?? null,
+                'type'     => $database['default']['type'] ?? null
+            ];
+
+            $check = Db\Db::check($adapter, $options);
+
+            if ($check !== true) {
+                throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
+            }
+
+            Db\Record::setDb(Db\Db::connect($adapter, $options));
+        }
     }
 
 }

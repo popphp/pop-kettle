@@ -31,6 +31,16 @@ return [
         'action'     => 'seed',
         'help'       => 'Seed the database with data'
     ],
+    'db:export [<database>]' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'export',
+        'help'       => 'Export the database to a file'
+    ],
+    'db:import <file> [<database>]' => [
+        'controller' => 'Pop\Kettle\Controller\DatabaseController',
+        'action'     => 'import',
+        'help'       => 'Import the database from a file'
+    ],
     'db:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'reset',
