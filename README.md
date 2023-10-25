@@ -52,13 +52,15 @@ by using the `db` and `migrate` commands. If you don't pass anything in the opti
 ./kettle db:test [<database>]                       Test the database connection
 ./kettle db:create-seed <seed> [<database>]         Create database seed class
 ./kettle db:seed [<database>]                       Seed the database with data
+./kettle db:export [<database>]                     Export the database to a file (MySQL only)
+./kettle db:import <file> [<database>]              Import the database from a file (MySQL only)
 ./kettle db:reset [<database>]                      Reset the database with original seed data
 ./kettle db:clear [<database>]                      Clear the database of all data
 
 ./kettle migrate:create <class> [<database>]        Create new database migration class
 ./kettle migrate:run [<steps>] [<database>]         Perform forward database migration
 ./kettle migrate:rollback [<steps>] [<database>]    Perform backward database migration
-./kettle migrate:point [<id>] [<database>]          Point current to a specific migration, without running
+./kettle migrate:point [<id>] [<database>]          Point to specific migration, w/o running (.current file only)'
 ./kettle migrate:reset [<database>]                 Perform complete rollback of the database
 ```
 
@@ -204,6 +206,35 @@ And you can rollback the migration and drop the `users` table by running the com
 
 ```bash
 $ ./kettle migrate:rollback
+```
+
+##### Migration State Storage
+
+The migration state storage can be stored in one of two places. By default, it will store in a file called
+`.current` in the database migration folder, for example:
+
+```text
+/database/migrations/default/.current
+```
+
+However, it can also be stored in the database itself in a separate migrations table. This requires a file
+called `.table` to be placed in the database migration folder:
+
+```text
+/database/migrations/default/.table
+```
+
+The contents of the table will be the table class name for the migrations table in the database, for example:
+
+```text
+MyApp\Table\Migrations
+```
+
+If you choose to use this method, `kettle` will have to be made aware of the namespace and location of your
+application files. Add that to the autoloader in the `kettle.inc.php` file:
+
+```php
+$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
 ```
 
 ### Creating Application Files

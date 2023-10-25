@@ -69,7 +69,7 @@ return [
     'migrate:point [<id>] [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'point',
-        'help'       => 'Point current to a specific migration, without running'
+        'help'       => 'Point to specific migration, w/o running (.current file only)'
     ],
     'migrate:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
