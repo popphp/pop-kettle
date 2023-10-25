@@ -21,9 +21,9 @@ class Module extends \Pop\Module\Module
      * Register module
      *
      * @param  Application $application
-     * @return Module
+     * @return static
      */
-    public function register(Application $application): Module
+    public function register(Application $application): static
     {
         parent::register($application);
 
