@@ -18,7 +18,7 @@ class IndexController extends AbstractController
 
         if (stripos($this->request->getHeader('Accept')->getValue(), 'text/html') !== false) {
             $view        = new View(__DIR__ . '/../../../view/error.phtml', $response);
-            $view->title = $response['code'] . ' ' .$response['message'];
+            $view->title = $response['code'] . ' ' . $response['message'];
             $this->response->addHeader('Content-Type', 'text/html');
             $this->response->setBody($view->render());
         } else {
