@@ -82,13 +82,14 @@ initialized, then the default route for the API application becomes to `/api`. T
 application will deliver a placeholder HTML page and the API application will deliver
 a placeholder JSON response. 
 
+The web/API application's front controller will be located in `public/index.php` and
+the main script for the CLI application will be located in `script/myapp` (named
+according to the provided <namespace> value.)
+
 After the application files and folders are copied over, you will be asked if you
 would like to configure a database. Follow those steps to configure a database and
 create the database configuration file.
 
-The web/API application's front controller will be located in `public/index.php` and
-the main script for the CLI application will be located in `script/myapp` (named
-according to the provided <namespace> value.)
 
 [Top](#pop-kettle)
 
