@@ -107,6 +107,10 @@ and its namespace. You can access the autoloader here and register your applicat
 $autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
 ```
 
+**Note:** If the `kettle.inc.php` file isn't available, you can copy it from the
+`vendor/popphp/pop-kettle/kettle` location to the main project folder (adjacent to
+the `vendor` folder.)
+
 [Top](#pop-kettle)
 
 ### Managing the Database
