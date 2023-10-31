@@ -90,13 +90,12 @@ After the application files and folders are copied over, you will be asked if yo
 would like to configure a database. Follow those steps to configure a database and
 create the database configuration file.
 
-
 [Top](#pop-kettle)
 
 ### Kettle Include
 
 You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
-as a configuration file for anything additional that need to be wired up for your
+as a configuration file for anything additional that needs to be wired up for your
 application to work with kettle.
 
 For example, there may be an instance were `kettle` needs to be aware of your application
