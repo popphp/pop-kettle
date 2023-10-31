@@ -95,7 +95,9 @@ create the database configuration file.
 
 You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
 as a configuration file for anything additional that needs to be wired up for your
-application to work with kettle.
+application to work with kettle. The file is included right after the creation of the
+`$autoloader` and `$app` objects, so you will have direct access to them. In this file
+you can add any additional runtime requirements, configurations or routes.
 
 For example, there may be an instance were `kettle` needs to be aware of your application
 and its namespace. You can access the autoloader here and register your application with
