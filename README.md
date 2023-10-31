@@ -22,7 +22,7 @@ Overview
 
 `pop-kettle` is a CLI-helper application for the Pop PHP Framework that allows
 a user to quickly build the scaffolding for an application. It is included with
-the Pop PHP Framework as the command `kettle` within the main directory.
+the Pop PHP Framework as the command `kettle` within the main project directory.
 
 [Top](#pop-kettle)
 
@@ -30,10 +30,10 @@ Install
 -------
 
 The `pop-kettle` component comes automatically installed when you install the full Pop PHP
-Framework. However, if you need to install it manually you can place a copy of the `kettle`
+Framework. You should see the `kettle` script in the main project directory. However, if
+that is not the case and you need to install it manually, you can place a copy of the `kettle`
 script from the `vendor/popphp/pop-kettle/kettle` location in the main project folder
 (adjacent to the `vendor` folder):
-
 
 ```bash
 $ cp vendor/popphp/popphp-framework/kettle .
