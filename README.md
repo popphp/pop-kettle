@@ -15,7 +15,6 @@ pop-kettle
 * [Creating Application Files](#creating-application-files)
 * [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
-* [Hooking into Kettle](#hooking-into-kettle)
 * [Using on Windows](#using-on-Windows)
 
 Overview
@@ -360,15 +359,6 @@ route available to the CLI application is the `help` route:
 ```bash
 $ ./myapp help
 ```
-
-[Top](#pop-kettle)
-
-### Hooking into Kettle
-
-If you need to hook into the Kettle helper application, you can do that with the provided `kettle.inc.php`
-file. The file is included right after the creation of the `$app` object, so you will have access to the
-application object. In this file you can add any additional runtime requirements, configurations or routes
-directly to the Kettle helper application.
 
 [Top](#pop-kettle)
 
