@@ -1,22 +1,67 @@
 pop-kettle
 ==========
 
-OVERVIEW
+[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
+[![Join the chat at https://discord.gg/D9JBxPa5](https://media.popphp.org/img/discord.svg)](https://discord.gg/D9JBxPa5)
+
+* [Overview](#overview)
+* [Install](#install)
+* [Initializing an Application](#initializing-an-application)
+* [Managing the Database](#managing-the-database)
+    + [Seeding the Database](#seeding-the-database)
+    + [Database Migrations](#database-migrations)
+    + [Migration State Storage](#migration-state-storage)
+* [Creating Application Files](#creating-application-files)
+* [Running the Web Server](#running-the-web-server)
+* [Accessing the Application](#accessing-the-application)
+* [Hooking into Kettle](#hooking-into-kettle)
+* [Using on Windows](#using-on-Windows)
+
+Overview
 --------
 
 `pop-kettle` is a CLI-helper application for the Pop PHP Framework that allows
 a user to quickly build the scaffolding for an application. It is included with
 the Pop PHP Framework as the command `kettle` within the main directory.
 
-## BASIC USAGE
+[Top](#pop-kettle)
 
-* [Initializing an Application](#initializing-an-application)
-* [Managing the Database](#managing-the-database)
-* [Creating Application Files](#creating-application-files)
-* [Running the Web Server](#running-the-web-server)
-* [Accessing the Application](#accessing-the-application)
-* [Hooking into Kettle](#hooking-into-kettle)
-* [Using on Windows](#using-on-Windows)
+Install
+-------
+
+The `pop-kettle` component comes automatically installed when you install the full Pop PHP
+Framework. However, if you need to install it manually you can place a copy of the `kettle`
+script from the `vendor/popphp/pop-kettle/kettle` location in the main project folder
+(adjacent to the `vendor` folder):
+
+
+```bash
+$ cp vendor/popphp/popphp-framework/kettle .
+```
+Once you've copied the script over, you have to change the reference to the script's
+config file from:
+
+```php
+    $app = new Pop\Application(
+        $autoloader, include __DIR__ . '/config/app.console.php'
+    );
+```
+
+to
+
+```php
+    $app = new Pop\Application(
+        $autoloader, include __DIR__ . '/vendor/popphp/pop-kettle/config/app.console.php'
+    );
+```
+
+and make sure the newly copied `kettle` script is set to execute (755)
+
+```bash
+$ chmod 755 kettle
+```
+
+[Top](#pop-kettle)
 
 ### Initializing an Application
 
@@ -39,6 +84,8 @@ a placeholder JSON response.
 After the application files and folders are copied over, you will be asked if you
 would like to configure a database. Follow those steps to configure a database and
 create the database configuration file.
+
+[Top](#pop-kettle)
 
 ### Managing the Database
 
@@ -208,7 +255,7 @@ And you can rollback the migration and drop the `users` table by running the com
 $ ./kettle migrate:rollback
 ```
 
-##### Migration State Storage
+#### Migration State Storage
 
 The migration state storage can be stored in one of two places. By default, it will store in a file called
 `.current` in the database migration folder, for example:
@@ -239,6 +286,8 @@ that by adding it to the autoloader in the `kettle.inc.php` file:
 $autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
 ```
 
+[Top](#pop-kettle)
+
 ### Creating Application Files
 
 You can create skeleton application files with the `create` commands to assist you in wiring up various
@@ -253,6 +302,8 @@ MVC-based components, such as models, views and controllers:
 Once the respective class files or view scripts are created in the appropriate folders, you can then
 open them up and begin writing your application code. 
 
+[Top](#pop-kettle)
+
 ### Running the Web Server
 
 `pop-kettle` also provides a simple way to run PHP's built-in web-server, by running the command:
@@ -263,6 +314,8 @@ $ ./kettle serve [--host=] [--port=] [--folder=]
 
 This is for development environments only and it is strongly advised against using the built-in
 web server in a production environment in any way.
+
+[Top](#pop-kettle)
 
 ### Accessing the Application
 
@@ -285,12 +338,16 @@ route available to the CLI application is the `help` route:
 $ ./myapp help
 ```
 
+[Top](#pop-kettle)
+
 ### Hooking into Kettle
 
 If you need to hook into the Kettle helper application, you can do that with the provided `kettle.inc.php`
 file. The file is included right after the creation of the `$app` object, so you will have access to the
 application object. In this file you can add any additional runtime requirements, configurations or routes
 directly to the Kettle helper application.
+
+[Top](#pop-kettle)
 
 ### Using on Windows
 
