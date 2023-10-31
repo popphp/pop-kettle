@@ -84,7 +84,7 @@ a placeholder JSON response.
 
 The web/API application's front controller will be located in `public/index.php` and
 the main script for the CLI application will be located in `script/myapp` (named
-according to the provided <namespace> value.)
+according to the provided \<namespace\> value.)
 
 After the application files and folders are copied over, you will be asked if you
 would like to configure a database. Follow those steps to configure a database and
