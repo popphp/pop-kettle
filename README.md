@@ -7,6 +7,7 @@ pop-kettle
 * [Overview](#overview)
 * [Install](#install)
 * [Initializing an Application](#initializing-an-application)
+* [Kettle Include](#kettle-include)
 * [Managing the Database](#managing-the-database)
     + [Seeding the Database](#seeding-the-database)
     + [Database Migrations](#database-migrations)
@@ -88,6 +89,22 @@ create the database configuration file.
 The web/API application's front controller will be located in `public/index.php` and
 the main script for the CLI application will be located in `script/myapp` (named
 according to the provided <namespace> value.)
+
+[Top](#pop-kettle)
+
+### Kettle Include
+
+You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
+as a configuration file for anything additional that need to be wired up for your
+application to work with kettle.
+
+For example, there may be an instance were `kettle` needs to be aware of your application
+and its namespace. You can access the autoloader here and register your application with
+`kettle` in the `kettle.inc.php` file:
+
+```php
+$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
+```
 
 [Top](#pop-kettle)
 
@@ -289,6 +306,8 @@ that by adding it to the autoloader in the `kettle.inc.php` file:
 ```php
 $autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
 ```
+
+Reference [Kettle Include](#kettle-include) for more information.
 
 [Top](#pop-kettle)
 
