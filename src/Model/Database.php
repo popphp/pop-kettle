@@ -17,7 +17,7 @@ use Pop\Code\Generator;
 use Pop\Console\Console;
 use Pop\Db\Db;
 use Pop\Db\Adapter;
-use Pop\Db\Sql\Seeder\SeederInterface;
+use Pop\Db\Sql\Seeder;
 use Pop\Dir\Dir;
 use Pop\Model\AbstractModel;
 
@@ -274,25 +274,10 @@ class Database extends AbstractModel
                         ));
                     } else {
                         $dbAdapter = $this->createAdapter($dbConfig[$db]);
-                        $dir       = new Dir($location . '/database/seeds/' . $db, ['filesOnly' => true]);
-                        $seeds     = $dir->getFiles();
-
-                        sort($seeds);
-
                         $console->write("Running database seeds for '" . $db . "'...");
 
-                        foreach ($seeds as $seed) {
-                            if (stripos($seed, '.sql') !== false) {
-                                $this->install($dbConfig[$db], $location . '/database/seeds/' . $db . '/' . $seed);
-                            } else if (stripos($seed, '.php') !== false) {
-                                include $location . '/database/seeds/' . $db . '/' . $seed;
-                                $class  = str_replace('.php', '', $seed);
-                                $dbSeed = new $class();
-                                if ($dbSeed instanceof SeederInterface) {
-                                    $dbSeed->run($dbAdapter);
-                                }
-                            }
-                        }
+                        Seeder::run($dbAdapter, $location . '/database/seeds/' . $db);
+
                         $console->write('Done!');
                         $console->write();
                     }

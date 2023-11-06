@@ -15,6 +15,7 @@ namespace Pop\Kettle\Controller;
 
 use Pop\Console\Console;
 use Pop\Kettle\Model;
+use Pop\Db\Sql\Seeder;
 
 /**
  * Console database controller class
@@ -139,11 +140,7 @@ class DatabaseController extends AbstractController
                 touch($location . '/database/seeds/' . $db .'/' . $class);
                 $this->console->write("Database seed file '" . $class . "' created for '" . $db . "'.");
             } else {
-                $classContents = str_replace(
-                    'DatabaseSeeder', $class, file_get_contents(__DIR__ . '/../../config/templates/db/DatabaseSeeder.php')
-                );
-
-                file_put_contents($location . '/database/seeds/' . $db .'/' . $class . '.php', $classContents);
+                Seeder::create($class, $location . '/database/seeds/' . $db);
                 $this->console->write("Database seed class '" . $class . "' created for '" . $db . "'.");
             }
         }
