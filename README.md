@@ -140,15 +140,14 @@ by using the `db` and `migrate` commands. If you don't pass anything in the opti
 #### Seeding the Database
  
 You can seed the database with data in one of two ways. You can either utilize a
-SQL file with the extension `.sql` in the `/database/seeds/<database>` folder or you
-can write a seeder class using PHP. To get a seed started, you can run
+SQL file with the extension `.sql` in the `/database/seeds/<database>` folder, or you
+can write a seeder class using PHP. To create a seeder class, you can run:
 
 ```bash
 $ ./kettle db:create-seed <seed> [<database>]
 ```
 
-Where the `<seed>` is either the base class name of the seeder class that will be created, or
-the name of a SQL file (i.e., `seed.sql`) that will be populated later with raw SQL by the user.
+Where the `<seed>` is the base class name of the seeder class that will be created.
 The template seeder class will be copied to the `/database/seeds/<database>` folder:
 
 ```php
@@ -168,8 +167,7 @@ class MyFirstSeeder extends AbstractSeeder
 }
 ```
 
-From there, you can populate your SQL file with the raw SQL needed, or you can fill in
-the `run()` method in the seeder class with the SQL you need to seed your data:
+From there, you can fill in the `run()` method in the seeder class with the SQL you need to seed your data:
 
 ```php
 <?php
@@ -196,8 +194,7 @@ class DatabaseSeeder extends AbstractSeeder
 }
 ```
 
-Then running the following command will execute any SQL in any SQL files or any of the SQL
-in the seeder classes:
+Then running the following command will execute any SQL in the seeder classes or any raw SQL in SQL files:
 
 ```bash
 $ ./kettle db:seed
