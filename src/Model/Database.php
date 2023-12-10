@@ -121,9 +121,7 @@ class Database extends AbstractModel
             touch($location . '/database/' . $sqliteFile);
             chmod($location . '/database/' . $sqliteFile, 0777);
 
-            $sqliteDb   = "__DIR__ . '/../../database/" . $sqliteFile . "'";
-            $realDbName = '[{SQLITE_DB}]';
-
+            $sqliteDb = realpath($location . '/database/' . $sqliteFile);
             $console->write();
         } else {
             $dbCheck = false;
@@ -183,44 +181,34 @@ class Database extends AbstractModel
             );
         }
 
-        $dbConfig = include $location . DIRECTORY_SEPARATOR . '/app/config/database.php';
-
-        if (!isset($dbConfig[$database])) {
-            $dbConfig[$database] = [
-                'adapter'  => '',
-                'database' => '',
-                'username' => '',
-                'password' => '',
-                'host'     => '',
-                'type'     => ''
-            ];
-        }
-
-        $dbConfig[$database]['adapter']  = strtolower($dbInterface);
-        $dbConfig[$database]['database'] = $realDbName;
-        $dbConfig[$database]['username'] = $dbUser;
-        $dbConfig[$database]['password'] = $dbPass;
-        $dbConfig[$database]['host']     = $dbHost;
-        $dbConfig[$database]['type']     = $dbType;
-
-        $configBody = new Generator\BodyGenerator();
-        $configBody->setIndent(0);
-        $configBody->createReturnConfig($dbConfig);
-
-        $code = new Generator($configBody);
-        $code->setIndent(0);
-        $code->writeToFile($location . DIRECTORY_SEPARATOR . '/app/config/database.php');
-
-        if ($sqliteDb !== null) {
-            file_put_contents(
-                $location . DIRECTORY_SEPARATOR . '/app/config/database.php',
-                str_replace(
-                    "'[{SQLITE_DB}]'",
-                    $sqliteDb,
-                    file_get_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php')
-                )
+        if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
+            copy(
+                __DIR__ . '/../../config/templates/orig.env',
+                $location . DIRECTORY_SEPARATOR . '/.env'
             );
         }
+
+        if ($sqliteDb !== null) {
+            $realDbName = $sqliteDb;
+        }
+
+        $env = str_replace([
+            'DB_DATABASE=',
+            'DB_ADAPTER=',
+            'DB_USERNAME=',
+            'DB_PASSWORD=',
+            'DB_HOST=',
+            'DB_TYPE=',
+        ], [
+            'DB_DATABASE=' . $realDbName,
+            'DB_ADAPTER=' . strtolower($dbInterface),
+            'DB_USERNAME=' . $dbUser,
+            'DB_PASSWORD=' . $dbPass,
+            'DB_HOST=' . $dbHost,
+            'DB_TYPE=' . $dbType,
+        ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
+
+        file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
 
         return $this;
     }

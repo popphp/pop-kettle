@@ -37,9 +37,37 @@ class ApplicationController extends AbstractController
      */
     public function init(string $namespace, array $options = []): void
     {
-        $web = (isset($options['web']));
-        $api = (isset($options['api']));
-        $cli = (isset($options['cli']));
+        $web  = (isset($options['web']));
+        $api  = (isset($options['api']));
+        $cli  = (isset($options['cli']));
+        $envs = [
+            'local'      => 1,
+            'dev'        => 2,
+            'testing'    => 3,
+            'staging'    => 4,
+            'production' => 5,
+        ];
+
+        $name = $this->console->prompt('What is the name of your app? [Pop] ', null, true);
+        if ($name == '') {
+            $name = 'Pop';
+        } else if (str_contains($name, ' ')) {
+            $name = '"' . $name . '"';
+        }
+
+        $this->console->write();
+        foreach ($envs as $env => $i) {
+            $this->console->write($i . ': ' . $env);
+        }
+        $this->console->write();
+
+        $e   = $this->console->prompt('Please choose an app environments from above: ', $envs);
+        $env = array_search($e, $envs);
+
+        $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
+        if ($url == '') {
+            $url = 'http://localhost';
+        }
 
         $appModel = new Model\Application();
         $dbModel  = new Model\Database();
@@ -49,7 +77,7 @@ class ApplicationController extends AbstractController
             $namespace = 'MyApp';
         }
 
-        $appModel->init($location, $namespace, $web, $api, $cli);
+        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url);
 
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();

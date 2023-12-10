@@ -6,6 +6,9 @@
 
 $autoloader = include __DIR__ . '/vendor/autoload.php';
 
+$dotEnv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotEnv->safeLoad();
+
 try {
     $app = new Pop\Application($autoloader, include __DIR__ . '/config/app.console.php');
     if (file_exists('kettle.inc.php')) {
@@ -17,5 +20,3 @@ try {
     $app = new Pop\Kettle\Module();
     $app->cliError($exception);
 }
-
-

@@ -34,15 +34,19 @@ class Application extends AbstractModel
     /**
      * Init application
      *
-     * @param string $location
-     * @param string $namespace
-     * @param ?bool  $web
-     * @param ?bool  $api
-     * @param ?bool  $cli
+     * @param  string $location
+     * @param  string $namespace
+     * @param  ?bool  $web
+     * @param  ?bool  $api
+     * @param  ?bool  $cli
+     * @param  string $name
+     * @param  string $env
+     * @param  string $url
      * @return void
      */
     public function init(
-        string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null
+        string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null,
+        string $name = 'Pop', string $env = 'local', string $url = 'http://localhost'
     ): void
     {
         // API-only
@@ -68,7 +72,7 @@ class Application extends AbstractModel
             $install = 'web';
         }
 
-        $this->install($install, $location, $namespace);
+        $this->install($install, $location, $namespace, $name, $env, $url);
     }
 
     /**
@@ -77,9 +81,15 @@ class Application extends AbstractModel
      * @param  string $install
      * @param  string $location
      * @param  string $namespace
+     * @param  string $name
+     * @param  string $env
+     * @param  string $url
      * @return void
      */
-    public function install(string $install, string $location, string $namespace): void
+    public function install(
+        string $install, string $location, string $namespace,
+        string $name = 'Pop', string $env = 'local', string $url = 'http://localhost'
+    ): void
     {
         $script = strtolower(str_replace('\\', '-', $namespace));
         $path   = realpath(__DIR__ . '/../../config/templates/' . $install);
@@ -125,6 +135,25 @@ class Application extends AbstractModel
             );
             chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
         }
+
+        if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
+            copy(
+                __DIR__ . '/../../config/templates/orig.env',
+                $location . DIRECTORY_SEPARATOR . '/.env'
+            );
+        }
+
+        $env = str_replace([
+            'APP_NAME=Pop',
+            'APP_ENV=local',
+            'APP_URL=http://localhost',
+        ], [
+            'APP_NAME=' . $name,
+            'APP_ENV=' . $env,
+            'APP_URL=' . $url,
+        ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
+
+        file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
     }
 
     /**

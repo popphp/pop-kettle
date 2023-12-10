@@ -113,11 +113,11 @@ class DatabaseController extends AbstractController
     /**
      * Create seed command
      *
-     * @param  string  $class
+     * @param  string  $seed
      * @param  ?string $database
      * @return void
      */
-    public function createSeed(string $class, ?string $database = 'default'): void
+    public function createSeed(string $seed, ?string $database = 'default'): void
     {
         $location = getcwd();
 
@@ -136,12 +136,13 @@ class DatabaseController extends AbstractController
                 mkdir($location . '/database/seeds/' . $db);
             }
 
-            if (str_ends_with(strtolower($class), '.sql')) {
-                touch($location . '/database/seeds/' . $db .'/' . $class);
-                $this->console->write("Database seed file '" . $class . "' created for '" . $db . "'.");
+            if (str_ends_with(strtolower($seed), '.sql')) {
+                touch($location . '/database/seeds/' . $db .'/' . $seed);
+                file_put_contents($location . '/database/seeds/' . $db .'/' . $seed, "-- Seed data for '" . $seed . "'" . PHP_EOL . PHP_EOL);
+                $this->console->write("Database seed file '" . $seed . "' created for '" . $db . "'.");
             } else {
-                Seeder::create($class, $location . '/database/seeds/' . $db);
-                $this->console->write("Database seed class '" . $class . "' created for '" . $db . "'.");
+                Seeder::create($seed, $location . '/database/seeds/' . $db);
+                $this->console->write("Database seed class '" . $seed . "' created for '" . $db . "'.");
             }
         }
     }

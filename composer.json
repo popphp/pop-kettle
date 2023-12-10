@@ -15,7 +15,8 @@
         "popphp/pop-code": "^5.0.0",
         "popphp/pop-console": "^4.0.0",
         "popphp/pop-db": "^6.0.0",
-        "popphp/pop-dir": "^4.0.0"
+        "popphp/pop-dir": "^4.0.0",
+        "vlucas/phpdotenv": "^5.6.0"
     },
     "autoload" : {
         "psr-4": {
