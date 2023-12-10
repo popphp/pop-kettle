@@ -43,6 +43,12 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     protected ?Console $console = null;
 
     /**
+     * Bypass maintenance false
+     * @var bool
+     */
+    protected bool $bypassMaintenance = true;
+
+    /**
      * Constructor for the controller
      *
      * @param  Application $application

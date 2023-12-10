@@ -40,11 +40,24 @@ class Console
 
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
+        if (App::isDown()) {
+            if (stripos(PHP_OS, 'win') === false) {
+                $string  = "    \x1b[1;30m\x1b[106m                                  \x1b[0m" . PHP_EOL;
+                $string .= "    \x1b[1;30m\x1b[106m    Application in Maintenance    \x1b[0m" . PHP_EOL;
+                $string .= "    \x1b[1;30m\x1b[106m                                  \x1b[0m" . PHP_EOL;
+            } else {
+                $string = '    Application in Maintenance' . PHP_EOL;
+            }
+
+            echo $string;
+            echo PHP_EOL;
+        }
+
         if ((App::isProduction()) && ($routeString != 'help') && ($routeString != 'version')) {
             if (stripos(PHP_OS, 'win') === false) {
-                $string  = "    \x1b[1;30m\x1b[43m                                 \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[43m    Application in Production    \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[43m                                 \x1b[0m" . PHP_EOL;
+                $string  = "    \x1b[1;30m\x1b[103m                                  \x1b[0m" . PHP_EOL;
+                $string .= "    \x1b[1;30m\x1b[103m    Application in Production     \x1b[0m" . PHP_EOL;
+                $string .= "    \x1b[1;30m\x1b[103m                                  \x1b[0m" . PHP_EOL;
             } else {
                 $string = '    Application in Production' . PHP_EOL;
             }
