@@ -64,7 +64,7 @@ class ApplicationController extends AbstractController
         }
         $this->console->write();
 
-        $e   = $this->console->prompt('Please choose an app environments from above: ', $envs);
+        $e   = $this->console->prompt('Please select an app environment from above: ', $envs);
         $env = array_search($e, $envs);
 
         $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
@@ -82,6 +82,7 @@ class ApplicationController extends AbstractController
 
         $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url);
 
+        $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
 
@@ -90,6 +91,7 @@ class ApplicationController extends AbstractController
         );
 
         if (strtolower($createDb) == 'y') {
+            $this->console->write();
             $dbModel->configure($this->console, $location);
         }
 

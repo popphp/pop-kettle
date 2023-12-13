@@ -188,6 +188,15 @@ class Database extends AbstractModel
         if ($sqliteDb !== null) {
             $realDbName = $sqliteDb;
         }
+        if (str_contains($realDbName, ' ')) {
+            $realDbName = '"' . $realDbName . '"';
+        }
+        if (str_contains($dbUser, ' ')) {
+            $dbUser = '"' . $dbUser . '"';
+        }
+        if (str_contains($dbPass, ' ')) {
+            $dbPass = '"' . $dbPass . '"';
+        }
 
         $env = str_replace([
             'DB_DATABASE=',

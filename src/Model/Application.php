@@ -143,6 +143,10 @@ class Application extends AbstractModel
             );
         }
 
+        if (str_contains($name, ' ')) {
+            $name = '"' . $name . '"';
+        }
+
         $env = str_replace([
             'APP_NAME=Pop',
             'APP_ENV=local',
