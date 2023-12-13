@@ -7,6 +7,7 @@ pop-kettle
 * [Overview](#overview)
 * [Install](#install)
 * [Initializing an Application](#initializing-an-application)
+    + [Application Status](#application-status)
 * [Kettle Include](#kettle-include)
 * [Managing the Database](#managing-the-database)
     + [Seeding the Database](#seeding-the-database)
@@ -63,7 +64,8 @@ $ chmod 755 kettle
 
 [Top](#pop-kettle)
 
-### Initializing an Application
+Initializing an Application
+---------------------------
 
 By running the following command, you can set up the basic files and folders
 required to run an application:
@@ -89,9 +91,68 @@ After the application files and folders are copied over, you will be asked if yo
 would like to configure a database. Follow those steps to configure a database and
 create the database configuration file.
 
+### Application Status
+
+You view and manage the status of the application the following commands.
+
+##### Check the current environment:
+
+The environment is set in the `.env` file under the `APP_ENV` variable. Options available are:
+
+- `local`
+- `dev`
+- `testing`
+- `staging`
+- `production` (or `prod`)
+
+```bash
+$ ./kettle app:env
+```
+
+##### Check (or change) the current status:
+
+The status of the application can either be "live" or in "maintenance mode":
+
+```bash
+$ ./kettle app:status
+```
+
+To put the application into maintenance mode, where it's not accessible, use the following command:
+
+```bash
+$ ./kettle app:down
+```
+
+You can generate a "secret" key to allow a select set of users to view the application while still in
+maintenance mode:
+
+```bash
+$ ./kettle app:down --secret
+```
+
+When the command finished, it will output the generate secret:
+
+```text
+    The secret is SECRET_STRING
+```
+
+Use that string one time in the browser to view the application while it is still in maintenance mode.
+It will store in the browser's cookies so subsequent requests will be valid:
+
+```text
+http://localhost:8000/?secret=SECRET_STRING
+```
+
+To take the application out of maintenance mode and make it live again, use the following command:
+
+```bash
+$ ./kettle app:up
+```
+
 [Top](#pop-kettle)
 
-### Kettle Include
+Kettle Include
+--------------
 
 You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
 as a configuration file for anything additional that needs to be wired up for your
@@ -113,7 +174,8 @@ the `vendor` folder.)
 
 [Top](#pop-kettle)
 
-### Managing the Database
+Managing the Database
+---------------------
 
 Once the application is initialized, you can manage the database, or multiple databases,
 by using the `db` and `migrate` commands. If you don't pass anything in the optional
@@ -313,7 +375,8 @@ Reference [Kettle Include](#kettle-include) for more information.
 
 [Top](#pop-kettle)
 
-### Creating Application Files
+Creating Application Files
+--------------------------
 
 You can create skeleton application files with the `create` commands to assist you in wiring up various
 MVC-based components, such as models, views and controllers: 
@@ -329,7 +392,8 @@ open them up and begin writing your application code.
 
 [Top](#pop-kettle)
 
-### Running the Web Server
+Running the Web Server
+----------------------
 
 `pop-kettle` also provides a simple way to run PHP's built-in web-server, by running the command:
 
@@ -342,13 +406,15 @@ web server in a production environment in any way.
 
 [Top](#pop-kettle)
 
-### Accessing the Application
+Accessing the Application
+-------------------------
 
 If you have wired up the beginnings of an application, you can then access the default routes
 in the following ways. Assuming you've started the web server as described above using
 `./kettle serve`, you can access the web application by going to the address `http://localhost:8000/`
 in any web browser and seeing the default index HTML page.
 
+If you create both a web and API application, the HTML application will be accessible at `http://localhost:8000/`.
 If you want to access the API application, the default route for that is `http://localhost:8000/api`
 and you can access it like this to see the default JSON response:
 
@@ -365,7 +431,8 @@ $ ./myapp help
 
 [Top](#pop-kettle)
 
-### Using on Windows
+Using on Windows
+----------------
 
 Most UNIX-based environments should recognize the main `kettle` application script as a PHP
 script and run it accordingly, without having to explicitly call the `php` command and pass
