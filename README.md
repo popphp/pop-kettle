@@ -131,14 +131,20 @@ maintenance mode:
 $ ./kettle app:down --secret
 ```
 
-When the command finished, it will output the generate secret:
+When the command finishes, it will output the auto-generated secret:
 
 ```text
     The secret is SECRET_STRING
 ```
 
-Use that string one time in the browser to view the application while it is still in maintenance mode.
-It will store in the browser's cookies so subsequent requests will be valid:
+You can also provide your own secret:
+
+```bash
+$ ./kettle app:down --secret=MY_SECRET_STRING
+```
+
+Use that string one time in the browser as a URL query parameter to view the application while it is
+still in maintenance mode. It will store in the browser's cookies so subsequent requests will be valid:
 
 ```text
 http://localhost:8000/?secret=SECRET_STRING
