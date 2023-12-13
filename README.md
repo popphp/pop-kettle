@@ -95,7 +95,7 @@ create the database configuration file.
 
 You can view and manage the status of the application with the following commands outlined below.
 
-##### Check the current environment:
+#### Check the current environment:
 
 The environment is set in the `.env` file under the `APP_ENV` variable. Options available are:
 
@@ -109,7 +109,7 @@ The environment is set in the `.env` file under the `APP_ENV` variable. Options 
 $ ./kettle app:env
 ```
 
-##### Check (or change) the current status:
+#### Check (or change) the current status:
 
 The status of the application can either be "live" or in "maintenance mode". The value is set
 in the `.env` file under the `MAINTENANCE_MODE` variable (`true` or `false`).
@@ -200,7 +200,7 @@ by using the `db` and `migrate` commands. If you don't pass anything in the opti
 ./kettle migrate:reset [<database>]                 Perform complete rollback of the database
 ```
 
-#### Seeding the Database
+### Seeding the Database
  
 You can seed the database with data in one of two ways. You can either utilize a
 SQL file with the extension `.sql` in the `/database/seeds/<database>` folder, or you
@@ -263,7 +263,7 @@ Then running the following command will execute any SQL in the seeder classes or
 $ ./kettle db:seed
 ```
 
-#### Database Migrations
+### Database Migrations
 
 You can create the initial database migration that would modify your database schema as
 your application grows by running the command:
@@ -341,7 +341,7 @@ And you can rollback the migration and drop the `users` table by running the com
 $ ./kettle migrate:rollback
 ```
 
-#### Migration State Storage
+### Migration State Storage
 
 The migration state storage can be stored in one of two places. By default, it will store in a file called
 `.current` in the database migration folder, for example:
