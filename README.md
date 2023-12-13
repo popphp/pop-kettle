@@ -111,7 +111,8 @@ $ ./kettle app:env
 
 ##### Check (or change) the current status:
 
-The status of the application can either be "live" or in "maintenance mode":
+The status of the application can either be "live" or in "maintenance mode". The value is set
+in the `.env` file under the `MAINTENANCE_MODE` variable (`true` or `false`).
 
 ```bash
 $ ./kettle app:status
