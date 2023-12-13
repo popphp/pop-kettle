@@ -228,7 +228,7 @@ use Pop\Db\Sql\Seeder\AbstractSeeder;
 class MyFirstSeeder extends AbstractSeeder
 {
 
-    public function run(AbstractAdapter $db)
+    public function run(AbstractAdapter $db): void
     {
         
     }
@@ -247,7 +247,7 @@ use Pop\Db\Sql\Seeder\AbstractSeeder;
 class DatabaseSeeder extends AbstractSeeder
 {
     
-    public function run(AbstractAdapter $db)
+    public function run(AbstractAdapter $db): void
     {
         $sql = $db->createSql();
         
@@ -289,12 +289,12 @@ use Pop\Db\Sql\Migration\AbstractMigration;
 class MyFirstMigration5dd822cdede29 extends AbstractMigration
 {
 
-    public function up()
+    public function up(): void
     {
 
     }
 
-    public function down()
+    public function down(): void
     {
 
     }
@@ -312,7 +312,7 @@ use Pop\Db\Sql\Migration\AbstractMigration;
 class MyFirstMigration5dd822cdede29 extends AbstractMigration
 {
 
-    public function up()
+    public function up(): void
     {
         $schema = $this->db->createSchema();
         $schema->create('users')
@@ -325,7 +325,7 @@ class MyFirstMigration5dd822cdede29 extends AbstractMigration
         $schema->execute();     
     }
 
-    public function down()
+    public function down(): void
     {
         $schema = $this->db->createSchema();
         $schema->drop('users');
