@@ -93,7 +93,7 @@ create the database configuration file.
 
 ### Application Status
 
-You view and manage the status of the application the following commands.
+You can view and manage the status of the application the following commands outlined below.
 
 ##### Check the current environment:
 
