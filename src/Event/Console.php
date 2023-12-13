@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Event;
 
 use Pop\App;
+use Pop\Kettle\Model\Application;
 
 /**
  * Console event class
@@ -29,49 +30,30 @@ class Console
 {
 
     /**
+     * Production check omit commands
+     * @var array
+     */
+    protected static array $omitCommands = ['app:env', 'app:status', 'help', 'version'];
+
+    /**
      * Display console header
      *
      * @return void
      */
     public static function header(): void
     {
-        echo PHP_EOL . '    Pop Kettle' . PHP_EOL;
-        echo '    ==========' . PHP_EOL . PHP_EOL;
-
+        $console     = new \Pop\Console\Console();
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
-        if (App::isDown()) {
-            if (stripos(PHP_OS, 'win') === false) {
-                $string  = "    \x1b[1;30m\x1b[106m                                  \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[106m    Application in Maintenance    \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[106m                                  \x1b[0m" . PHP_EOL;
-            } else {
-                $string = '    Application in Maintenance' . PHP_EOL;
-            }
+        echo PHP_EOL . $console->header('Pop Kettle', '=', null, 'left', true, true) . PHP_EOL;
 
-            echo $string;
-            echo PHP_EOL;
+        if (App::isDown() && ($routeString != 'app:up')) {
+            $console->alertInfo('Application in Maintenance', 40);
         }
 
-        if ((App::isProduction()) && ($routeString != 'help') && ($routeString != 'version')) {
-            if (stripos(PHP_OS, 'win') === false) {
-                $string  = "    \x1b[1;30m\x1b[103m                                  \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[103m    Application in Production     \x1b[0m" . PHP_EOL;
-                $string .= "    \x1b[1;30m\x1b[103m                                  \x1b[0m" . PHP_EOL;
-            } else {
-                $string = '    Application in Production' . PHP_EOL;
-            }
-
-            echo $string;
-            echo PHP_EOL;
-
-            $confirm = (new \Pop\Console\Console())->prompt('Are you sure you want to run this command? [Y/N] ', ['y', 'n']);
-
-            echo PHP_EOL;
-
-            if (strtolower($confirm) == 'n') {
-                exit(127);
-            }
+        if ((App::isProduction()) && !in_array($routeString, self::$omitCommands)) {
+            $console->alertWarning('Application in Production', 40);
+            $console->confirm('Are you sure you want to run this command?');
         }
     }
 

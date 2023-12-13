@@ -13,7 +13,7 @@
  */
 namespace Pop\Kettle\Controller;
 
-use Pop\Console\Console;
+use Pop\Console\Color;
 use Pop\Kettle\Exception;
 
 /**
@@ -47,8 +47,8 @@ class ConsoleController extends AbstractController
         $folder = (isset($options['folder'])) ? $options['folder'] : 'public';
 
         $this->console->write(
-            'PHP web server running on the folder ' . $this->console->colorize($folder, Console::BOLD_YELLOW) .' at ' .
-            $this->console->colorize($host . ':' . $port, Console::BOLD_GREEN) . '... (Ctrl-C to stop)'
+            'PHP web server running on the folder ' . $this->console->colorize($folder, Color::BOLD_YELLOW) .' at ' .
+            $this->console->colorize($host . ':' . $port, Color::BOLD_GREEN) . '... (Ctrl-C to stop)'
         );
         $this->console->write();
 
@@ -72,7 +72,7 @@ class ConsoleController extends AbstractController
      */
     public function version(): void
     {
-        $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Module::VERSION, Console::BOLD_GREEN));
+        $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Module::VERSION, Color::BOLD_GREEN));
     }
 
 }

@@ -13,7 +13,7 @@
  */
 namespace Pop\Kettle\Controller;
 
-use Pop\Console\Console;
+use Pop\Console\Color;
 use Pop\Db\Sql\Migrator;
 use Pop\Kettle\Model;
 
@@ -90,13 +90,13 @@ class MigrationController extends AbstractController
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 if (!file_exists($location . '/database/migrations/' . $db)) {
                     $this->console->write($this->console->colorize(
-                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database migration folder was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $this->console->write("Running database migration for '" . $db . "'...");
@@ -104,7 +104,7 @@ class MigrationController extends AbstractController
                     $dbConfig = include $location . '/app/config/database.php';
                     if (!isset($dbConfig[$db])) {
                         $this->console->write($this->console->colorize(
-                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                         ));
                     } else {
                         $dbAdapter = $dbModel->createAdapter($dbConfig[$db]);
@@ -146,13 +146,13 @@ class MigrationController extends AbstractController
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 if (!file_exists($location . '/database/migrations/' . $db)) {
                     $this->console->write($this->console->colorize(
-                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database migration folder was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $this->console->write("Rolling back database migration for '" . $db . "'...");
@@ -160,7 +160,7 @@ class MigrationController extends AbstractController
                     $dbConfig = include $location . '/app/config/database.php';
                     if (!isset($dbConfig[$db])) {
                         $this->console->write($this->console->colorize(
-                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                         ));
                     } else {
                         $dbAdapter = $dbModel->createAdapter($dbConfig[$db]);
@@ -194,7 +194,7 @@ class MigrationController extends AbstractController
 
         if (!file_exists($location . '/database/migrations/' . $database)) {
             $this->console->write($this->console->colorize(
-                "The database '" . $database . "' does not exist in the migration folder.", Console::BOLD_RED
+                "The database '" . $database . "' does not exist in the migration folder.", Color::BOLD_RED
             ));
         } else if (file_exists($location . '/database/migrations/' . $database . '/.current')) {
             $ids = array_map(function($value) {
@@ -213,12 +213,12 @@ class MigrationController extends AbstractController
 
             if (empty($ids)) {
                 $this->console->write($this->console->colorize(
-                    "No migrations for the database '" . $database . "' were found.", Console::BOLD_RED
+                    "No migrations for the database '" . $database . "' were found.", Color::BOLD_RED
                 ));
             } else if (is_numeric($id)) {
                 if (!in_array($id, $ids)) {
                     $this->console->write($this->console->colorize(
-                        "The migration '" . $id . "' for the database '" . $database . "' does not exist.", Console::BOLD_RED
+                        "The migration '" . $id . "' for the database '" . $database . "' does not exist.", Color::BOLD_RED
                     ));
                 } else {
                     file_put_contents($location . '/database/migrations/' . $database . '/.current', $id);
@@ -257,13 +257,13 @@ class MigrationController extends AbstractController
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 if (!file_exists($location . '/database/migrations/' . $db)) {
                     $this->console->write($this->console->colorize(
-                        "The database migration folder was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database migration folder was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $this->console->write("Resetting the database for '" . $db . "'...");
@@ -271,7 +271,7 @@ class MigrationController extends AbstractController
                     $dbConfig = include $location . '/app/config/database.php';
                     if (!isset($dbConfig[$db])) {
                         $this->console->write($this->console->colorize(
-                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                         ));
                     } else {
                         $dbAdapter = $dbModel->createAdapter($dbConfig[$db]);

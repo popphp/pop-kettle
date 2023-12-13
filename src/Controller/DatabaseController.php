@@ -13,7 +13,7 @@
  */
 namespace Pop\Kettle\Controller;
 
-use Pop\Console\Console;
+use Pop\Console\Color;
 use Pop\Kettle\Model;
 use Pop\Db\Sql\Seeder;
 
@@ -87,22 +87,22 @@ class DatabaseController extends AbstractController
 
         if (!file_exists($location . '/app/config/database.php')) {
             $this->console->write($this->console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 $dbConfig = include $location . '/app/config/database.php';
                 if (!isset($dbConfig[$db])) {
                     $this->console->write($this->console->colorize(
-                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $result = $dbModel->test($dbConfig[$db]);
                     if ($result !== true) {
-                        $this->console->write($this->console->colorize($result, Console::BOLD_RED));
+                        $this->console->write($this->console->colorize($result, Color::BOLD_RED));
                     } else {
                         $this->console->write($this->console->colorize(
-                            "Database configuration test for '" . $db . "' passed.", Console::BOLD_GREEN
+                            "Database configuration test for '" . $db . "' passed.", Color::BOLD_GREEN
                         ));
                     }
                 }
@@ -179,7 +179,7 @@ class DatabaseController extends AbstractController
 
         if (in_array('exec', $disabled)) {
             $this->console->write($this->console->colorize(
-                "The 'exec' function is not enabled.", Console::BOLD_RED
+                "The 'exec' function is not enabled.", Color::BOLD_RED
             ));
         } else {
             $output = null;
@@ -187,7 +187,7 @@ class DatabaseController extends AbstractController
 
             if (empty($output)) {
                 $this->console->write($this->console->colorize(
-                    "The 'mysqldump' program was not found.", Console::BOLD_RED
+                    "The 'mysqldump' program was not found.", Color::BOLD_RED
                 ));
             } else {
                 $dbModel  = new Model\Database();
@@ -214,11 +214,11 @@ class DatabaseController extends AbstractController
 
         if (in_array('exec', $disabled)) {
             $this->console->write($this->console->colorize(
-                "The 'exec' function is not enabled.", Console::BOLD_RED
+                "The 'exec' function is not enabled.", Color::BOLD_RED
             ));
         } else if (!file_exists($location . '/' . $importFile)) {
             $this->console->write($this->console->colorize(
-                'The database import file was not found.', Console::BOLD_RED
+                'The database import file was not found.', Color::BOLD_RED
             ));
         } else {
             $output = null;
@@ -226,7 +226,7 @@ class DatabaseController extends AbstractController
 
             if (empty($output)) {
                 $this->console->write($this->console->colorize(
-                    "The 'mysql' program was not found.", Console::BOLD_RED
+                    "The 'mysql' program was not found.", Color::BOLD_RED
                 ));
             } else {
                 $dbModel  = new Model\Database();

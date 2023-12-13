@@ -4,7 +4,27 @@ return [
     'app:init [--web] [--api] [--cli] <namespace>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init',
-        'help'       => 'Initialize an application' . PHP_EOL
+        'help'       => 'Initialize an application'
+    ],
+    'app:env' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'env',
+        'help'       => 'Display current application environment'
+    ],
+    'app:status' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'status',
+        'help'       => 'Display current application status'
+    ],
+    'app:down [-s|--secret=]' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'down',
+        'help'       => 'Turn on application maintenance mode'
+    ],
+    'app:up' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'up',
+        'help'       => 'Turn off application maintenance mode' . PHP_EOL
     ],
     'db:install [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',

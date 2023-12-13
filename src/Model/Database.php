@@ -13,12 +13,11 @@
  */
 namespace Pop\Kettle\Model;
 
-use Pop\Code\Generator;
 use Pop\Console\Console;
+use Pop\Console\Color;
 use Pop\Db\Db;
 use Pop\Db\Adapter;
 use Pop\Db\Sql\Seeder;
-use Pop\Dir\Dir;
 use Pop\Model\AbstractModel;
 
 /**
@@ -44,8 +43,6 @@ class Database extends AbstractModel
      */
     public function configure(Console $console, string $location, string $database = 'default'): Database
     {
-        $console->write();
-
         $dbUser     = '';
         $dbPass     = '';
         $dbHost     = '';
@@ -153,12 +150,12 @@ class Database extends AbstractModel
                     $console->write();
                     $console->write($console->colorize(
                         'Database configuration test failed. Please try again. ' . PHP_EOL . PHP_EOL .
-                        '    ' . $dbCheck, Console::BOLD_RED
+                        '    ' . $dbCheck, Color::BOLD_RED
                     ));
                 } else {
                     $console->write();
                     $console->write($console->colorize(
-                        'Database configuration test passed.', Console::BOLD_GREEN
+                        'Database configuration test passed.', Color::BOLD_GREEN
                     ));
                 }
                 $console->write();
@@ -246,19 +243,19 @@ class Database extends AbstractModel
 
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                "The database configuration was not found for '" . $database . "'.", Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 if (!file_exists($location . '/database/seeds/' . $db)) {
                     $console->write($console->colorize(
-                        "The database seed folder was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database seed folder was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $dbConfig = include $location . '/app/config/database.php';
                     if (!isset($dbConfig[$db])) {
                         $console->write($console->colorize(
-                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                         ));
                     } else {
                         $dbAdapter = $this->createAdapter($dbConfig[$db]);
@@ -298,7 +295,7 @@ class Database extends AbstractModel
 
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                "The database configuration was not found for '" . $database . "'.", Color::BOLD_RED
             ));
         } else {
             $timestamp = date('YmdHis');
@@ -306,11 +303,11 @@ class Database extends AbstractModel
             foreach ($databases as $db) {
                 if (!isset($dbConfig[$db])) {
                     $console->write($console->colorize(
-                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else if (($dbConfig[$db]['adapter'] != 'mysql') && ($dbConfig[$db]['type'] != 'mysql')) {
                     $console->write($console->colorize(
-                        "The database is not MySQL. It must be MySQL to perform the export", Console::BOLD_RED
+                        "The database is not MySQL. It must be MySQL to perform the export", Color::BOLD_RED
                     ));
                 } else {
                     $sqlFile = $dbConfig[$db]['database'] . '-' . $timestamp . '.sql';
@@ -352,7 +349,7 @@ class Database extends AbstractModel
 
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                "The database configuration was not found for '" . $database . "'.", Console::BOLD_RED
+                "The database configuration was not found for '" . $database . "'.", Color::BOLD_RED
             ));
         } else {
             $sqlImportFile = $location . '/' . $importFile;
@@ -360,11 +357,11 @@ class Database extends AbstractModel
             foreach ($databases as $db) {
                 if (!isset($dbConfig[$db])) {
                     $console->write($console->colorize(
-                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else if (($dbConfig[$db]['adapter'] != 'mysql') && ($dbConfig[$db]['type'] != 'mysql')) {
                     $console->write($console->colorize(
-                        "The database is not MySQL. It must be MySQL to perform the export", Console::BOLD_RED
+                        "The database is not MySQL. It must be MySQL to perform the export", Color::BOLD_RED
                     ));
                 } else {
                     $command = 'mysql --user=' . $dbConfig[$db]['username'] . ' --password=' .
@@ -429,13 +426,13 @@ class Database extends AbstractModel
 
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
                 if (!file_exists($location . '/database/seeds/' . $db)) {
                     $console->write($console->colorize(
-                        "The database seed folder was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database seed folder was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $console->write('Resetting database data...');
@@ -443,7 +440,7 @@ class Database extends AbstractModel
                     $dbConfig = include $location . '/app/config/database.php';
                     if (!isset($dbConfig[$db])) {
                         $console->write($console->colorize(
-                            "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                         ));
                     } else {
                         $dbAdapter = $this->createAdapter($dbConfig[$db]);
@@ -506,7 +503,7 @@ class Database extends AbstractModel
 
         if (!file_exists($location . '/app/config/database.php')) {
             $console->write($console->colorize(
-                'The database configuration was not found.', Console::BOLD_RED
+                'The database configuration was not found.', Color::BOLD_RED
             ));
         } else {
             foreach ($databases as $db) {
@@ -515,7 +512,7 @@ class Database extends AbstractModel
                 $dbConfig = include $location . '/app/config/database.php';
                 if (!isset($dbConfig[$db])) {
                     $console->write($console->colorize(
-                        "The database configuration was not found for '" . $db . "'.", Console::BOLD_RED
+                        "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
                     ));
                 } else {
                     $dbAdapter = $this->createAdapter($dbConfig[$db]);

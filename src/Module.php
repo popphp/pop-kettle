@@ -80,21 +80,7 @@ class Module extends \Pop\Module\Module
      */
     public function cliError(\Exception $exception): void
     {
-        $message = strip_tags($exception->getMessage());
-
-        if (stripos(PHP_OS, 'win') === false) {
-            $string  = "    \x1b[1;37m\x1b[41m    " . str_repeat(' ', strlen($message)) . "    \x1b[0m" . PHP_EOL;
-            $string .= "    \x1b[1;37m\x1b[41m    " . $message . "    \x1b[0m" . PHP_EOL;
-            $string .= "    \x1b[1;37m\x1b[41m    " . str_repeat(' ', strlen($message)) . "    \x1b[0m" . PHP_EOL . PHP_EOL;
-            $string .= "    Try \x1b[1;33m./kettle help\x1b[0m for help" . PHP_EOL . PHP_EOL;
-        } else {
-            $string = $message . PHP_EOL . PHP_EOL;
-            $string .= '    Try \'./kettle help\' for help' . PHP_EOL . PHP_EOL;
-        }
-
-        echo $string;
-        echo PHP_EOL;
-
+        (new \Pop\Console\Console())->alertDanger(strip_tags($exception->getMessage()));
         exit(127);
     }
 
