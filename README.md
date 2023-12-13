@@ -79,7 +79,7 @@ The optional parameters of `--web`, `--api`, and `--cli` will create the related
 and folders to run the application as a normal web application, an API-driven web
 application, a CLI-driven console application or any combination thereof. The default
 route for the web application or the API application is `/`. However, if both are
-initialized, then the default route for the API application becomes to `/api`. The web
+initialized, then the default route for the API application becomes `/api`. The web
 application will deliver a placeholder HTML page and the API application will deliver
 a placeholder JSON response. 
 
