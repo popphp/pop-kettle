@@ -4,7 +4,7 @@ return [
     'app:init [--web] [--api] [--cli] <namespace>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init',
-        'help'       => 'Initialize an application'
+        'help'       => 'Initialize an application (--web is default)'
     ],
     'app:env' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
