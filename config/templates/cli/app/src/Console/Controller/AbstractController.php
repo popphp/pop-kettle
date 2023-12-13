@@ -4,6 +4,7 @@ namespace MyApp\Console\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
+use Pop\Console\Color;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
@@ -31,7 +32,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->application = $application;
         $this->console     = $console;
 
-        $this->console->setHelpColors(Console::BOLD_CYAN, Console::BOLD_GREEN, Console::BOLD_MAGENTA);
+        $this->console->setHelpColors(Color::BOLD_CYAN, Color::BOLD_GREEN, Color::BOLD_MAGENTA);
         $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './myapp');
     }
 
@@ -64,6 +65,17 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     public function error()
     {
         throw new \MyApp\Exception('Invalid Command');
+    }
+
+    /**
+     * Default maintenance action method
+     *
+     * @return void
+     */
+    public function maintenance()
+    {
+        $this->console->alertInfo('Application in Maintenance', 40);
+        exit(127);
     }
 
 }

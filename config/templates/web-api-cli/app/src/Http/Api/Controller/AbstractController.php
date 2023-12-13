@@ -66,4 +66,16 @@ abstract class AbstractController extends \MyApp\Http\Controller\AbstractControl
             ->sendAndExit();
     }
 
+    /**
+     * Send maintenance
+     *
+     * @param  int     $code
+     * @param  ?string $message
+     * @return void
+     */
+    public function maintenance(int $code = 503, ?string $message = null): void
+    {
+        $this->error($code, $message);
+    }
+
 }

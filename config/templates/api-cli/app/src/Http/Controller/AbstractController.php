@@ -132,4 +132,16 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
             ->sendAndExit();
     }
 
+    /**
+     * Send maintenance
+     *
+     * @param  int     $code
+     * @param  ?string $message
+     * @return void
+     */
+    public function maintenance(int $code = 503, ?string $message = null): void
+    {
+        $this->error($code, $message);
+    }
+
 }

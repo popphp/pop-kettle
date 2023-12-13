@@ -29,4 +29,16 @@ class IndexController extends AbstractController
         $this->send(404);
     }
 
+    /**
+     * Maintenance action
+     *
+     * @return void
+     */
+    public function maintenance(): void
+    {
+        $this->prepareView('maintenance.phtml');
+        $this->view->title = 'Website is Down';
+        $this->send(503);
+    }
+
 }
