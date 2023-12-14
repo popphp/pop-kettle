@@ -76,12 +76,15 @@ class Module extends \Pop\Module\Module
      * CLI error handler method
      *
      * @param  \Exception $exception
+     * @param  bool       $exit
      * @return void
      */
-    public function cliError(\Exception $exception): void
+    public function cliError(\Exception $exception, bool $exit = true): void
     {
-        (new \Pop\Console\Console())->alertDanger(strip_tags($exception->getMessage()));
-        exit(127);
+        (new Console())->alertDanger(strip_tags($exception->getMessage()));
+        if ($exit) {
+            exit(127);
+        }
     }
 
     /**
@@ -91,7 +94,7 @@ class Module extends \Pop\Module\Module
      * @throws \Pop\Db\Adapter\Exception
      * @return void
      */
-    protected function initDb(array $database): void
+    public function initDb(array $database): void
     {
         if (isset($database['default']) &&
             !empty($database['default']['adapter']) && !empty($database['default']['database'])) {

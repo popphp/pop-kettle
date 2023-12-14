@@ -33,10 +33,11 @@ class ConsoleController extends AbstractController
      * Serve command
      *
      * @param  array $options
+     * @param  bool  $test
      * @throws Exception
      * @return void
      */
-    public function serve(array $options = []): void
+    public function serve(array $options = [], bool $test = false): void
     {
         if (!function_exists('exec')) {
             throw new Exception("Error: The `exec()` function is not available. It is required to run PHP's web server.");
@@ -52,7 +53,9 @@ class ConsoleController extends AbstractController
         );
         $this->console->write();
 
-        exec('php -S ' . $host . ':' . $port . ' -t ' . $folder);
+        if (!$test) {
+            exec('php -S ' . $host . ':' . $port . ' -t ' . $folder);
+        }
     }
 
     /**
