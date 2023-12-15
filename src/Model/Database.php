@@ -93,6 +93,11 @@ class Database extends AbstractModel
             }
         }
 
+        // For testing purposes
+        if (isset($_SERVER['X_POP_CONSOLE_INPUT_2'])) {
+            $_SERVER['X_POP_CONSOLE_INPUT'] = $_SERVER['X_POP_CONSOLE_INPUT_2'];
+        }
+
         $console->write();
         $adapter = $console->prompt('Please select one of the above database adapters: ', $dbChoices);
         $console->write();
@@ -107,6 +112,11 @@ class Database extends AbstractModel
         } else {
             $dbInterface = ucfirst(strtolower($dbAdapter));
             $dbType      = null;
+        }
+
+        // For testing purposes
+        if (isset($_SERVER['X_POP_CONSOLE_INPUT_3'])) {
+            $_SERVER['X_POP_CONSOLE_INPUT'] = $_SERVER['X_POP_CONSOLE_INPUT_3'];
         }
 
         if (($dbInterface == 'Sqlite') || ($dbType == 'sqlite')) {
