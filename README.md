@@ -17,6 +17,7 @@ pop-kettle
     + [Database Migrations](#database-migrations)
     + [Migration State Storage](#migration-state-storage)
 * [Creating Application Files](#creating-application-files)
+    + [Data Model](#data-model)
 * [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
 * [Using on Windows](#using-on-Windows)
