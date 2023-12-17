@@ -80,8 +80,9 @@ class ApplicationTest extends TestCase
     public function testCreateModel()
     {
         $application = new Model\Application();
-        $application->createModel('MyModel', __DIR__ . '/../tmp/test');
-        $this->assertFileExists(__DIR__ . '/../tmp/test/app/src/Model/MyModel.php');
+        $application->createModel('User', __DIR__ . '/../tmp/test', true);
+        $this->assertFileExists(__DIR__ . '/../tmp/test/app/src/Model/User.php');
+        $this->assertFileExists(__DIR__ . '/../tmp/test/app/src/Table/Users.php');
     }
 
     public function testCreateView()
