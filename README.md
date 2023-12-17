@@ -398,6 +398,9 @@ MVC-based components, such as models, views and controllers:
 ./kettle create:view <view>                              Create a new view file
 ```
 
+Once the respective class files or view scripts are created in the appropriate folders, you can then
+open them up and begin writing your application code.
+
 ### Data Model
 
 The `--data` option for the `create:model` command creates a model class that extends the
@@ -411,9 +414,6 @@ $ ./kettle create:model --data User
 will create class files for `MyApp\Model\User` and `MyApp\Table\Users`. From there, using the model
 class, you can begin to store and retrieve data from the `users` table in the database with very little
 additional coding.
-
-Once the respective class files or view scripts are created in the appropriate folders, you can then
-open them up and begin writing your application code.
 
 [Top](#pop-kettle)
 
