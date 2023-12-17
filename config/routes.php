@@ -101,7 +101,7 @@ return [
         'action'     => 'createController',
         'help'       => 'Create a new controller class'
     ],
-    'create:model <model>' => [
+    'create:model [-d|--data] <model>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createModel',
         'help'       => 'Create a new model class'

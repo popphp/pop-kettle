@@ -26,7 +26,7 @@ use Pop\Kettle\Exception;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    2.2.0
  */
 class Application extends AbstractModel
 {
@@ -322,9 +322,10 @@ class Application extends AbstractModel
      *
      * @param  string $model
      * @param  string $location
+     * @param  bool   $data
      * @return string
      */
-    public function createModel(string $model, string $location): string
+    public function createModel(string $model, string $location, bool $data = false): string
     {
         $namespace   = $this->getNamespace($location) . "\\Model";
         $modelFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Model';
@@ -345,15 +346,54 @@ class Application extends AbstractModel
             }
         }
 
+        $abstractModel = ($data) ? 'AbstractDataModel' : 'AbstractModel';
+
         $modelClassObject = new Generator\ClassGenerator($model);
-        $modelClassObject->setParent('AbstractModel');
+        $modelClassObject->setParent($abstractModel);
 
         $namespaceObject = new Generator\NamespaceGenerator($namespace);
-        $namespaceObject->addUse('Pop\Model\AbstractModel');
+        $namespaceObject->addUse('Pop\Model\\' . $abstractModel);
 
         $code = new Generator();
         $code->addCodeObjects([$namespaceObject, $modelClassObject]);
         $code->writeToFile($modelFolder . DIRECTORY_SEPARATOR . $model . '.php');
+
+        if ($data) {
+            $table = $model;
+
+            if (!str_ends_with($model, 's')) {
+                $table .= 's';
+            }
+
+            $tableNamespace = $this->getNamespace($location) . "\\Table";
+            $tableFolder    = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Table';
+            if (!file_exists($tableFolder)) {
+                mkdir($tableFolder);
+            }
+
+            if (strpos($table, DIRECTORY_SEPARATOR)) {
+                $folders = explode(DIRECTORY_SEPARATOR, $table);
+                $table   = array_pop($folders);
+
+                foreach ($folders as $folder) {
+                    $namespace   .= "\\" . $folder;
+                    $tableFolder .= DIRECTORY_SEPARATOR . $folder;
+                    if (!file_exists($tableFolder)) {
+                        mkdir($tableFolder);
+                    }
+                }
+            }
+
+            $tableClassObject = new Generator\ClassGenerator($table);
+            $tableClassObject->setParent('Record');
+
+            $tableNamespaceObject = new Generator\NamespaceGenerator($tableNamespace);
+            $tableNamespaceObject->addUse('Pop\Db\Record');
+
+            $code = new Generator();
+            $code->addCodeObjects([$tableNamespaceObject, $tableClassObject]);
+            $code->writeToFile($tableFolder . DIRECTORY_SEPARATOR . $table . '.php');
+        }
 
         return $namespace . "\\" . $model;
     }

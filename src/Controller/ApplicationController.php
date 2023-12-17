@@ -26,7 +26,7 @@ use Pop\App;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    2.2.0
  */
 class ApplicationController extends AbstractController
 {
@@ -281,12 +281,13 @@ class ApplicationController extends AbstractController
      * Create model command
      *
      * @param  string $model
+     * @param  array  $options
      * @return void
      */
-    public function createModel(string $model): void
+    public function createModel(string $model, array $options = []): void
     {
         $appModel   = new Model\Application();
-        $modelClass = $appModel->createModel($model, getcwd());
+        $modelClass = $appModel->createModel($model, getcwd(), (isset($options['data'])));
 
         $this->console->write("Model class '" . $modelClass ."' created.");
         $this->console->write();

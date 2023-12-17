@@ -25,7 +25,7 @@ use Pop\Db;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    2.2.0
  */
 class Module extends \Pop\Module\Module
 {
@@ -40,7 +40,7 @@ class Module extends \Pop\Module\Module
      * Application version
      * @var string
      */
-    const VERSION = '2.1.0';
+    const VERSION = '2.2.0';
 
     /**
      * Register module
