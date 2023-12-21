@@ -54,7 +54,7 @@ class ApplicationController extends AbstractController
         $name = $this->console->prompt('What is the name of your app? [Pop] ', null, true);
         if ($name == '') {
             $name = 'Pop';
-        } else if (str_contains($name, ' ')) {
+        } else if (str_contains($name, ' ') && !str_starts_with($name, '"') && !str_ends_with($name, '"')) {
             $name = '"' . $name . '"';
         }
 

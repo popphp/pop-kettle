@@ -143,7 +143,7 @@ class Application extends AbstractModel
             );
         }
 
-        if (str_contains($name, ' ')) {
+        if (str_contains($name, ' ') && !str_starts_with($name, '"') && !str_ends_with($name, '"')) {
             $name = '"' . $name . '"';
         }
 
