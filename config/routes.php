@@ -116,7 +116,7 @@ return [
         'action'     => 'serve',
         'help'       => 'Start the web server'
     ],
-    'help' => [
+    'help [-r|--raw]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',
         'action'     => 'help',
         'help'       => 'Show the help screen'
