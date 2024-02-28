@@ -25,7 +25,7 @@ use Pop\Kettle\Model;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.2.0
+ * @version    2.3.0
  */
 class MigrationController extends AbstractController
 {
