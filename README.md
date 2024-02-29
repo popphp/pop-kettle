@@ -486,12 +486,8 @@ Edit the `~/.zshrc` file and add this:
 source ~/.kettle.zsh
 ```
 
-Once you're set up your preferred shell, close all terminal windows and re-open a new one. Change directory to
+Once you've set up your preferred shell, close all terminal windows and re-open a new one. Change directory to
 any project that has the `kettle` script in it and the auto-completion should now be available.
-
-```bash
-C:\popphp\pop-kettle>php kettle help
-``` 
 
 [Top](#pop-kettle)
 
