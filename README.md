@@ -20,6 +20,7 @@ pop-kettle
     + [Data Model](#data-model)
 * [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
+* [Shell Completion](#shell-completion)
 * [Using on Windows](#using-on-Windows)
 
 Overview
@@ -453,6 +454,44 @@ route available to the CLI application is the `help` route:
 ```bash
 $ ./myapp help
 ```
+[Top](#pop-kettle)
+
+Shell Completion
+----------------
+
+Shell completion for both `bash` and `zsh` shells is available. Simply copy the correct shell completion
+file to your user home directory and add them via the `source` command to your shell's read command file.
+
+### BASH
+
+```bash
+cp .kettle.bash ~/
+```
+
+Edit the `~/.bashrc` file and add this:
+
+```bash
+source ~/.kettle.bash
+```
+
+### ZSH
+
+```bash
+cp .kettle.zsh ~/
+```
+
+Edit the `~/.zshrc` file and add this:
+
+```bash
+source ~/.kettle.zsh
+```
+
+Once you're set up your preferred shell, close all terminal windows and re-open a new one. Change directory to
+any project that has the `kettle` script in it and the auto-completion should now be available.
+
+```bash
+C:\popphp\pop-kettle>php kettle help
+``` 
 
 [Top](#pop-kettle)
 
