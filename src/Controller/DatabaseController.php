@@ -25,7 +25,7 @@ use Pop\Db\Sql\Seeder;
  * @author     Nick Sagona, III <nick@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.0
+ * @version    2.3.2
  */
 class DatabaseController extends AbstractController
 {

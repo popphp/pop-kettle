@@ -28,7 +28,7 @@ use Pop\Model\AbstractModel;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.0
+ * @version    2.3.2
  */
 class Database extends AbstractModel
 {
