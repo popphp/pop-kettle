@@ -4,7 +4,6 @@ pop-kettle
 [![Build Status](https://github.com/popphp/pop-kettle/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-kettle/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-kettle)](http://cc.popphp.org/pop-kettle/)
 
-[![Join the chat at https://popphp.slack.com](https://media.popphp.org/img/slack.svg)](https://popphp.slack.com)
 [![Join the chat at https://discord.gg/TZjgT74U7E](https://media.popphp.org/img/discord.svg)](https://discord.gg/TZjgT74U7E)
 
 * [Overview](#overview)
@@ -37,7 +36,7 @@ Install
 
 The `pop-kettle` component comes automatically installed when you install the full Pop PHP
 Framework. You should see the `kettle` script in the main project directory. However, if
-that is not the case and you need to install it manually, you can place a copy of the `kettle`
+that is not the case, and you need to install it manually, you can place a copy of the `kettle`
 script from the `vendor/popphp/pop-kettle/kettle` location in the main project folder
 (adjacent to the `vendor` folder):
 
