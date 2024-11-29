@@ -3,7 +3,7 @@
  * Pop PHP Framework (http://www.popphp.org/)
  *
  * @link       https://github.com/popphp/pop-bootstrap
- * @author     Nick Sagona, III <nick@nolainteractive.com>
+ * @author     Nick Sagona, III <nick@noladev.com>
  * @copyright  Copyright (c) 2012-2025 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
  */
@@ -22,10 +22,10 @@ use Pop\Kettle\Model;
  *
  * @category   Pop\Kettle
  * @package    Pop\Kettle
- * @author     Nick Sagona, III <nick@nolainteractive.com>
+ * @author     Nick Sagona, III <nick@noladev.com>
  * @copyright  Copyright (c) 2012-2025 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.2
+ * @version    2.3.3
  */
 class MigrationController extends AbstractController
 {
