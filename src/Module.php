@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2025 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -23,9 +23,9 @@ use Pop\Db;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2025 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.3
+ * @version    2.3.4
  */
 class Module extends \Pop\Module\Module
 {
@@ -40,7 +40,7 @@ class Module extends \Pop\Module\Module
      * Application version
      * @var string
      */
-    const VERSION = '2.3.3';
+    const VERSION = '2.3.4';
 
     /**
      * Register module
