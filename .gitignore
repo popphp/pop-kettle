@@ -1,4 +1,7 @@
 composer.lock
+app
+data
+database
 public
 script
 vendor
