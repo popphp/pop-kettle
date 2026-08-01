@@ -96,6 +96,11 @@ return [
         'action'     => 'reset',
         'help'       => 'Perform complete rollback of the database' . PHP_EOL
     ],
+    'create:command <command>' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'createCommand',
+        'help'       => 'Create a new CLI command, registered with Kettle'
+    ],
     'create:ctrl [--web] [--api] [--cli] <ctrl>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createController',

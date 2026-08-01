@@ -254,6 +254,23 @@ class ApplicationController extends AbstractController
     }
 
     /**
+     * Create command command
+     *
+     * @param  string $command
+     * @return void
+     */
+    public function createCommand(string $command): void
+    {
+        $appModel = new Model\Application();
+        $appModel->createCommand($command, getcwd());
+
+        $this->console->write("Command '" . $command ."' created. Run ./kettle help to view.");
+
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
+    /**
      * Create controller command
      *
      * @param  string $ctrl

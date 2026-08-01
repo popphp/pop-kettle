@@ -161,6 +161,37 @@ class Application extends AbstractModel
     }
 
     /**
+     * Create command method
+     *
+     * @param  string $command
+     * @param  string $location
+     * @throws Exception
+     * @return void
+     */
+    public function createCommand(string $command, string $location): void
+    {
+        $namespace = $this->getNamespace($location);
+
+        $commandFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+            'Console' . DIRECTORY_SEPARATOR . 'Command';
+
+        if (!file_exists($commandFolder)) {
+            throw new Exception('Error: The command folder and namespace has not been created');
+        }
+
+        $commandNamespace = $namespace . "\\Console\\Command";
+
+        $commandClassObject = new Generator\ClassGenerator($command);
+        $commandClassObject->setParent("\\Pop\\Console\\Command");
+
+        $namespaceObject = new Generator\NamespaceGenerator($commandNamespace);
+
+        $code = new Generator();
+        $code->addCodeObjects([$namespaceObject, $commandClassObject]);
+        $code->writeToFile($commandFolder . DIRECTORY_SEPARATOR . $command . '.php');
+    }
+
+    /**
      * Create controller method
      *
      * @param  string $ctrl
