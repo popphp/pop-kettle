@@ -64,18 +64,8 @@ class ApplicationController extends AbstractController
         }
         $this->console->write();
 
-        // For testing purposes
-        if (isset($_SERVER['X_POP_CONSOLE_INPUT_2'])) {
-            $_SERVER['X_POP_CONSOLE_INPUT'] = $_SERVER['X_POP_CONSOLE_INPUT_2'];
-        }
-
         $e   = $this->console->prompt('Please select an app environment from above: ', $envs);
         $env = array_search($e, $envs);
-
-        // For testing purposes
-        if (isset($_SERVER['X_POP_CONSOLE_INPUT_3'])) {
-            $_SERVER['X_POP_CONSOLE_INPUT'] = $_SERVER['X_POP_CONSOLE_INPUT_3'];
-        }
 
         $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
         if ($url == '') {
@@ -95,11 +85,6 @@ class ApplicationController extends AbstractController
         $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
-
-        // For testing purposes
-        if (isset($_SERVER['X_POP_CONSOLE_INPUT_4'])) {
-            $_SERVER['X_POP_CONSOLE_INPUT'] = $_SERVER['X_POP_CONSOLE_INPUT_4'];
-        }
 
         $createDb = $this->console->prompt(
             'Would you like to configure a database? [Y/N] ', ['y', 'n']

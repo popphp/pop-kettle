@@ -9,6 +9,16 @@ use PHPUnit\Framework\TestCase;
 class ConsoleTest extends TestCase
 {
 
+    private function createInputStream(string ...$lines): mixed
+    {
+        $stream = fopen('php://memory', 'r+');
+        foreach ($lines as $line) {
+            fwrite($stream, $line . PHP_EOL);
+        }
+        rewind($stream);
+        return $stream;
+    }
+
     public function testHeader()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
@@ -30,8 +40,6 @@ class ConsoleTest extends TestCase
 
     public function testHeaderWithWarnings()
     {
-        $_SERVER['X_POP_CONSOLE_INPUT'] = 'y';
-
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
         $dotEnv->safeLoad();
 
@@ -39,10 +47,13 @@ class ConsoleTest extends TestCase
         if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
             include __DIR__ . '/../../kettle.inc.php';
         }
-        $app->register(new Kettle\Module());
+
+        $module = new Kettle\Module();
+        $app->register($module);
+        $module->getConsole()->setInputStream($this->createInputStream('y'));
 
         ob_start();
-        Kettle\Event\Console::header();
+        Kettle\Event\Console::header($module->getConsole());
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Application in Maintenance', $result);

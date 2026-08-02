@@ -44,6 +44,12 @@ class Module extends \Pop\Module\Module
     const VERSION = '2.3.4';
 
     /**
+     * Shared console object
+     * @var ?Console
+     */
+    protected ?Console $console = null;
+
+    /**
      * Register module
      *
      * @param Application $application
@@ -58,19 +64,32 @@ class Module extends \Pop\Module\Module
             $this->initDb(include $dir . '/app/config/database.php');
         }
 
+        $this->console = new Console(120, '    ');
+
         if ($this->application->router() !== null) {
             $this->application->router()->addControllerParams(
                 '*', [
                     'application' => $this->application,
-                    'console'     => new Console(120, '    ')
+                    'console'     => $this->console
                 ]
             );
         }
 
-        $this->application->on('app.route.pre', 'Pop\Kettle\Event\Console::header')
-             ->on('app.dispatch.post', 'Pop\Kettle\Event\Console::footer');
+        $this->application->on('app.route.pre', function () {
+            Event\Console::header($this->console);
+        })->on('app.dispatch.post', 'Pop\Kettle\Event\Console::footer');
 
         return $this;
+    }
+
+    /**
+     * Get the shared console object
+     *
+     * @return ?Console
+     */
+    public function getConsole(): ?Console
+    {
+        return $this->console;
     }
 
     /**

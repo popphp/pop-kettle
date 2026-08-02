@@ -38,11 +38,12 @@ class Console
     /**
      * Display console header
      *
+     * @param  ?\Pop\Console\Console $console
      * @return void
      */
-    public static function header(): void
+    public static function header(?\Pop\Console\Console $console = null): void
     {
-        $console     = new \Pop\Console\Console();
+        $console     = $console ?? new \Pop\Console\Console();
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
         echo PHP_EOL . $console->header('Pop Kettle', '=', null, 'left', true, true) . PHP_EOL;

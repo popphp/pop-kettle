@@ -11,13 +11,20 @@ use PHPUnit\Framework\TestCase;
 class DatabaseControllerTest extends TestCase
 {
 
+    private function createInputStream(string ...$lines): mixed
+    {
+        $stream = fopen('php://memory', 'r+');
+        foreach ($lines as $line) {
+            fwrite($stream, $line . PHP_EOL);
+        }
+        rewind($stream);
+        return $stream;
+    }
+
     public function testConfig()
     {
-        $_SERVER['X_POP_CONSOLE_INPUT'] = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_2'] = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_3'] = '.htpopdb.sqlite';
-
-        $dbAdapters = Db::getAvailableAdapters();
+        $dbAdapters  = Db::getAvailableAdapters();
+        $sqliteIndex = 0;
 
         $i = 0;
         foreach ($dbAdapters as $adapter => $result) {
@@ -30,7 +37,7 @@ class DatabaseControllerTest extends TestCase
             } else if ($result) {
                 $i++;
                 if (strtolower($adapter) == 'sqlite') {
-                    $_SERVER['X_POP_CONSOLE_INPUT_2'] = $i;
+                    $sqliteIndex = $i;
                     break;
                 }
             }
@@ -45,7 +52,10 @@ class DatabaseControllerTest extends TestCase
         }
         $app->register(new Kettle\Module());
 
-        $controller = new Kettle\Controller\DatabaseController($app, new Console(120, '    '));
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream((string)$sqliteIndex, '.htpopdb.sqlite'));
+
+        $controller = new Kettle\Controller\DatabaseController($app, $console);
 
         ob_start();
         $controller->config(null);
@@ -173,11 +183,8 @@ class DatabaseControllerTest extends TestCase
 
     public function testInstall()
     {
-        $_SERVER['X_POP_CONSOLE_INPUT'] = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_2'] = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_3'] = '.htpopdb.sqlite';
-
-        $dbAdapters = Db::getAvailableAdapters();
+        $dbAdapters  = Db::getAvailableAdapters();
+        $sqliteIndex = 0;
 
         $i = 0;
         foreach ($dbAdapters as $adapter => $result) {
@@ -190,7 +197,7 @@ class DatabaseControllerTest extends TestCase
             } else if ($result) {
                 $i++;
                 if (strtolower($adapter) == 'sqlite') {
-                    $_SERVER['X_POP_CONSOLE_INPUT_2'] = $i;
+                    $sqliteIndex = $i;
                     break;
                 }
             }
@@ -205,7 +212,10 @@ class DatabaseControllerTest extends TestCase
         }
         $app->register(new Kettle\Module());
 
-        $controller = new Kettle\Controller\DatabaseController($app, new Console(120, '    '));
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream((string)$sqliteIndex, '.htpopdb.sqlite'));
+
+        $controller = new Kettle\Controller\DatabaseController($app, $console);
 
         unlink(__DIR__ . '/../../.env');
 

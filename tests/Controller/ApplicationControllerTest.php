@@ -11,13 +11,18 @@ use PHPUnit\Framework\TestCase;
 class ApplicationControllerTest extends TestCase
 {
 
+    private function createInputStream(string ...$lines): mixed
+    {
+        $stream = fopen('php://memory', 'r+');
+        foreach ($lines as $line) {
+            fwrite($stream, $line . PHP_EOL);
+        }
+        rewind($stream);
+        return $stream;
+    }
+
     public function testInit()
     {
-        $_SERVER['X_POP_CONSOLE_INPUT']   = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_2'] = '1';
-        $_SERVER['X_POP_CONSOLE_INPUT_3'] = '';
-        $_SERVER['X_POP_CONSOLE_INPUT_4'] = 'n';
-
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
         $dotEnv->safeLoad();
         $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
@@ -26,7 +31,10 @@ class ApplicationControllerTest extends TestCase
         }
         $app->register(new Kettle\Module());
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '1', '', 'n'));
+
+        $controller = new Kettle\Controller\ApplicationController($app, $console);
         ob_start();
         $controller->init('');
         $results = ob_get_clean();
