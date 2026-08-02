@@ -15,7 +15,8 @@ try {
     }
 
     // Load any custom application commands
-    $config['routes'] = Pop\Kettle\Module::loadCommands(include __DIR__ . '/config/app.console.php');
+    $config           = include __DIR__ . '/config/app.console.php';
+    $config['routes'] = Pop\Kettle\Module::loadCommands($config['routes']);
 
     $app = new Pop\Application($autoloader, $config);
     $app->register(new Pop\Kettle\Module());
