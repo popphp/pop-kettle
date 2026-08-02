@@ -17,6 +17,7 @@ use Pop\Code\Generator;
 use Pop\Dir\Dir;
 use Pop\Model\AbstractModel;
 use Pop\Kettle\Exception;
+use Pop\Utils\Str;
 
 /**
  * Application model class
@@ -179,6 +180,7 @@ class Application extends AbstractModel
      */
     public function createCommand(string $command, string $location): void
     {
+        $command   = strtolower($command);
         $namespace = $this->getNamespace($location);
 
         $commandFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
@@ -188,16 +190,28 @@ class Application extends AbstractModel
             throw new Exception('Error: The command folder and namespace has not been created');
         }
 
-        $commandNamespace = $namespace . "\\Console\\Command";
+        $classCommandName = (str_contains($command, ':')) ?
+            substr($command, (strrpos($command, ':') + 1)) : $command;
 
-        $commandClassObject = new Generator\ClassGenerator($command);
+        $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
+
+        $commandNamespace = $namespace . "\\Console\\Command";
+        $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
+
+        $commandClassObject = new Generator\ClassGenerator($classCommandName);
         $commandClassObject->setParent("\\Pop\\Console\\Command");
 
-        $namespaceObject = new Generator\NamespaceGenerator($commandNamespace);
+        $nameProperty   = new Generator\PropertyGenerator('name', '?string', $command);
+        $ctrlProperty   = new Generator\PropertyGenerator('controller', 'mixed');
+        $actionProperty = new Generator\PropertyGenerator('action', '?string');
+        $paramsProperty = new Generator\PropertyGenerator('params', '?string');
+        $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the '{" . $command . "}' command.");
+
+        $commandClassObject->addProperties([$nameProperty,  $ctrlProperty, $actionProperty, $paramsProperty, $helpProperty]);
 
         $code = new Generator();
         $code->addCodeObjects([$namespaceObject, $commandClassObject]);
-        $code->writeToFile($commandFolder . DIRECTORY_SEPARATOR . $command . '.php');
+        $code->writeToFile($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php');
     }
 
     /**

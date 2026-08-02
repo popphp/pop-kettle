@@ -119,7 +119,7 @@ class Module extends \Pop\Module\Module
     }
 
     /**
-     * Load commands
+     * Load custom application commands
      *
      * @param  array  $routes
      * @return array
@@ -141,8 +141,6 @@ class Module extends \Pop\Module\Module
                     $namespace     = substr($classContents, strpos($classContents, 'namespace ') + 10);
                     $namespace     = substr($namespace, 0, strpos($namespace, ';'));
                 }
-
-                //require_once $location . DIRECTORY_SEPARATOR . $command;
 
                 $commandClass = $namespace . '\\' . substr($command, 0, -4);
                 if (class_exists($commandClass)) {

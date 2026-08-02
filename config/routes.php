@@ -96,11 +96,6 @@ return [
         'action'     => 'reset',
         'help'       => 'Perform complete rollback of the database' . PHP_EOL
     ],
-    'create:command <command>' => [
-        'controller' => 'Pop\Kettle\Controller\ApplicationController',
-        'action'     => 'createCommand',
-        'help'       => 'Create a new CLI command, registered with Kettle'
-    ],
     'create:ctrl [--web] [--api] [--cli] <ctrl>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createController',
@@ -114,7 +109,12 @@ return [
     'create:view <view>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createView',
-        'help'       => 'Create a new view file' . PHP_EOL
+        'help'       => 'Create a new view file'
+    ],
+    'create:command <command>' => [
+        'controller' => 'Pop\Kettle\Controller\ApplicationController',
+        'action'     => 'createCommand',
+        'help'       => 'Create a new CLI command, registered with Kettle' . PHP_EOL
     ],
     'serve [--host=] [--port=] [--folder=]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',

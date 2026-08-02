@@ -14,10 +14,10 @@ try {
         include 'kettle.inc.php';
     }
 
-    $config = include __DIR__ . '/config/app.console.php';
-//    $config['routes'] = Pop\Kettle\Module::loadCommands($config['routes']);
-    $app = new Pop\Application($autoloader, $config);
+    // Load any custom application commands
+    $config['routes'] = Pop\Kettle\Module::loadCommands(include __DIR__ . '/config/app.console.php');
 
+    $app = new Pop\Application($autoloader, $config);
     $app->register(new Pop\Kettle\Module());
     $app->run();
 } catch (\Exception $exception) {

@@ -254,23 +254,6 @@ class ApplicationController extends AbstractController
     }
 
     /**
-     * Create command command
-     *
-     * @param  string $command
-     * @return void
-     */
-    public function createCommand(string $command): void
-    {
-        $appModel = new Model\Application();
-        $appModel->createCommand($command, getcwd());
-
-        $this->console->write("Command '" . $command ."' created. Run ./kettle help to view.");
-
-        $this->console->write();
-        $this->console->write('Done!');
-    }
-
-    /**
      * Create controller command
      *
      * @param  string $ctrl
@@ -323,6 +306,23 @@ class ApplicationController extends AbstractController
         $viewFile = $appModel->createView($view, getcwd());
 
         $this->console->write("View file '" . $viewFile ."' created.");
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
+    /**
+     * Create custom command
+     *
+     * @param  string $command
+     * @return void
+     */
+    public function createCommand(string $command): void
+    {
+        $appModel = new Model\Application();
+        $appModel->createCommand($command, getcwd());
+
+        $this->console->write("Command '" . $command ."' created.");
+
         $this->console->write();
         $this->console->write('Done!');
     }
