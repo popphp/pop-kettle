@@ -119,12 +119,12 @@ class Module extends \Pop\Module\Module
     }
 
     /**
-     * Load custom application commands
+     * Load custom application commands into the route config
      *
      * @param  array  $routes
      * @return array
      */
-    public static function loadCommands(array $routes): array
+    public static function loadCommandRoutes(array $routes): array
     {
         $location = getcwd() . '/app/src/Console/Command';
 
@@ -143,27 +143,25 @@ class Module extends \Pop\Module\Module
                         $namespace     = substr($classContents, strpos($classContents, 'namespace ') + 10);
                         $namespace     = substr($namespace, 0, strpos($namespace, ';'));
                     }
+                }
 
-                    $commandClass = $namespace . '\\' . substr($command, 0, -4);
-                    if (class_exists($commandClass)) {
-                        $commandObject = new $commandClass();
-                        if ($commandObject->hasController()) {
-                            $commandRoute = [
-                                'controller' => $commandObject->getController()
-                            ];
+                $commandClass = $namespace . '\\' . substr($command, 0, -4);
+                if (class_exists($commandClass)) {
+                    $commandObject = new $commandClass();
+                    $commandRoute = [
+                        'controller' => ($commandObject->hasController()) ? $commandObject->getController() : $commandClass . '::handle'
+                    ];
 
-                            if ($commandObject->hasAction()) {
-                                $commandRoute['action'] = $commandObject->getAction();
-                            }
-                            if ($commandObject->hasHelp()) {
-                                $commandRoute['help'] = $commandObject->getHelp();
-                                if ($i == (count($commands) - 1)) {
-                                    $commandRoute['help'] .= PHP_EOL;
-                                }
-                            }
-                            $commandRoutes[(string)$commandObject] = $commandRoute;
+                    if ($commandObject->hasAction()) {
+                        $commandRoute['action'] = $commandObject->getAction();
+                    }
+                    if ($commandObject->hasHelp()) {
+                        $commandRoute['help'] = $commandObject->getHelp();
+                        if ($i == (count($commands) - 1)) {
+                            $commandRoute['help'] .= PHP_EOL;
                         }
                     }
+                    $commandRoutes[(string)$commandObject] = $commandRoute;
                 }
             }
 

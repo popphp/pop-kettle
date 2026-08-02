@@ -14,9 +14,9 @@ try {
         include 'kettle.inc.php';
     }
 
-    // Load any custom application commands
+    // Load any custom application command routes
     $config           = include __DIR__ . '/config/app.console.php';
-    $config['routes'] = Pop\Kettle\Module::loadCommands($config['routes']);
+    $config['routes'] = Pop\Kettle\Module::loadCommandRoutes($config['routes']);
 
     $app = new Pop\Application($autoloader, $config);
     $app->register(new Pop\Kettle\Module());

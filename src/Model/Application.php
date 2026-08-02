@@ -205,9 +205,11 @@ class Application extends AbstractModel
         $ctrlProperty   = new Generator\PropertyGenerator('controller', 'mixed');
         $actionProperty = new Generator\PropertyGenerator('action', '?string');
         $paramsProperty = new Generator\PropertyGenerator('params', '?string');
-        $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command.");
+        $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command");
+        $handleMethod   = new Generator\MethodGenerator('handle', 'public', true);
 
-        $commandClassObject->addProperties([$nameProperty,  $ctrlProperty, $actionProperty, $paramsProperty, $helpProperty]);
+        $commandClassObject->addProperties([$nameProperty,  $ctrlProperty, $actionProperty, $paramsProperty, $helpProperty])
+            ->addMethod($handleMethod);
 
         $code = new Generator();
         $code->addCodeObjects([$namespaceObject, $commandClassObject]);
