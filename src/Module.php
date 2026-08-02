@@ -127,46 +127,49 @@ class Module extends \Pop\Module\Module
     public static function loadCommands(array $routes): array
     {
         $location = getcwd() . '/app/src/Console/Command';
-        $commands = array_values(array_filter(scandir($location), function ($value) {
-            return (($value != '.') && ($value != '..') && ($value != '.empty'));
-        }));
 
-        $namespace     = null;
-        $commandRoutes = [];
+        if (file_exists($location)) {
+            $commands = array_values(array_filter(scandir($location), function ($value) {
+                return (($value != '.') && ($value != '..') && ($value != '.empty'));
+            }));
 
-        foreach ($commands as $i => $command) {
-            if ($namespace === null) {
-                if (file_exists($location . DIRECTORY_SEPARATOR . $command)) {
-                    $classContents = file_get_contents($location . DIRECTORY_SEPARATOR . $command);
-                    $namespace     = substr($classContents, strpos($classContents, 'namespace ') + 10);
-                    $namespace     = substr($namespace, 0, strpos($namespace, ';'));
-                }
+            $namespace     = null;
+            $commandRoutes = [];
 
-                $commandClass = $namespace . '\\' . substr($command, 0, -4);
-                if (class_exists($commandClass)) {
-                    $commandObject = new $commandClass();
-                    if ($commandObject->hasController()) {
-                        $commandRoute = [
-                            'controller' => $commandObject->getController()
-                        ];
+            foreach ($commands as $i => $command) {
+                if ($namespace === null) {
+                    if (file_exists($location . DIRECTORY_SEPARATOR . $command)) {
+                        $classContents = file_get_contents($location . DIRECTORY_SEPARATOR . $command);
+                        $namespace     = substr($classContents, strpos($classContents, 'namespace ') + 10);
+                        $namespace     = substr($namespace, 0, strpos($namespace, ';'));
+                    }
 
-                        if ($commandObject->hasAction()) {
-                            $commandRoute['action'] = $commandObject->getAction();
-                        }
-                        if ($commandObject->hasHelp()) {
-                            $commandRoute['help'] = $commandObject->getHelp();
-                            if ($i == (count($commands) - 1)) {
-                                $commandRoute['help'] .= PHP_EOL;
+                    $commandClass = $namespace . '\\' . substr($command, 0, -4);
+                    if (class_exists($commandClass)) {
+                        $commandObject = new $commandClass();
+                        if ($commandObject->hasController()) {
+                            $commandRoute = [
+                                'controller' => $commandObject->getController()
+                            ];
+
+                            if ($commandObject->hasAction()) {
+                                $commandRoute['action'] = $commandObject->getAction();
                             }
+                            if ($commandObject->hasHelp()) {
+                                $commandRoute['help'] = $commandObject->getHelp();
+                                if ($i == (count($commands) - 1)) {
+                                    $commandRoute['help'] .= PHP_EOL;
+                                }
+                            }
+                            $commandRoutes[(string)$commandObject] = $commandRoute;
                         }
-                        $commandRoutes[(string)$commandObject] = $commandRoute;
                     }
                 }
             }
-        }
 
-        if (!empty($commandRoutes)) {
-            $routes = array_merge($commandRoutes, $routes);
+            if (!empty($commandRoutes)) {
+                $routes = array_merge($commandRoutes, $routes);
+            }
         }
 
         return $routes;
