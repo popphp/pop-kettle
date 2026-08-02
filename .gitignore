@@ -1,9 +1,9 @@
 composer.lock
-app
-data
-database
-public
-script
+/app
+/data
+/database
+/public
+/script
 vendor
 kettle
 .phpunit.result.cache

@@ -136,6 +136,15 @@ class Application extends AbstractModel
             chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
         }
 
+        if (file_exists($location . DIRECTORY_SEPARATOR . 'data')) {
+            chmod($location . DIRECTORY_SEPARATOR . 'data', 0777);
+        }
+
+        if (file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php')) {
+            $autoloader = "\$autoloader->addPsr4('{$namespace}\\\\', __DIR__ . '/app/src');" . PHP_EOL;
+            file_put_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php', $autoloader, FILE_APPEND);
+        }
+
         if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
             copy(
                 __DIR__ . '/../../config/templates/orig.env',
@@ -315,8 +324,8 @@ class Application extends AbstractModel
             $createdCtrls[] = $apiNamespace . "\\" . $ctrl;
         }
 
-        // Create HTTP controller
-        if (empty($web) && empty($api)) {
+        // Default to creating HTTP controller
+        if (($web === null) && ($api == null) && ($cli === null)) {
             if (!file_exists($httpFolder)) {
                 throw new Exception('Error: The HTTP folder and namespace has not been created');
             }
