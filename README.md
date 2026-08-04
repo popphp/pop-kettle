@@ -17,6 +17,9 @@ pop-kettle
     + [Migration State Storage](#migration-state-storage)
 * [Creating Application Files](#creating-application-files)
     + [Data Model](#data-model)
+* [Creating Custom Commands](#creating-custom-commands)
+    + [Kettle Commands](#kettle-commands)
+    + [Application Console Scripts](#application-console-scripts)
 * [Running the Web Server](#running-the-web-server)
 * [Accessing the Application](#accessing-the-application)
 * [Shell Completion](#shell-completion)
@@ -393,10 +396,13 @@ You can create skeleton application files with the `create` commands to assist y
 MVC-based components, such as models, views and controllers: 
 
 ```bash
+./kettle create:command <command>                        Create a new CLI command, registered with Kettle
 ./kettle create:ctrl [--web] [--api] [--cli] <ctrl>      Create a new controller class
 ./kettle create:model [-d|--data] <model>                Create a new model class
 ./kettle create:view <view>                              Create a new view file
 ```
+
+(See [Creating Custom Commands](#creating-custom-commands) below for more on `create:command`.)
 
 Once the respective class files or view scripts are created in the appropriate folders, you can then
 open them up and begin writing your application code.
@@ -414,6 +420,89 @@ $ ./kettle create:model --data User
 will create class files for `MyApp\Model\User` and `MyApp\Table\Users`. From there, using the model
 class, you can begin to store and retrieve data from the `users` table in the database with very little
 additional coding.
+
+[Top](#pop-kettle)
+
+Creating Custom Commands
+-------------------------
+
+There are two ways to add custom, application-specific CLI commands to your project: registering
+lightweight **Kettle Commands** directly with the `kettle` script itself, or building out a full,
+separate **Application Console Script** of your own. Which one you reach for depends on the shape of
+what you're building.
+
+### Kettle Commands
+
+If your application only needs a handful of one-off CLI commands (e.g. "send a welcome email",
+"deactivate a stale account"), you can register them directly with `kettle` without having to build
+and wire up a separate console application. Each command is its own class with a single `handle()`
+action — a 1:1 relationship between class and command.
+
+```bash
+$ ./kettle create:command <command>
+```
+
+This requires that the application has already been initialized with the `--cli` flag (or a
+combination that includes it, e.g. `--web --cli`), since the command class is scaffolded into
+`app/src/Console/Command/`, which is only created for CLI-enabled installs.
+
+The `<command>` value becomes both the CLI command signature and (in title case) the generated class
+name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/SendEmail.php`:
+
+```php
+<?php
+
+namespace MyApp\Console\Command;
+
+class SendEmail extends \Pop\Console\Command\AbstractCommand
+{
+
+    public ?string $name = 'send-email';
+    public ?string $params = null;
+    public ?string $help = 'This is the send-email command';
+
+    public function handle()
+    {
+        /** Add command code here. */
+    }
+
+}
+```
+
+You can namespace the command signature itself by including a colon, e.g.
+`./kettle create:command email:send`, which still produces a class named `Send` (based on the part
+after the last `:`), but registers the full `email:send` string as the command. If the command takes
+CLI arguments or options, add them to the `$params` property using the standard `Pop\Router` CLI
+syntax (`<required>`, `[<optional>]`, `[--flag]`, `[-s|--long=]`), for example:
+
+```php
+public ?string $params = '<to> [--cc=]';
+```
+
+Every class found in `app/src/Console/Command/` is automatically discovered and merged into `kettle`'s
+own route table on every run — there's nothing further to wire up. Once created, run it like any other
+`kettle` command:
+
+```bash
+$ ./kettle send-email
+$ ./kettle email:send test@test.com --cc=someone@test.com
+```
+
+### Application Console Scripts
+
+For a CLI application with a larger number of related commands, it's often cleaner to group them
+under a dedicated `Console\Controller` class rather than registering many individual Kettle Commands
+— e.g. an `EmailController` housing several email-related commands, instead of a separate
+`SendEmail`/`QueueEmail`/`RetryEmail` command class for each one. This is the original approach and is
+still fully supported: running `./kettle app:init --cli <namespace>` (or a flag combination including
+`--cli`) scaffolds a standalone CLI front controller at `script/<namespace>` with its own
+`Console\Controller` classes and route table, completely separate from `kettle`. See
+[Accessing the Application](#accessing-the-application) below for how to run it, and use
+`./kettle create:ctrl --cli <ctrl>` to add additional controllers to it.
+
+In short: reach for a **Kettle Command** for a small number of standalone commands you want available
+immediately with no extra wiring; reach for an **Application Console Script** when you want a
+larger, self-contained CLI application with its own namespaced groups of commands.
 
 [Top](#pop-kettle)
 
