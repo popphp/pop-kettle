@@ -6,20 +6,44 @@ use Pop\Db;
 use Pop\Http\Server\Request;
 use Pop\Http\Server\Response;
 
-class Application extends \Popcorn\Pop
+class Application extends \Pop\Application
 {
 
     /**
      * Application name
      * @var ?string
      */
-    protected ?string $name = 'myapp';
+    const string NAME = 'myapp';
+
+    /**
+     * Application full name
+     * @var ?string
+     */
+    const string FULL_NAME = 'MyApp';
 
     /**
      * Application version
+     * @var string
+     */
+    const string VERSION = '1.0.0';
+
+    /**
+     * Application name
      * @var ?string
      */
-    protected ?string $version = '1.0.0';
+    protected ?string $name = self::NAME;
+
+    /**
+     * Application full name
+     * @var ?string
+     */
+    protected ?string $fullName = self::FULL_NAME;
+
+    /**
+     * Version
+     * @var ?string
+     */
+    protected ?string $version = self::VERSION;
 
     /**
      * Load application

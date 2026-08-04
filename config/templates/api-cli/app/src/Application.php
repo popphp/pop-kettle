@@ -2,55 +2,81 @@
 
 namespace MyApp;
 
-use Pop\Application;
 use Pop\Db;
 use Pop\Console\Console;
 use Pop\Http\Server\Request;
 use Pop\Http\Server\Response;
 
-class Module extends \Pop\Module\Module
+class Application extends \Pop\Application
 {
 
     /**
-     * Module name
+     * Application name
      * @var ?string
      */
-    protected ?string $name = 'myapp';
+    const string NAME = 'myapp';
 
     /**
-     * Register module
-     *
-     * @param  Application $application
-     * @return static
+     * Application full name
+     * @var ?string
      */
-    public function register(Application $application): static
-    {
-        parent::register($application);
+    const string FULL_NAME = 'MyApp';
 
-        if (isset($this->application->config['database'])) {
-            $this->initDb($this->application->config['database']);
+    /**
+     * Application version
+     * @var string
+     */
+    const string VERSION = '1.0.0';
+
+    /**
+     * Application name
+     * @var ?string
+     */
+    protected ?string $name = self::NAME;
+
+    /**
+     * Application full name
+     * @var ?string
+     */
+    protected ?string $fullName = self::FULL_NAME;
+
+    /**
+     * Version
+     * @var ?string
+     */
+    protected ?string $version = self::VERSION;
+
+    /**
+     * Load application
+     *
+     * @return Application
+     */
+    public function load(): Application
+    {
+        if (isset($this->config['database'])) {
+            $this->initDb($this->config['database']);
         }
 
-        if ($this->application->router() !== null) {
-            if ($this->application->router()->isHttp()) {
-                $this->application->router()->addControllerParams(
+        if ($this->router() !== null) {
+            if ($this->router()->isHttp()) {
+                $this->router()->addControllerParams(
                     '*', [
-                        'application' => $this->application,
+                        'application' => $this,
                         'request'     => new Request(),
                         'response'    => new Response()
                     ]
                 );
 
-                $this->application->on('app.dispatch.pre', 'MyApp\Http\Event\Options::send', 1);
-            } else if ($this->application->router()->isCli()) {
-                $this->application->router()->addControllerParams(
+                $this->on('app.dispatch.pre', 'MyApp\Http\Event\Options::send', 1);
+            } else if ($this->router()->isCli()) {
+                $this->router()->addControllerParams(
                     '*', [
-                        'application' => $this->application,
+                        'application' => $this,
                         'console'     => new Console(120, '    ')
                     ]
                 );
 
-                $this->application->on('app.route.pre', function() { echo PHP_EOL; })
+                $this->on('app.route.pre', function() { echo PHP_EOL; })
                     ->on('app.dispatch.post', function() { echo PHP_EOL; });
             }
         }
@@ -84,7 +110,7 @@ class Module extends \Pop\Module\Module
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
-            $this->application->services()->set('database', [
+            $this->services()->set('database', [
                 'call'   => 'Pop\Db\Db::connect',
                 'params' => [
                     'adapter' => $adapter,
@@ -92,8 +118,8 @@ class Module extends \Pop\Module\Module
                 ]
             ]);
 
-            if ($this->application->services()->isAvailable('database')) {
-                Db\Record::setDb($this->application->services['database']);
+            if ($this->services()->isAvailable('database')) {
+                Db\Record::setDb($this->services['database']);
             }
         }
     }
