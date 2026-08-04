@@ -35,13 +35,37 @@ class Module extends \Pop\Module\Module
      * Application name
      * @var ?string
      */
-    protected ?string $name = 'pop-kettle';
+    const string NAME = 'pop-kettle';
+
+    /**
+     * Application full name
+     * @var ?string
+     */
+    const string FULL_NAME = 'Pop Kettle';
 
     /**
      * Application version
      * @var string
      */
-    const VERSION = '3.0.0';
+    const string VERSION = '3.0.0';
+
+    /**
+     * Application name
+     * @var ?string
+     */
+    protected ?string $name = self::NAME;
+
+    /**
+     * Application full name
+     * @var ?string
+     */
+    protected ?string $fullName = self::FULL_NAME;
+
+    /**
+     * Version
+     * @var ?string
+     */
+    protected ?string $version = self::VERSION;
 
     /**
      * Shared console object
@@ -65,6 +89,7 @@ class Module extends \Pop\Module\Module
         }
 
         $this->console = new Console(120, '    ');
+        $this->console->setFooter('', false);
 
         if ($this->application->router() !== null) {
             $this->application->router()->addControllerParams(
@@ -75,9 +100,12 @@ class Module extends \Pop\Module\Module
             );
         }
 
+        $this->console->write(PHP_EOL . $this->console->header('Pop Kettle', '=', null, 'left', false, true));
+
         $this->application->on('app.route.pre', function () {
-            Event\Console::header($this->console);
-        })->on('app.dispatch.post', 'Pop\Kettle\Event\Console::footer');
+            Event\Console::maintenanceDisplay($this->console);
+            Event\Console::productionDisplay($this->console);
+        });
 
         return $this;
     }

@@ -36,36 +36,36 @@ class Console
     protected static array $omitCommands = ['app:env', 'app:status', 'help', 'version'];
 
     /**
-     * Display console header
+     * Display maintenance alert
      *
      * @param  ?\Pop\Console\Console $console
      * @return void
      */
-    public static function header(?\Pop\Console\Console $console = null): void
+    public static function maintenanceDisplay(?\Pop\Console\Console $console = null): void
     {
         $console     = $console ?? new \Pop\Console\Console();
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
-        echo PHP_EOL . $console->header('Pop Kettle', '=', null, 'left', true, true) . PHP_EOL;
-
         if (App::isDown() && ($routeString != 'app:up')) {
             $console->alertInfo('Application in Maintenance', 40);
         }
+    }
+
+    /**
+     * Display production alert and prompt
+     *
+     * @param  ?\Pop\Console\Console $console
+     * @return void
+     */
+    public static function productionDisplay(?\Pop\Console\Console $console = null): void
+    {
+        $console     = $console ?? new \Pop\Console\Console();
+        $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
         if ((App::isProduction()) && !in_array($routeString, self::$omitCommands)) {
             $console->alertWarning('Application in Production', 40);
             $console->confirm('Are you sure you want to run this command?');
         }
-    }
-
-    /**
-     * Display console footer
-     *
-     * @return void
-     */
-    public static function footer(): void
-    {
-        echo PHP_EOL;
     }
 
 }

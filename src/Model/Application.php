@@ -92,6 +92,8 @@ class Application extends AbstractModel
         string $name = 'Pop', string $env = 'local', string $url = 'http://localhost'
     ): void
     {
+        copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
+
         $script = strtolower(str_replace('\\', '-', $namespace));
         $path   = realpath(__DIR__ . '/../../config/templates/' . $install);
         $dir    = new Dir($path);
