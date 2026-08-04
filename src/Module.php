@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -24,9 +24,9 @@ use Pop\Db;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.4
+ * @version    3.0.0
  */
 class Module extends \Pop\Module\Module
 {
@@ -41,7 +41,7 @@ class Module extends \Pop\Module\Module
      * Application version
      * @var string
      */
-    const VERSION = '2.3.4';
+    const VERSION = '3.0.0';
 
     /**
      * Shared console object
@@ -168,12 +168,10 @@ class Module extends \Pop\Module\Module
                 if (class_exists($commandClass)) {
                     $commandObject = new $commandClass();
                     $commandRoute = [
-                        'controller' => ($commandObject->hasController()) ? $commandObject->getController() : $commandClass . '::handle'
+                        'controller' => $namespace . '\\' . substr($command, 0, -4),
+                        'action'     => 'handle'
                     ];
 
-                    if ($commandObject->hasAction()) {
-                        $commandRoute['action'] = $commandObject->getAction();
-                    }
                     if ($commandObject->hasHelp()) {
                         $commandRoute['help'] = $commandObject->getHelp();
                         if ($i == (count($commands) - 1)) {

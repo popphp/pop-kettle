@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -25,9 +25,9 @@ use Pop\Utils\Str;
  * @category   Pop\Kettle
  * @package    Pop\Kettle
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.3.4
+ * @version    3.0.0
  */
 class Application extends AbstractModel
 {
@@ -199,16 +199,15 @@ class Application extends AbstractModel
         $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
 
         $commandClassObject = new Generator\ClassGenerator($classCommandName);
-        $commandClassObject->setParent("\\Pop\\Console\\Command");
+        $commandClassObject->setParent("\\Pop\\Console\\Command\\AbstractCommand");
 
         $nameProperty   = new Generator\PropertyGenerator('name', '?string', $command);
-        $ctrlProperty   = new Generator\PropertyGenerator('controller', 'mixed');
-        $actionProperty = new Generator\PropertyGenerator('action', '?string');
         $paramsProperty = new Generator\PropertyGenerator('params', '?string');
         $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command");
-        $handleMethod   = new Generator\MethodGenerator('handle', 'public', true);
+        $handleMethod   = new Generator\MethodGenerator('handle', 'public');
+        $handleMethod->setBody('/** Add command code here. */');
 
-        $commandClassObject->addProperties([$nameProperty,  $ctrlProperty, $actionProperty, $paramsProperty, $helpProperty])
+        $commandClassObject->addProperties([$nameProperty, $paramsProperty, $helpProperty])
             ->addMethod($handleMethod);
 
         $code = new Generator();
