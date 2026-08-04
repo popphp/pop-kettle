@@ -195,28 +195,29 @@ class Application extends AbstractModel
         $classCommandName = (str_contains($command, ':')) ?
             substr($command, (strrpos($command, ':') + 1)) : $command;
 
-        $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
+        if (!file_exists($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php')) {
+            $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
 
-        $commandNamespace = $namespace . "\\Console\\Command\\Kettle";
-        $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
+            $commandNamespace = $namespace . "\\Console\\Command\\Kettle";
+            $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
 
-        $commandClassObject = new Generator\ClassGenerator($classCommandName);
-        $commandClassObject->setParent("\\Pop\\Console\\Command\\AbstractCommand");
+            $commandClassObject = new Generator\ClassGenerator($classCommandName);
+            $commandClassObject->setParent("\\Pop\\Console\\Command\\AbstractCommand");
 
-        $nameProperty   = new Generator\PropertyGenerator('name', '?string', $command);
-        $paramsProperty = new Generator\PropertyGenerator('params', '?string');
-        $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command");
-        $handleMethod   = new Generator\MethodGenerator('handle', 'public');
-        $handleMethod->setBody('/** Add command code here. */');
-        $handleDocBlock = new Generator\DocblockGenerator('$this->application and $this->console are both available.');
-        $handleMethod->setDocblock($handleDocBlock);
+            $nameProperty   = new Generator\PropertyGenerator('name', '?string', $command);
+            $paramsProperty = new Generator\PropertyGenerator('params', '?string');
+            $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command");
+            $handleMethod   = new Generator\MethodGenerator('handle', 'public');
+            $handleMethod->setBody('/** Add command code here. */')
+                ->setDocblock(new Generator\DocblockGenerator("  \$this->application and \$this->console are both available."));
 
-        $commandClassObject->addProperties([$nameProperty, $paramsProperty, $helpProperty])
-            ->addMethod($handleMethod);
+            $commandClassObject->addProperties([$nameProperty, $paramsProperty, $helpProperty])
+                ->addMethod($handleMethod);
 
-        $code = new Generator();
-        $code->addCodeObjects([$namespaceObject, $commandClassObject]);
-        $code->writeToFile($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php');
+            $code = new Generator();
+            $code->addCodeObjects([$namespaceObject, $commandClassObject]);
+            $code->writeToFile($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php');
+        }
     }
 
     /**
