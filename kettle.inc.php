@@ -9,4 +9,3 @@
  * The main Kettle $app object is accessible in this file.
  */
 
-$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');

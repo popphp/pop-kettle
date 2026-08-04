@@ -159,8 +159,11 @@ class Module extends \Pop\Module\Module
                 if ($namespace === null) {
                     if (file_exists($location . DIRECTORY_SEPARATOR . $command)) {
                         $classContents = file_get_contents($location . DIRECTORY_SEPARATOR . $command);
-                        $namespace     = substr($classContents, strpos($classContents, 'namespace ') + 10);
-                        $namespace     = substr($namespace, 0, strpos($namespace, ';'));
+                        $matches       = [];
+                        preg_match('/^\s*namespace\s+([^;]+);/m', $classContents, $matches);
+                        if (isseT($matches[1])) {
+                            $namespace = trim($matches[1]);
+                        }
                     }
                 }
 

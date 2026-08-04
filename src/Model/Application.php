@@ -143,7 +143,9 @@ class Application extends AbstractModel
 
         if (file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php')) {
             $autoloader = "\$autoloader->addPsr4('{$namespace}\\\\', __DIR__ . '/app/src');" . PHP_EOL;
-            file_put_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php', $autoloader, FILE_APPEND);
+            if (!str_contains(file_get_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php'), $autoloader)) {
+                file_put_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php', $autoloader, FILE_APPEND);
+            }
         }
 
         if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
@@ -206,6 +208,8 @@ class Application extends AbstractModel
         $helpProperty   = new Generator\PropertyGenerator('help', '?string', "This is the " . $command . " command");
         $handleMethod   = new Generator\MethodGenerator('handle', 'public');
         $handleMethod->setBody('/** Add command code here. */');
+        $handleDocBlock = new Generator\DocblockGenerator('$this->application and $this->console are both available.');
+        $handleMethod->setDocblock($handleDocBlock);
 
         $commandClassObject->addProperties([$nameProperty, $paramsProperty, $helpProperty])
             ->addMethod($handleMethod);
