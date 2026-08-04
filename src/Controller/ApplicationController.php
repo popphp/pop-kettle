@@ -51,9 +51,9 @@ class ApplicationController extends AbstractController
             'production' => 5,
         ];
 
-        $name = $this->console->prompt('What is the name of your app? [MyApp] ', null, true);
+        $name = $this->console->prompt('What is the name of your app? [' . $namespace . '] ', null, true);
         if ($name == '') {
-            $name = 'MyApp';
+            $name = $namespace;
         } else if (str_contains($name, ' ') && !str_starts_with($name, '"') && !str_ends_with($name, '"')) {
             $name = '"' . $name . '"';
         }
