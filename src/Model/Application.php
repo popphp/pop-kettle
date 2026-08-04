@@ -184,7 +184,7 @@ class Application extends AbstractModel
         $namespace = $this->getNamespace($location);
 
         $commandFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
-            'Console' . DIRECTORY_SEPARATOR . 'Command';
+            'Console' . DIRECTORY_SEPARATOR . 'Command' . DIRECTORY_SEPARATOR . 'Kettle';
 
         if (!file_exists($commandFolder)) {
             throw new Exception('Error: The command folder and namespace has not been created');
@@ -195,7 +195,7 @@ class Application extends AbstractModel
 
         $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
 
-        $commandNamespace = $namespace . "\\Console\\Command";
+        $commandNamespace = $namespace . "\\Console\\Command\\Kettle";
         $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
 
         $commandClassObject = new Generator\ClassGenerator($classCommandName);

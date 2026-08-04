@@ -145,7 +145,7 @@ class Module extends \Pop\Module\Module
      */
     public static function loadCommandRoutes(array $routes): array
     {
-        $location = getcwd() . '/app/src/Console/Command';
+        $location = getcwd() . '/app/src/Console/Command/Kettle';
 
         if (file_exists($location)) {
             $commands = array_values(array_filter(scandir($location), function ($value) {
