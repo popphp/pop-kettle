@@ -2,10 +2,16 @@
 
 namespace MyApp\Http\Controller;
 
+use Pop\Controller\HttpControllerTrait;
 use Pop\View\View;
 
-class IndexController extends AbstractController
+class IndexController
 {
+
+    /**
+     * Traits
+     */
+    use HttpControllerTrait;
 
     /**
      * Error action

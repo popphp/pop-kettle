@@ -2,8 +2,15 @@
 
 namespace MyApp\Http\Api\Controller;
 
-abstract class AbstractController extends \MyApp\Http\Controller\AbstractController
+use Pop\Controller\HttpControllerTrait;
+
+abstract class AbstractController
 {
+
+    /**
+     * Traits
+     */
+    use HttpControllerTrait;
 
     /**
      * Send response

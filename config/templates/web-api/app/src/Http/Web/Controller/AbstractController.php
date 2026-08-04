@@ -2,10 +2,16 @@
 
 namespace MyApp\Http\Web\Controller;
 
+use Pop\Controller\HttpControllerTrait;
 use Pop\View\View;
 
-abstract class AbstractController extends \MyApp\Http\Controller\AbstractController
+abstract class AbstractController
 {
+
+    /**
+     * Traits
+     */
+    use HttpControllerTrait;
 
     /**
      * View path
