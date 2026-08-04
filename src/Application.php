@@ -13,8 +13,6 @@
  */
 namespace Pop\Kettle;
 
-use Pop\Application;
-use Pop\Code\Reflection\ClassReflection;
 use Pop\Console\Console;
 use Pop\Db;
 
@@ -28,7 +26,7 @@ use Pop\Db;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Module extends \Pop\Module\Module
+class Application extends \Pop\Application
 {
 
     /**
@@ -74,15 +72,12 @@ class Module extends \Pop\Module\Module
     protected ?Console $console = null;
 
     /**
-     * Register module
+     * Load application
      *
-     * @param Application $application
-     * @return static
+     * @return Application
      */
-    public function register(Application $application): static
+    public function load(): Application
     {
-        parent::register($application);
-
         $dir = getcwd();
         if (file_exists($dir . '/app/config/database.php')) {
             $this->initDb(include $dir . '/app/config/database.php');
@@ -90,10 +85,10 @@ class Module extends \Pop\Module\Module
 
         $this->console = new Console(120, '    ');
 
-        if ($this->application->router() !== null) {
-            $this->application->router()->addControllerParams(
+        if ($this->router() !== null) {
+            $this->router()->addControllerParams(
                 '*', [
-                    'application' => $this->application,
+                    'application' => $this,
                     'console'     => $this->console
                 ]
             );
@@ -101,7 +96,7 @@ class Module extends \Pop\Module\Module
 
         $this->console->write(PHP_EOL . $this->console->header('Pop Kettle', '=', null, 'left', true, true));
 
-        $this->application->on('app.route.pre', function () {
+        $this->on('app.route.pre', function () {
             Event\Console::maintenanceDisplay($this->console);
             Event\Console::productionDisplay($this->console);
         })->on('app.dispatch.post', function() {
