@@ -89,7 +89,6 @@ class Module extends \Pop\Module\Module
         }
 
         $this->console = new Console(120, '    ');
-        $this->console->setFooter('', false);
 
         if ($this->application->router() !== null) {
             $this->application->router()->addControllerParams(
@@ -100,11 +99,13 @@ class Module extends \Pop\Module\Module
             );
         }
 
-        $this->console->write(PHP_EOL . $this->console->header('Pop Kettle', '=', null, 'left', false, true));
+        $this->console->write(PHP_EOL . $this->console->header('Pop Kettle', '=', null, 'left', true, true));
 
         $this->application->on('app.route.pre', function () {
             Event\Console::maintenanceDisplay($this->console);
             Event\Console::productionDisplay($this->console);
+        })->on('app.dispatch.post', function() {
+            $this->console->write();
         });
 
         return $this;
