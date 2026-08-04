@@ -12,7 +12,7 @@ try {
     $config           = include __DIR__ . '/../app/config/app.console.php';
     $config['routes'] = Pop\Console\CommandRegistry::loadRoutes($config['routes'], __DIR__ . '/../app/src/Console/Command');
 
-    $app = new Pop\Application($autoloader, $config);
+    $app = new MyApp\Application($autoloader, $config);
     $app->load();
     $app->run();
 } catch (\Exception $exception) {

@@ -55,14 +55,18 @@ class Application extends \Pop\Application
             $this->initDb($this->config['database']);
         }
 
+        $console = new Console(120, '    ');
+
         if ($this->router() !== null) {
             $this->router()->addControllerParams(
                 '*', [
                     'application' => $this,
-                    'console'     => new Console(120, '    ')
+                    'console'     => $console
                 ]
             );
         }
+
+        $console->write(PHP_EOL . $console->header(self::FULL_NAME, '=', null, 'left', true, true));
 
         $this->on('app.route.pre', function() { echo PHP_EOL; })
              ->on('app.dispatch.post', function() { echo PHP_EOL; });

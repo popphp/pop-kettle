@@ -94,7 +94,7 @@ class Application extends \Pop\Application
             );
         }
 
-        $this->console->write(PHP_EOL . $this->console->header('Pop Kettle', '=', null, 'left', true, true));
+        $this->console->write(PHP_EOL . $this->console->header(self::FULL_NAME, '=', null, 'left', true, true));
 
         $this->on('app.route.pre', function () {
             Event\Console::maintenanceDisplay($this->console);
