@@ -4,7 +4,7 @@ namespace MyApp\Http\Api\Controller;
 
 use Pop\Controller\HttpControllerTrait;
 
-abstract class AbstractController
+abstract class AbstractController extends \Pop\Controller\AbstractController
 {
 
     /**

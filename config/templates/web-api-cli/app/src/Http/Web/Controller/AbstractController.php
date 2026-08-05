@@ -5,7 +5,7 @@ namespace MyApp\Http\Web\Controller;
 use Pop\Controller\HttpControllerTrait;
 use Pop\View\View;
 
-abstract class AbstractController
+abstract class AbstractController extends \Pop\Controller\AbstractController
 {
 
     /**
