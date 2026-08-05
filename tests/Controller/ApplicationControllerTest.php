@@ -2,292 +2,438 @@
 
 namespace Pop\Kettle\Test\Controller;
 
-use Pop\Application;
-use Pop\Dir\Dir;
 use Pop\Console\Console;
 use Pop\Kettle;
+use Pop\Kettle\Test\Fixtures\AppTestTrait;
 use PHPUnit\Framework\TestCase;
 
 class ApplicationControllerTest extends TestCase
 {
 
-    private function createInputStream(string ...$lines): mixed
+    use AppTestTrait;
+
+    protected function setUp(): void
     {
-        $stream = fopen('php://memory', 'r+');
-        foreach ($lines as $line) {
-            fwrite($stream, $line . PHP_EOL);
-        }
-        rewind($stream);
-        return $stream;
+        $this->enterSandbox();
     }
 
-    public function testInit()
+    protected function tearDown(): void
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->leaveSandbox();
+    }
 
+    private function writeEnv(array $overrides = []): void
+    {
+        $values = array_merge([
+            'APP_NAME'                => 'Pop',
+            'APP_ENV'                 => 'local',
+            'APP_URL'                 => 'http://localhost',
+            'MAINTENANCE_MODE'        => 'false',
+            'MAINTENANCE_MODE_SECRET' => '',
+            'DB_DATABASE'             => '',
+            'DB_ADAPTER'              => '',
+            'DB_USERNAME'             => '',
+            'DB_PASSWORD'             => '',
+            'DB_HOST'                 => '',
+            'DB_TYPE'                 => '',
+        ], $overrides);
+
+        $lines = [];
+        foreach ($values as $key => $value) {
+            $lines[] = $key . '=' . $value;
+        }
+
+        file_put_contents(getcwd() . '/.env', implode(PHP_EOL, $lines) . PHP_EOL);
+        \Dotenv\Dotenv::createMutable(getcwd())->safeLoad();
+    }
+
+    private function controller(?Console $console = null): Kettle\Controller\ApplicationController
+    {
+        return new Kettle\Controller\ApplicationController($this->makeApp(), $console ?? new Console(120, '    '));
+    }
+
+    public function testInitDefaultsToWebInstall()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('MyApp');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Done!', $result);
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
+        $this->assertStringContainsString('APP_ENV=dev', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testInitWithCliFlag()
+    {
+        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '1', '', 'n'));
 
-        $controller = new Kettle\Controller\ApplicationController($app, $console);
         ob_start();
-        $controller->init('');
-        $results = ob_get_clean();
+        $this->controller($console)->init('MyApp', ['cli' => true]);
+        ob_end_clean();
 
-        $this->assertInstanceOf('Pop\Kettle\Controller\ApplicationController', $controller);
+        $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
     }
 
-    public function testCreateController()
+    public function testInitWithDatabaseConfiguration()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->seedKettleIncOrig();
+        $sqliteIndex = $this->sqliteAdapterIndex();
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream(
+            '', '1', '', 'y', (string)$sqliteIndex, 'testdb'
+        ));
+
         ob_start();
-        $controller->createController('TestController');
-        $results = ob_get_clean();
+        $this->controller($console)->init('MyApp');
+        ob_end_clean();
 
-        $this->assertStringContainsString("Controller class 'MyApp\Http\Controller\TestController' created.", $results);
-        $this->assertFileExists(__DIR__ . '/../../app/src/Http/Controller/TestController.php');
+        $this->assertFileExists(getcwd() . '/database/testdb.sqlite');
+        $this->assertStringContainsString('DB_ADAPTER=sqlite', file_get_contents(getcwd() . '/.env'));
     }
 
-    public function testCreateModel()
+    public function testInitQuotesNameContainingSpaces()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('My App', '1', '', 'n'));
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->createModel('TestModel');
-        $results = ob_get_clean();
+        $this->controller($console)->init('');
+        ob_end_clean();
 
-        $this->assertStringContainsString("Model class 'MyApp\Model\TestModel' created.", $results);
-        $this->assertFileExists(__DIR__ . '/../../app/src/Model/TestModel.php');
+        $this->assertStringContainsString('APP_NAME="My App"', file_get_contents(getcwd() . '/.env'));
     }
 
-    public function testCreateView()
+    public function testInitDefaultsNamespaceWhenEmpty()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '1', '', 'n'));
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->createView('test.phtml');
-        $results = ob_get_clean();
+        $this->controller($console)->init('');
+        ob_end_clean();
 
-        $this->assertStringContainsString("View file 'test.phtml' created.", $results);
-        $this->assertFileExists(__DIR__ . '/../../app/view/test.phtml');
-
-        if (file_exists(__DIR__ . '/../../app')) {
-            $dir = new Dir(__DIR__ . '/../../app');
-            $dir->emptyDir(true);
-        }
+        // Falls back to the 'MyApp' namespace, which install() uses to derive class references
+        $this->assertStringContainsString('MyApp', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
     }
 
     public function testEnvLocal()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/local');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['APP_ENV' => 'local']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->env();
-        $results = ob_get_clean();
+        $this->controller()->env();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application in Local', $results);
+        $this->assertStringContainsString('Application in Local', $result);
     }
 
     public function testEnvDev()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['APP_ENV' => 'dev']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->env();
-        $results = ob_get_clean();
+        $this->controller()->env();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application in Dev', $results);
+        $this->assertStringContainsString('Application in Dev', $result);
     }
 
     public function testEnvTesting()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/testing');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['APP_ENV' => 'testing']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->env();
-        $results = ob_get_clean();
+        $this->controller()->env();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application in Testing', $results);
+        $this->assertStringContainsString('Application in Testing', $result);
     }
 
     public function testEnvStaging()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/staging');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['APP_ENV' => 'staging']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->env();
-        $results = ob_get_clean();
+        $this->controller()->env();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application in Staging', $results);
+        $this->assertStringContainsString('Application in Staging', $result);
     }
 
     public function testEnvProd()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['APP_ENV' => 'production']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->env();
-        $results = ob_get_clean();
+        $this->controller()->env();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application in Production', $results);
+        $this->assertStringContainsString('Application in Production', $result);
     }
 
     public function testStatus()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->status();
-        $results = ob_get_clean();
+        $this->controller()->status();
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application is Live', $results);
+        $this->assertStringContainsString('Application is Live', $result);
     }
 
-    public function testDown1()
+    public function testDownWithProvidedSecret()
     {
-        copy(__DIR__ . '/../tmp/dev/.env', __DIR__ . '/../../.env');
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false']);
 
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../../');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
-
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->down(['secret' => 123456]);
-        $results = ob_get_clean();
+        $this->controller()->down(['secret' => '123456']);
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application has been switched to maintenance mode.', $results);
+        $this->assertStringContainsString('Application has been switched to maintenance mode.', $result);
+        $this->assertStringContainsString('The secret is', $result);
+        $this->assertStringContainsString('123456', $result);
+        $this->assertStringContainsString('MAINTENANCE_MODE=true', file_get_contents(getcwd() . '/.env'));
     }
 
-    public function testDown2()
+    public function testDownAutoGeneratesSecret()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../../');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->down(['secret' => 123456]);
-        $results = ob_get_clean();
+        $this->controller()->down(['secret' => null]);
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application is currently in maintenance mode. No action to take.', $results);
+        $this->assertStringContainsString('The secret is', $result);
+        $this->assertMatchesRegularExpression('/[0-9a-f]{40}/', $result);
     }
 
-    public function testUp1()
+    public function testDownWithoutSecretOption()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../../');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->up();
-        $results = ob_get_clean();
+        $this->controller()->down([]);
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application is Live', $results);
+        $this->assertStringContainsString('Application has been switched to maintenance mode.', $result);
+        $this->assertStringNotContainsString('The secret is', $result);
     }
 
-    public function testUp2()
+    public function testDownReusesExistingSecretWhenTransitioningToDown()
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../../');
-        $dotEnv->safeLoad();
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false', 'MAINTENANCE_MODE_SECRET' => 'leftoversecret']);
 
-        $controller = new Kettle\Controller\ApplicationController($app, new Console(120, '    '));
         ob_start();
-        $controller->up();
-        $results = ob_get_clean();
+        $this->controller()->down([]);
+        $result = ob_get_clean();
 
-        $this->assertStringContainsString('Application is currently live. No action to take.', $results);
+        $this->assertStringContainsString('Application has been switched to maintenance mode.', $result);
+        $this->assertStringContainsString('leftoversecret', $result);
+    }
 
-        if (file_exists(__DIR__ . '/../../.env')) {
-            unlink(__DIR__ . '/../../.env');
-        }
+    public function testDownOverwritesExistingSecretWhenAlreadyDown()
+    {
+        $this->writeEnv(['MAINTENANCE_MODE' => 'true', 'MAINTENANCE_MODE_SECRET' => 'oldsecret']);
+
+        ob_start();
+        $this->controller()->down(['secret' => 'newsecret']);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application is currently in maintenance mode. No action to take.', $result);
+        $this->assertStringContainsString('newsecret', $result);
+        $this->assertStringContainsString('MAINTENANCE_MODE_SECRET=newsecret', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testDownWhenAlreadyDownReusesExistingSecret()
+    {
+        $this->writeEnv(['MAINTENANCE_MODE' => 'true', 'MAINTENANCE_MODE_SECRET' => 'existingsecret']);
+
+        ob_start();
+        $this->controller()->down([]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application is currently in maintenance mode. No action to take.', $result);
+        $this->assertStringContainsString('The secret is', $result);
+        $this->assertStringContainsString('existingsecret', $result);
+    }
+
+    public function testDownWhenAlreadyDownWithNoSecret()
+    {
+        $this->writeEnv(['MAINTENANCE_MODE' => 'true', 'MAINTENANCE_MODE_SECRET' => '']);
+
+        ob_start();
+        $this->controller()->down([]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application is currently in maintenance mode. No action to take.', $result);
+        $this->assertStringNotContainsString('The secret is', $result);
+    }
+
+    public function testDownNoEnvFile()
+    {
+        ob_start();
+        $this->controller()->down([]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('No .env file found.', $result);
+    }
+
+    public function testUpFromDown()
+    {
+        $this->writeEnv(['MAINTENANCE_MODE' => 'true']);
+
+        ob_start();
+        $this->controller()->up();
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application has been made live.', $result);
+        $this->assertStringContainsString('MAINTENANCE_MODE=false', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testUpWhenAlreadyUp()
+    {
+        $this->writeEnv(['MAINTENANCE_MODE' => 'false']);
+
+        ob_start();
+        $this->controller()->up();
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application is currently live. No action to take.', $result);
+    }
+
+    public function testUpNoEnvFile()
+    {
+        unset($_ENV['MAINTENANCE_MODE'], $_ENV['MAINTENANCE_MODE_SECRET']);
+
+        ob_start();
+        $this->controller()->up();
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('No .env file found.', $result);
+    }
+
+    public function testCreateControllerDefault()
+    {
+        $this->scaffoldApp('web');
+
+        ob_start();
+        $this->controller()->createController('TestController');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Controller class 'MyApp\Http\Controller\TestController' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/TestController.php');
+    }
+
+    public function testCreateControllerCli()
+    {
+        $this->scaffoldApp('cli');
+
+        ob_start();
+        $this->controller()->createController('TestController', ['cli' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Controller class 'MyApp\Console\Controller\TestController' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Console/Controller/TestController.php');
+    }
+
+    public function testCreateControllerWeb()
+    {
+        $this->scaffoldApp('web-api');
+
+        ob_start();
+        $this->controller()->createController('TestController', ['web' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Controller class 'MyApp\Http\Web\Controller\TestController' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/TestController.php');
+    }
+
+    public function testCreateControllerApi()
+    {
+        $this->scaffoldApp('web-api');
+
+        ob_start();
+        $this->controller()->createController('TestController', ['api' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Controller class 'MyApp\Http\Api\Controller\TestController' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/TestController.php');
+    }
+
+    public function testCreateControllerMissingFolderThrows()
+    {
+        $this->scaffoldApp('web');
+
+        $this->expectException('Pop\Kettle\Exception');
+        $this->controller()->createController('TestController', ['cli' => true]);
+    }
+
+    public function testCreateModel()
+    {
+        $this->scaffoldApp('web');
+
+        ob_start();
+        $this->controller()->createModel('TestModel');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Model class 'MyApp\Model\TestModel' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Model/TestModel.php');
+    }
+
+    public function testCreateModelWithData()
+    {
+        $this->scaffoldApp('web');
+
+        ob_start();
+        $this->controller()->createModel('TestModel', ['data' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Model class 'MyApp\Model\TestModel' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Model/TestModel.php');
+        $this->assertFileExists(getcwd() . '/app/src/Table/TestModels.php');
+    }
+
+    public function testCreateView()
+    {
+        $this->scaffoldApp('web');
+
+        ob_start();
+        $this->controller()->createView('test.phtml');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("View file 'test.phtml' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/view/test.phtml');
+    }
+
+    public function testCreateCommand()
+    {
+        $this->scaffoldApp('cli');
+
+        ob_start();
+        $this->controller()->createCommand('send-email');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Command 'send-email' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/SendEmail.php');
+    }
+
+    public function testCreateCommandMissingFolderThrows()
+    {
+        $this->scaffoldApp('web');
+
+        $this->expectException('Pop\Kettle\Exception');
+        $this->controller()->createCommand('send-email');
     }
 
 }

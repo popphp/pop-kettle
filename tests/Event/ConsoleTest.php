@@ -2,80 +2,120 @@
 
 namespace Pop\Kettle\Test\Event;
 
-use Pop\Application;
+use Pop\Console\Console;
 use Pop\Kettle;
+use Pop\Kettle\Test\Fixtures\AppTestTrait;
 use PHPUnit\Framework\TestCase;
 
 class ConsoleTest extends TestCase
 {
 
-    private function createInputStream(string ...$lines): mixed
+    use AppTestTrait;
+
+    private ?array $origArgv = null;
+
+    protected function setUp(): void
     {
-        $stream = fopen('php://memory', 'r+');
-        foreach ($lines as $line) {
-            fwrite($stream, $line . PHP_EOL);
-        }
-        rewind($stream);
-        return $stream;
+        $this->origArgv = $_SERVER['argv'];
     }
 
-    public function testHeader()
+    protected function tearDown(): void
     {
-        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
-        $dotEnv->safeLoad();
-
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
-
-        ob_start();
-        Kettle\Event\Console::header();
-        $result = ob_get_clean();
-
-        $this->assertStringContainsString('Pop Kettle', $result);
+        $_SERVER['argv'] = $this->origArgv;
     }
 
-
-    public function testHeaderWithWarnings()
+    public function testMaintenanceDisplayShowsAlertWhenDown()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
         $dotEnv->safeLoad();
 
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-
-        $module = new Kettle\Module();
-        $app->register($module);
-        $module->getConsole()->setInputStream($this->createInputStream('y'));
+        $_SERVER['argv'] = ['kettle', 'db:seed'];
+        $this->makeApp();
 
         ob_start();
-        Kettle\Event\Console::header($module->getConsole());
+        Kettle\Event\Console::maintenanceDisplay();
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Application in Maintenance', $result);
-        $this->assertStringContainsString('Application in Production', $result);
     }
 
-    public function testFooter()
+    public function testMaintenanceDisplaySuppressedOnAppUpRoute()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'app:up'];
+        $this->makeApp();
+
+        ob_start();
+        Kettle\Event\Console::maintenanceDisplay();
+        $result = ob_get_clean();
+
+        $this->assertStringNotContainsString('Application in Maintenance', $result);
+    }
+
+    public function testMaintenanceDisplaySuppressedWhenUp()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
         $dotEnv->safeLoad();
 
-        $app = new Application(include __DIR__ . '/../../vendor/autoload.php', include __DIR__ . '/../../config/app.console.php');
-        if (file_exists(__DIR__ . '/../../kettle.inc.php')) {
-            include __DIR__ . '/../../kettle.inc.php';
-        }
-        $app->register(new Kettle\Module());
+        $_SERVER['argv'] = ['kettle', 'db:seed'];
+        $this->makeApp();
 
         ob_start();
-        Kettle\Event\Console::footer();
+        Kettle\Event\Console::maintenanceDisplay();
         $result = ob_get_clean();
 
-        $this->assertStringContainsString(PHP_EOL, $result);
+        $this->assertStringNotContainsString('Application in Maintenance', $result);
+    }
+
+    public function testProductionDisplayShowsWarningAndConfirms()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'db:seed'];
+        $this->makeApp();
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('y'));
+
+        ob_start();
+        Kettle\Event\Console::productionDisplay($console);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application in Production', $result);
+        $this->assertStringContainsString('Are you sure you want to run this command?', $result);
+    }
+
+    public function testProductionDisplaySuppressedOnOmittedCommand()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'help'];
+        $this->makeApp();
+
+        ob_start();
+        Kettle\Event\Console::productionDisplay();
+        $result = ob_get_clean();
+
+        $this->assertStringNotContainsString('Application in Production', $result);
+    }
+
+    public function testProductionDisplaySuppressedWhenNotProduction()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'db:seed'];
+        $this->makeApp();
+
+        ob_start();
+        Kettle\Event\Console::productionDisplay();
+        $result = ob_get_clean();
+
+        $this->assertStringNotContainsString('Application in Production', $result);
     }
 
 }

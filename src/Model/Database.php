@@ -216,6 +216,11 @@ class Database extends AbstractModel
 
         file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
 
+        // Refresh $_ENV so that code running later in this same process (e.g. db:install
+        // chaining straight into seed()) sees the DB_* values that were just written,
+        // instead of whatever was loaded (or not loaded) at process start.
+        (\Dotenv\Dotenv::createMutable($location))->safeLoad();
+
         return $this;
     }
 

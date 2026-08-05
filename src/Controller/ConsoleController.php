@@ -77,7 +77,7 @@ class ConsoleController extends AbstractController
      */
     public function version(): void
     {
-        $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Module::VERSION, Color::BOLD_GREEN));
+        $this->console->write('Version: ' . $this->console->colorize(\Pop\Kettle\Application::VERSION, Color::BOLD_GREEN));
     }
 
 }

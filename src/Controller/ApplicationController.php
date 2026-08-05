@@ -247,9 +247,9 @@ class ApplicationController extends AbstractController
      */
     public function createController(string $ctrl, array $options = []): void
     {
-        $web = (isset($options['web']));
-        $api = (isset($options['api']));
-        $cli = (isset($options['cli']));
+        $web = (isset($options['web'])) ? true : null;
+        $api = (isset($options['api'])) ? true : null;
+        $cli = (isset($options['cli'])) ? true : null;
 
         $appModel    = new Model\Application();
         $ctrlClasses = $appModel->createController($ctrl, getcwd(), $web, $api, $cli);
