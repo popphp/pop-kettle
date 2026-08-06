@@ -21,6 +21,7 @@ pop-kettle
     + [Kettle Commands](#kettle-commands)
     + [Application Console Scripts](#application-console-scripts)
 * [Running the Web Server](#running-the-web-server)
+* [Getting Help and Version](#getting-help-and-version)
 * [Accessing the Application](#accessing-the-application)
 * [Shell Completion](#shell-completion)
 * [Using on Windows](#using-on-Windows)
@@ -84,19 +85,27 @@ $ ./kettle app:init [--web] [--api] [--cli] <namespace>
 The `<namespace>` parameter is the namespace of your application, for example `MyApp`.
 The optional parameters of `--web`, `--api`, and `--cli` will create the related files
 and folders to run the application as a normal web application, an API-driven web
-application, a CLI-driven console application or any combination thereof. The default
-route for the web application or the API application is `/`. However, if both are
-initialized, then the default route for the API application becomes `/api`. The web
-application will deliver a placeholder HTML page and the API application will deliver
-a placeholder JSON response. 
+application, a CLI-driven console application or any combination thereof. If none of
+`--web`, `--api`, or `--cli` are passed, `--web` is assumed. The default route for the
+web application or the API application is `/`. However, if both are initialized, then
+the default route for the API application becomes `/api`. The web application will
+deliver a placeholder HTML page and the API application will deliver a placeholder
+JSON response.
 
-The web/API application's front controller will be located in `public/index.php` and
-the main script for the CLI application will be located in `script/myapp` (named
-according to the provided \<namespace\> value.)
+If `--web` and/or `--api` are used, the front controller will be located in
+`public/index.php` (there is no `public` folder, and therefore no `public/index.php`,
+for a `--cli`-only install). If `--cli` is used, you'll be prompted to optionally
+initialize a stand-alone CLI application as well; if you accept, its main script will
+be located at `script/myapp`, renamed to the lowercased \<namespace\> value (backslashes
+in a multi-segment namespace become hyphens, e.g. `My\App` &rarr; `script/my-app`). See
+[Application Console Scripts](#application-console-scripts) below for more on that
+stand-alone script versus registering one-off commands directly with `kettle`.
 
 After the application files and folders are copied over, you will be asked if you
 would like to configure a database. Follow those steps to configure a database and
-create the database configuration file.
+create the database configuration file. See
+[Managing the Database](#managing-the-database) below for the list of supported
+database adapters and what you'll be prompted for.
 
 ### Application Status
 
@@ -193,7 +202,19 @@ Managing the Database
 
 Once the application is initialized, you can manage the database, or multiple databases,
 by using the `db` and `migrate` commands. If you don't pass anything in the optional
-`[<database>]` parameter, it will default to the `default` database.
+`[<database>]` parameter, it will default to the `default` database. Passing `all` in
+place of `<database>` (where supported above) runs the command against every database
+that has a folder under `/database/migrations`.
+
+Both `db:config` and `db:install` (which runs `db:config` followed by `db:test` and
+`db:seed`) will present a numbered list of the database adapters available on your PHP
+install to choose from — typically some combination of PDO (MySQL, PostgreSQL, SQLite)
+and the native `mysqli`/`sqlite` adapters, depending on which PHP extensions are
+enabled. If you choose a MySQL or PostgreSQL adapter, you'll be prompted for the DB
+name, user, password, and host (defaults to `localhost`), and the connection is tested
+before the config file is written — you'll be re-prompted on failure. If you choose the
+SQLite adapter, you'll only be prompted for a DB name, and a corresponding `.sqlite`
+file is created under `/database`.
 
 ```bash
 ./kettle db:install [<database>]                    Install the database (Runs the config, test and seed commands)
@@ -396,13 +417,19 @@ You can create skeleton application files with the `create` commands to assist y
 MVC-based components, such as models, views and controllers: 
 
 ```bash
-./kettle create:command <command>                        Create a new CLI command, registered with Kettle
+./kettle create:command [-a|--app] <command>             Create a new CLI command, registered with Kettle
 ./kettle create:ctrl [--web] [--api] [--cli] <ctrl>      Create a new controller class
 ./kettle create:model [-d|--data] <model>                Create a new model class
 ./kettle create:view <view>                              Create a new view file
 ```
 
 (See [Creating Custom Commands](#creating-custom-commands) below for more on `create:command`.)
+
+For `create:ctrl`, `--web`, `--api`, and `--cli` may be combined to create more than one controller
+class at once (one per flag), targeting whichever of those flavors were installed by `app:init`. If
+none of the three flags are passed, a single generic HTTP controller is created under
+`app/src/Http/Controller/` instead (regardless of whether the app was installed with `--web`, `--api`,
+or both).
 
 Once the respective class files or view scripts are created in the appropriate folders, you can then
 open them up and begin writing your application code.
@@ -439,7 +466,7 @@ and wire up a separate console application. Each command is its own class with a
 action — a 1:1 relationship between class and command.
 
 ```bash
-$ ./kettle create:command <command>
+$ ./kettle create:command [-a|--app] <command>
 ```
 
 This requires that the application has already been initialized with the `--cli` flag (or a
@@ -447,12 +474,19 @@ combination that includes it, e.g. `--web --cli`), since the command class is sc
 `app/src/Console/Command/`, which is only created for CLI-enabled installs.
 
 The `<command>` value becomes both the CLI command signature and (in title case) the generated class
-name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/SendEmail.php`:
+name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/Kettle/SendEmail.php`,
+namespaced `MyApp\Console\Command\Kettle`. By default, commands are scaffolded into that `Kettle`
+subfolder, which is what `kettle` itself scans for auto-discovery (see below) — this keeps
+kettle-registered commands separate from any commands belonging to a stand-alone
+[Application Console Script](#application-console-scripts), which live directly under
+`app/src/Console/Command/` instead. Pass `--app` to scaffold there instead of the `Kettle` subfolder,
+e.g. if you want to hand-wire the command into your own console app's route table rather than have
+`kettle` auto-discover it:
 
 ```php
 <?php
 
-namespace MyApp\Console\Command;
+namespace MyApp\Console\Command\Kettle;
 
 class SendEmail extends \Pop\Console\Command\AbstractCommand
 {
@@ -479,9 +513,9 @@ syntax (`<required>`, `[<optional>]`, `[--flag]`, `[-s|--long=]`), for example:
 public ?string $params = '<to> [--cc=]';
 ```
 
-Every class found in `app/src/Console/Command/` is automatically discovered and merged into `kettle`'s
-own route table on every run — there's nothing further to wire up. Once created, run it like any other
-`kettle` command:
+Every class found in `app/src/Console/Command/Kettle/` (i.e. every command created without `--app`) is
+automatically discovered and merged into `kettle`'s own route table on every run — there's nothing
+further to wire up. Once created, run it like any other `kettle` command:
 
 ```bash
 $ ./kettle send-email
@@ -515,8 +549,35 @@ Running the Web Server
 $ ./kettle serve [--host=] [--port=] [--folder=]
 ```
 
+If omitted, `--host` defaults to `localhost`, `--port` defaults to `8000`, and `--folder` defaults
+to `public`.
+
 This is for development environments only and it is strongly advised against using the built-in
 web server in a production environment in any way.
+
+[Top](#pop-kettle)
+
+Getting Help and Version
+-----------------------
+
+To see the full list of available commands with their descriptions:
+
+```bash
+$ ./kettle help
+```
+
+Pass `--raw` (or `-r`) to print the help screen without ANSI color codes, useful when piping the
+output somewhere that doesn't render them:
+
+```bash
+$ ./kettle help --raw
+```
+
+To see the currently installed version of `pop-kettle`:
+
+```bash
+$ ./kettle version
+```
 
 [Top](#pop-kettle)
 
