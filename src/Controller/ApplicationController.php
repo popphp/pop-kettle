@@ -66,10 +66,23 @@ class ApplicationController extends AbstractController
 
         $e   = $this->console->prompt('Please select an app environment from above: ', $envs);
         $env = array_search($e, $envs);
+        $url = '';
 
-        $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
-        if ($url == '') {
-            $url = 'http://localhost';
+        if (($web) || ($api)) {
+            $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
+            if ($url == '') {
+                $url = 'http://localhost';
+            }
+        }
+
+        $cliApp = false;
+        if ($cli) {
+            $this->console->write();
+            $createCliApp = $this->console->prompt(
+                'Initialize a stand-alone CLI application? [Y/N] ', ['y', 'n']
+            );
+            $this->console->write();
+            $cliApp = (strtolower($createCliApp) == 'y');
         }
 
         $appModel = new Model\Application();
@@ -80,22 +93,23 @@ class ApplicationController extends AbstractController
             $namespace = 'MyApp';
         }
 
-        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url);
+        $createDb = $this->console->prompt(
+            'Would you like to configure a database? [Y/N] ', ['y', 'n']
+        );
+
+        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url, $cliApp, $createDb);
 
         $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
 
-        $createDb = $this->console->prompt(
-            'Would you like to configure a database? [Y/N] ', ['y', 'n']
-        );
-
         if (strtolower($createDb) == 'y') {
+            $this->console->write("Configuring database for '" . $namespace ."'...");
             $this->console->write();
             $dbModel->configure($this->console, $location);
+            $this->console->write();
         }
 
-        $this->console->write();
         $this->console->write('Done!');
     }
 
@@ -239,6 +253,23 @@ class ApplicationController extends AbstractController
     }
 
     /**
+     * Create custom command
+     *
+     * @param  string $command
+     * @return void
+     */
+    public function createCommand(string $command, array $options = []): void
+    {
+        $appModel = new Model\Application();
+        $appModel->createCommand($command, getcwd(), (isset($options['app'])));
+
+        $this->console->write("Command '" . $command ."' created.");
+
+        $this->console->write();
+        $this->console->write('Done!');
+    }
+
+    /**
      * Create controller command
      *
      * @param  string $ctrl
@@ -291,23 +322,6 @@ class ApplicationController extends AbstractController
         $viewFile = $appModel->createView($view, getcwd());
 
         $this->console->write("View file '" . $viewFile ."' created.");
-        $this->console->write();
-        $this->console->write('Done!');
-    }
-
-    /**
-     * Create custom command
-     *
-     * @param  string $command
-     * @return void
-     */
-    public function createCommand(string $command): void
-    {
-        $appModel = new Model\Application();
-        $appModel->createCommand($command, getcwd());
-
-        $this->console->write("Command '" . $command ."' created.");
-
         $this->console->write();
         $this->console->write('Done!');
     }

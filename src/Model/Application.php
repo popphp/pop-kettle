@@ -43,11 +43,13 @@ class Application extends AbstractModel
      * @param  string $name
      * @param  string $env
      * @param  string $url
+     * @param  bool   $cliApp
+     * @param  bool   $createDb
      * @return void
      */
     public function init(
         string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null,
-        string $name = 'Pop', string $env = 'local', string $url = 'http://localhost'
+        string $name = 'MyApp', string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false
     ): void
     {
         // API-only
@@ -73,7 +75,7 @@ class Application extends AbstractModel
             $install = 'web';
         }
 
-        $this->install($install, $location, $namespace, $name, $env, $url);
+        $this->install($install, $location, $namespace, $name, $env, $url, $cliApp, $createDb);
     }
 
     /**
@@ -85,11 +87,13 @@ class Application extends AbstractModel
      * @param  string $name
      * @param  string $env
      * @param  string $url
+     * @param  bool   $cliApp
+     * @param  bool   $createDb
      * @return void
      */
     public function install(
-        string $install, string $location, string $namespace,
-        string $name = 'Pop', string $env = 'local', string $url = 'http://localhost'
+        string $install, string $location, string $namespace, string $name = 'MyApp',
+        string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false
     ): void
     {
         copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
@@ -125,22 +129,32 @@ class Application extends AbstractModel
         }
 
         if (file_exists($location . DIRECTORY_SEPARATOR . 'script')) {
-            file_put_contents(
-                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
-                str_replace(
-                    ['MyApp', 'myapp'], [$namespace, $script],
-                    file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp')
-                )
-            );
-            rename(
-                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
-                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
-            );
-            chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
+            if ($cliApp) {
+                file_put_contents(
+                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
+                    str_replace(
+                        ['MyApp', 'myapp'], [$namespace, $script],
+                        file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp')
+                    )
+                );
+                rename(
+                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
+                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
+                );
+                chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
+            } else {
+                $d = new Dir($location . DIRECTORY_SEPARATOR . 'script');
+                $d->emptyDir(true);
+            }
         }
 
         if (file_exists($location . DIRECTORY_SEPARATOR . 'data')) {
             chmod($location . DIRECTORY_SEPARATOR . 'data', 0777);
+        }
+
+        if ((!$createDb) && file_exists($location . DIRECTORY_SEPARATOR . 'database')) {
+            $d = new Dir($location . DIRECTORY_SEPARATOR . 'database');
+            $d->emptyDir(true);
         }
 
         if (file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php')) {
@@ -179,16 +193,21 @@ class Application extends AbstractModel
      *
      * @param  string $command
      * @param  string $location
+     * @param  bool   $app
      * @throws Exception
      * @return void
      */
-    public function createCommand(string $command, string $location): void
+    public function createCommand(string $command, string $location, bool $app = false): void
     {
         $command   = strtolower($command);
         $namespace = $this->getNamespace($location);
 
         $commandFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
-            'Console' . DIRECTORY_SEPARATOR . 'Command' . DIRECTORY_SEPARATOR . 'Kettle';
+            'Console' . DIRECTORY_SEPARATOR . 'Command';
+
+        if (!$app) {
+            $commandFolder .= DIRECTORY_SEPARATOR . 'Kettle';
+        }
 
         if (!file_exists($commandFolder)) {
             throw new Exception('Error: The command folder and namespace has not been created');
@@ -200,7 +219,12 @@ class Application extends AbstractModel
         if (!file_exists($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php')) {
             $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
 
-            $commandNamespace = $namespace . "\\Console\\Command\\Kettle";
+            $commandNamespace = $namespace . "\\Console\\Command";
+
+            if (!$app) {
+                $commandNamespace .= '\\Kettle';
+            }
+
             $namespaceObject  = new Generator\NamespaceGenerator($commandNamespace);
 
             $commandClassObject = new Generator\ClassGenerator($classCommandName);
