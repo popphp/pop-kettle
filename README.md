@@ -45,26 +45,24 @@ script from the `vendor/popphp/pop-kettle/kettle` location in the main project f
 (adjacent to the `vendor` folder):
 
 ```bash
-$ cp vendor/popphp/popphp-framework/kettle .
+$ cp vendor/popphp/pop-kettle/kettle .
 ```
 Once you've copied the script over, you have to change the reference to the script's
 config file from:
 
 ```php
-    $app = new Pop\Application(
-        $autoloader, include __DIR__ . '/config/app.console.php'
-    );
+    $config = include __DIR__ . '/config/app.console.php';
 ```
 
 to
 
 ```php
-    $app = new Pop\Application(
-        $autoloader, include __DIR__ . '/vendor/popphp/pop-kettle/config/app.console.php'
-    );
+    $config = include __DIR__ . '/vendor/popphp/pop-kettle/config/app.console.php';
 ```
 
-and make sure the newly copied `kettle` script is set to execute (755)
+since that config file (which just returns the `routes` array) lives in the `pop-kettle`
+package, not in your project's own `config` folder, and make sure the newly copied
+`kettle` script is set to execute (755)
 
 ```bash
 $ chmod 755 kettle
@@ -101,11 +99,12 @@ in a multi-segment namespace become hyphens, e.g. `My\App` &rarr; `script/my-app
 [Application Console Scripts](#application-console-scripts) below for more on that
 stand-alone script versus registering one-off commands directly with `kettle`.
 
-After the application files and folders are copied over, you will be asked if you
-would like to configure a database. Follow those steps to configure a database and
-create the database configuration file. See
-[Managing the Database](#managing-the-database) below for the list of supported
-database adapters and what you'll be prompted for.
+Along the way you'll also be prompted for an app name, environment, and (for `--web`/
+`--api`) URL, and asked whether you'd like to configure a database. If you accept, the
+application files and folders are copied over first, and then you'll immediately be
+walked through the database adapter/connection prompts to create the database
+configuration file. See [Managing the Database](#managing-the-database) below for the
+list of supported database adapters and what you'll be prompted for.
 
 ### Application Status
 
@@ -179,9 +178,11 @@ Kettle Include
 
 You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
 as a configuration file for anything additional that needs to be wired up for your
-application to work with kettle. The file is included right after the creation of the
-`$autoloader` and `$app` objects, so you will have direct access to them. In this file
-you can add any additional runtime requirements, configurations or routes.
+application to work with kettle. The file is included right after the `$autoloader` is
+created and the routes config is loaded, but before the `Pop\Kettle\Application` object
+itself is built, so you will have direct access to `$autoloader` and `$config` (and can,
+for example, add to `$config['routes']`). In this file you can add any additional
+runtime requirements, configurations or routes.
 
 For example, there may be an instance were `kettle` needs to be aware of your application
 and its namespace. You can access the autoloader here and register your application with
@@ -191,9 +192,10 @@ and its namespace. You can access the autoloader here and register your applicat
 $autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
 ```
 
-**Note:** If the `kettle.inc.php` file isn't available, you can copy it from the
-`vendor/popphp/pop-kettle/kettle` location to the main project folder (adjacent to
-the `vendor` folder.)
+**Note:** If the `kettle.inc.php` file isn't available, you can copy the blank
+`kettle.inc.orig.php` template from the `vendor/popphp/pop-kettle` package folder to
+the main project folder (adjacent to the `vendor` folder) and rename it to
+`kettle.inc.php` — this is the same file `app:init` copies into place automatically.
 
 [Top](#pop-kettle)
 
@@ -230,7 +232,7 @@ file is created under `/database`.
 ./kettle migrate:create <class> [<database>]        Create new database migration class
 ./kettle migrate:run [<steps>] [<database>]         Perform forward database migration
 ./kettle migrate:rollback [<steps>] [<database>]    Perform backward database migration
-./kettle migrate:point [<id>] [<database>]          Point to specific migration, w/o running (.current file only)'
+./kettle migrate:point [<id>] [<database>]          Point to specific migration, w/o running (.current file only)
 ./kettle migrate:reset [<database>]                 Perform complete rollback of the database
 ```
 
