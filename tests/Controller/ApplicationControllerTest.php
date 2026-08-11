@@ -71,7 +71,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', '', 'n'));
+        $console->setInputStream($this->createInputStream('', '1', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('MyApp', ['cli' => true]);
