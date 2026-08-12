@@ -133,7 +133,6 @@ class Application extends AbstractModel
             );
 
             // Copy view files
-            mkdir($location . DIRECTORY_SEPARATOR . 'app');
             mkdir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view');
             copy(__DIR__ . '/../../config/templates/view/index.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/index.phtml');
             copy(__DIR__ . '/../../config/templates/view/error.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/error.phtml');
