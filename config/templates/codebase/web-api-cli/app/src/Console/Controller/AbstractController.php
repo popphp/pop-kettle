@@ -28,7 +28,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->constructConsoleController($application, $console);
 
         $this->console->setHelpColors(Color::BOLD_CYAN, Color::BOLD_GREEN, Color::BOLD_MAGENTA);
-        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './app');
+        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './myapp');
     }
 
     /**
