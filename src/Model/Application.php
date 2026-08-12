@@ -99,7 +99,7 @@ class Application extends AbstractModel
         copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
 
         $script = strtolower(str_replace('\\', '-', $namespace));
-        $path   = realpath(__DIR__ . '/../../config/templates/' . $install);
+        $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
             if ($path . DIRECTORY_SEPARATOR . $entry) {
@@ -117,7 +117,7 @@ class Application extends AbstractModel
         foreach ($dir as $file) {
             file_put_contents($file, str_replace(['App', 'app'], [$namespace, $script], file_get_contents($file)));
         }
-
+/*
         if (file_exists($location . DIRECTORY_SEPARATOR . 'public')) {
             file_put_contents(
                 $location . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php',
@@ -186,6 +186,7 @@ class Application extends AbstractModel
         ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
 
         file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
+*/
     }
 
     /**

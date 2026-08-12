@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'app:init [--web] [--api] [--cli] <namespace>' => [
+    'app:init [--web] [--api] [--cli] [<namespace>]' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init',
-        'help'       => 'Initialize an application (--web is default)'
+        'help'       => "Initialize an application"
     ],
     'app:env' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
@@ -29,7 +29,7 @@ return [
     'db:install [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',
         'action'     => 'install',
-        'help'       => 'Install the database (Runs the config, test and seed commands)'
+        'help'       => 'Install the database (Runs config, test & seed)'
     ],
     'db:config [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\DatabaseController',

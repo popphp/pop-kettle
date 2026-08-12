@@ -34,12 +34,16 @@ class ApplicationController extends AbstractController
     /**
      * Init command
      *
-     * @param  string $namespace
+     * @param  ?string $namespace
      * @param  array  $options
      * @return void
      */
-    public function init(string $namespace, array $options = []): void
+    public function init(?string $namespace = null, array $options = []): void
     {
+        if (empty($namespace)) {
+            $namespace = 'App';
+        }
+
         $web  = (isset($options['web']));
         $api  = (isset($options['api']));
         $cli  = (isset($options['cli']));
