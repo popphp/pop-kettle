@@ -158,6 +158,9 @@ class Application extends AbstractModel
                 $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
             );
             chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
+        } else if (file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Console' . DIRECTORY_SEPARATOR . 'Controller')) {
+            $dir = new Dir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Console' . DIRECTORY_SEPARATOR . 'Controller');
+            $dir->emptyDir(true);
         }
 
         // Add writable /data folder
@@ -249,7 +252,7 @@ class Application extends AbstractModel
         $command   = strtolower($command);
         $namespace = $this->getNamespace($location);
 
-        $commandFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+        $commandFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Console' . DIRECTORY_SEPARATOR . 'Command';
 
         if (!$app) {
@@ -310,16 +313,16 @@ class Application extends AbstractModel
     {
         $namespace = $this->getNamespace($location);
 
-        $cliFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+        $cliFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Console' . DIRECTORY_SEPARATOR . 'Controller';
 
-        $httpFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+        $httpFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Http' . DIRECTORY_SEPARATOR . 'Controller';
 
-        $webFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+        $webFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Http' . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR . 'Controller';
 
-        $apiFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
+        $apiFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Http' . DIRECTORY_SEPARATOR . 'Api' . DIRECTORY_SEPARATOR . 'Controller';
 
         $createdCtrls = [];
@@ -461,7 +464,7 @@ class Application extends AbstractModel
     public function createModel(string $model, string $location, bool $data = false): string
     {
         $namespace   = $this->getNamespace($location) . "\\Model";
-        $modelFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Model';
+        $modelFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Model';
         if (!file_exists($modelFolder)) {
             mkdir($modelFolder);
         }
@@ -499,7 +502,7 @@ class Application extends AbstractModel
             }
 
             $tableNamespace = $this->getNamespace($location) . "\\Table";
-            $tableFolder    = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Table';
+            $tableFolder    = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Table';
             if (!file_exists($tableFolder)) {
                 mkdir($tableFolder);
             }
@@ -541,7 +544,7 @@ class Application extends AbstractModel
     public function createView(string $view, string $location): string
     {
         $origView   = $view;
-        $viewFolder = $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'view';
+        $viewFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view';
         if (!file_exists($viewFolder)) {
             mkdir($viewFolder);
         }
@@ -574,18 +577,18 @@ class Application extends AbstractModel
      */
     public function getNamespace(string $location): string
     {
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'myapp') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php')) {
-            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php');
+        if (file_exists($location . DIRECTORY_SEPARATOR . 'app') &&
+            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src') &&
+            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php')) {
+            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Application.php');
             $namespace    = substr($fileContents, (strpos($fileContents, 'namespace ') + 10));
             $namespace    = substr($namespace, 0, strpos($namespace, ';'));
 
             return $namespace;
-        } else if (file_exists($location . DIRECTORY_SEPARATOR . 'myapp') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php')) {
-            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php');
+        } else if (file_exists($location . DIRECTORY_SEPARATOR . 'app') &&
+            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src') &&
+            file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php')) {
+            $fileContents = file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Module.php');
             $namespace    = substr($fileContents, (strpos($fileContents, 'namespace ') + 10));
             $namespace    = substr($namespace, 0, strpos($namespace, ';'));
 

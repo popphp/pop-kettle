@@ -157,7 +157,17 @@ class Application extends \Pop\Application
                 throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
             }
 
-            Db\Record::setDb(Db\Db::connect($adapter, $options));
+            $this->services()->set('database', [
+                'call'   => 'Pop\Db\Db::connect',
+                'params' => [
+                    'adapter' => $adapter,
+                    'options' => $options
+                ]
+            ]);
+
+            if ($this->services()->isAvailable('database')) {
+                Db\Record::setDb($this->services['database']);
+            }
         }
     }
 
