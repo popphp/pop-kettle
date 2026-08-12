@@ -154,9 +154,8 @@ class Application extends AbstractModel
         }
 
         // Add writable /data folder
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'data')) {
-            chmod($location . DIRECTORY_SEPARATOR . 'data', 0777);
-        }
+        mkdir($location . DIRECTORY_SEPARATOR . 'script');
+        chmod($location . DIRECTORY_SEPARATOR . 'data', 0777);
 
         // Set up database folder
         if ($createDb) {
