@@ -141,7 +141,7 @@ class Application extends AbstractModel
         }
 
         // Set up CLI /script folder and application script
-        if (str_contains($install, 'cli')) {
+        if ($cliApp) {
             mkdir($location . DIRECTORY_SEPARATOR . 'script');
             copy(__DIR__ . '/../../config/templates/script/myapp', $location . DIRECTORY_SEPARATOR . 'script/myapp');
 
@@ -186,7 +186,7 @@ class Application extends AbstractModel
                 file_put_contents(
                     $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php',
                     str_replace(
-                        "    'database' => include __DIR__ . '/database.php'", "",
+                        "    'database' => include __DIR__ . '/database.php',", "",
                         file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')
                     )
                 );
@@ -195,7 +195,7 @@ class Application extends AbstractModel
                 file_put_contents(
                     $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php',
                     str_replace(
-                        "    'database' => include __DIR__ . '/database.php'", "",
+                        "    'database' => include __DIR__ . '/database.php',", "",
                         file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')
                     )
                 );

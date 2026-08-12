@@ -97,9 +97,10 @@ class ApplicationController extends AbstractController
             $namespace = 'MyApp';
         }
 
-        $createDb = $this->console->prompt(
+        $configDb = $this->console->prompt(
             'Would you like to configure a database? [Y/N] ', ['y', 'n']
         );
+        $createDb = (strtolower($configDb) == 'y');
 
         $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url, $cliApp, $createDb);
 
@@ -107,7 +108,7 @@ class ApplicationController extends AbstractController
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
 
-        if (strtolower($createDb) == 'y') {
+        if ($createDb) {
             $this->console->write("Configuring database for '" . $namespace ."'...");
             $this->console->write();
             $dbModel->configure($this->console, $location);
