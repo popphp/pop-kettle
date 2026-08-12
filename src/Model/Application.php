@@ -117,8 +117,13 @@ class Application extends AbstractModel
         foreach ($dir as $file) {
             file_put_contents($file, str_replace(['App', 'app'], [$namespace, $script], file_get_contents($file)));
         }
-/*
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'public')) {
+
+        // Set up web /public folder and files
+        if (str_contains($install, 'web')) {
+            mkdir($location . DIRECTORY_SEPARATOR . 'public');
+            copy(__DIR__ . '/../../config/templates/public/.htaccess', $location . DIRECTORY_SEPARATOR . 'public/.htaccess');
+            copy(__DIR__ . '/../../config/templates/public/index.php', $location . DIRECTORY_SEPARATOR . 'public/index.php');
+
             file_put_contents(
                 $location . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php',
                 str_replace(
@@ -128,35 +133,67 @@ class Application extends AbstractModel
             );
         }
 
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'script')) {
-            if ($cliApp) {
-                file_put_contents(
-                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
-                    str_replace(
-                        ['App', 'app'], [$namespace, $script],
-                        file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app')
-                    )
-                );
-                rename(
-                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
-                    $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
-                );
-                chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
-            } else {
-                $d = new Dir($location . DIRECTORY_SEPARATOR . 'script');
-                $d->emptyDir(true);
-            }
+        // Set up CLI /script folder and application script
+        if (str_contains($install, 'cli')) {
+            mkdir($location . DIRECTORY_SEPARATOR . 'script');
+            copy(__DIR__ . '/../../config/templates/script/app', $location . DIRECTORY_SEPARATOR . 'script/app');
+
+            file_put_contents(
+                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
+                str_replace(
+                    ['App', 'app'], [$namespace, $script],
+                    file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app')
+                )
+            );
+
+            rename(
+                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
+                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
+            );
+            chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);
         }
 
+        // Add writable /data folder
         if (file_exists($location . DIRECTORY_SEPARATOR . 'data')) {
             chmod($location . DIRECTORY_SEPARATOR . 'data', 0777);
         }
 
-        if ((!$createDb) && file_exists($location . DIRECTORY_SEPARATOR . 'database')) {
-            $d = new Dir($location . DIRECTORY_SEPARATOR . 'database');
-            $d->emptyDir(true);
+        // Set up database folder
+        if ($createDb) {
+            $dbPath   = realpath(__DIR__ . '/../../config/templates/database');
+            $dir    = new Dir($dbPath);
+            foreach ($dir as $entry) {
+                if ($dbPath . DIRECTORY_SEPARATOR . $entry) {
+                    $d = new Dir($dbPath . DIRECTORY_SEPARATOR . $entry);
+                    $d->copyTo($location . DIRECTORY_SEPARATOR . 'database');
+                }
+            }
+            copy(
+                __DIR__ . '/../../config/templates/database.php',
+                $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php'
+            );
+        } else {
+            if (file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')) {
+                file_put_contents(
+                    $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php',
+                    str_replace(
+                        "    'database' => include __DIR__ . '/database.php'", "",
+                        file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')
+                    )
+                );
+            }
+            if (file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')) {
+                file_put_contents(
+                    $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php',
+                    str_replace(
+                        "    'database' => include __DIR__ . '/database.php'", "",
+                        file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')
+                    )
+                );
+            }
         }
 
+        // Populate kettle.inc.php file autoloader for application
         if (file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php')) {
             $autoloader = "\$autoloader->addPsr4('{$namespace}\\\\', __DIR__ . '/app/src');" . PHP_EOL;
             if (!str_contains(file_get_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php'), $autoloader)) {
@@ -164,6 +201,7 @@ class Application extends AbstractModel
             }
         }
 
+        // Copy .env file over and populate with values
         if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
             copy(
                 __DIR__ . '/../../config/templates/orig.env',
@@ -186,7 +224,6 @@ class Application extends AbstractModel
         ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
 
         file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
-*/
     }
 
     /**
