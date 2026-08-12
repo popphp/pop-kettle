@@ -136,7 +136,7 @@ class Application extends AbstractModel
         // Set up CLI /script folder and application script
         if (str_contains($install, 'cli')) {
             mkdir($location . DIRECTORY_SEPARATOR . 'script');
-            copy(__DIR__ . '/../../config/templates/script/app', $location . DIRECTORY_SEPARATOR . 'script/app');
+            copy(__DIR__ . '/../../config/templates/script/myapp', $location . DIRECTORY_SEPARATOR . 'script/myapp');
 
             file_put_contents(
                 $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
