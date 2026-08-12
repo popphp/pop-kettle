@@ -65,12 +65,15 @@ class Database extends AbstractModel
         }
         if (!file_exists($location . '/database/migrations/' . $database)) {
             mkdir($location . '/database/migrations/' . $database);
+            touch($location . '/database/migrations/' . $database . '/.emtpy');
         }
         if (!file_exists($location . '/database/seeds/' . $database)) {
             mkdir($location . '/database/seeds/' . $database);
+            touch($location . '/database/seeds/' . $database . '/.emtpy');
         }
         if (!file_exists($location . '/database/snapshots/' . $database)) {
             mkdir($location . '/database/snapshots/' . $database);
+            touch($location . '/database/snapshots/' . $database . '/.emtpy');
         }
 
         foreach ($dbAdapters as $adapter => $result) {
