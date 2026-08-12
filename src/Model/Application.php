@@ -131,6 +131,14 @@ class Application extends AbstractModel
                     file_get_contents($location . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'index.php')
                 )
             );
+
+            // Copy view files
+            mkdir($location . DIRECTORY_SEPARATOR . 'app');
+            mkdir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view');
+            copy(__DIR__ . '/../../config/templates/view/index.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/index.phtml');
+            copy(__DIR__ . '/../../config/templates/view/error.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/error.phtml');
+            copy(__DIR__ . '/../../config/templates/view/exception.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/exception.phtml');
+            copy(__DIR__ . '/../../config/templates/view/maintenance.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/maintenance.phtml');
         }
 
         // Set up CLI /script folder and application script
