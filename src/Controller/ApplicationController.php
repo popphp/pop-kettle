@@ -41,7 +41,7 @@ class ApplicationController extends AbstractController
     public function init(?string $namespace = null, array $options = []): void
     {
         if (empty($namespace)) {
-            $namespace = 'App';
+            $namespace = 'MyApp';
         }
 
         $web  = (isset($options['web']));
@@ -94,7 +94,7 @@ class ApplicationController extends AbstractController
         $location = getcwd();
 
         if (empty($namespace)) {
-            $namespace = 'App';
+            $namespace = 'MyApp';
         }
 
         $createDb = $this->console->prompt(
@@ -265,7 +265,7 @@ class ApplicationController extends AbstractController
     public function createCommand(string $command, array $options = []): void
     {
         $appModel = new Model\Application();
-        $appModel->createCommand($command, getcwd(), (isset($options['app'])));
+        $appModel->createCommand($command, getcwd(), (isset($options['myapp'])));
 
         $this->console->write("Command '" . $command ."' created.");
 

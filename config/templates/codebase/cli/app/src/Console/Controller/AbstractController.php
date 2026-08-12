@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Controller;
+namespace MyApp\Console\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
@@ -34,12 +34,12 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Default error action method
      *
-     * @throws \App\Exception
+     * @throws \MyApp\Exception
      * @return void
      */
     public function error()
     {
-        throw new \App\Exception('Invalid Command');
+        throw new \MyApp\Exception('Invalid Command');
     }
 
     /**

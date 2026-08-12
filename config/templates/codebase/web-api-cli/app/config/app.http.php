@@ -4,17 +4,17 @@ return [
     'routes' => [
         'get' => [
             '/api[/]' => [
-                'controller' => 'App\Http\Api\Controller\IndexController',
+                'controller' => 'MyApp\Http\Api\Controller\IndexController',
                 'action'     => 'index'
             ],
             '[/]' => [
-                'controller' => 'App\Http\Web\Controller\IndexController',
+                'controller' => 'MyApp\Http\Web\Controller\IndexController',
                 'action'     => 'index'
             ],
         ],
         '*' => [
             '*'    => [
-                'controller' => 'App\Http\Controller\IndexController',
+                'controller' => 'MyApp\Http\Controller\IndexController',
                 'action'     => 'error'
             ]
         ]

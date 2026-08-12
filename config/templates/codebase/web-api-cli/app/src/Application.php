@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace MyApp;
 
 use Pop\Db;
 use Pop\Console\Console;
@@ -15,13 +15,13 @@ class Application extends \Pop\Application
      * Application name
      * @var ?string
      */
-    const string NAME = 'app';
+    const string NAME = 'myapp';
 
     /**
      * Application full name
      * @var ?string
      */
-    const string FULL_NAME = 'App';
+    const string FULL_NAME = 'MyApp';
 
     /**
      * Application version
@@ -68,7 +68,7 @@ class Application extends \Pop\Application
                     ]
                 );
 
-                $this->on('app.dispatch.pre', 'App\Http\Api\Event\Options::send', 1);
+                $this->on('app.dispatch.pre', 'MyApp\Http\Api\Event\Options::send', 1);
             } else if ($this->router()->isCli()) {
                 $console = new Console(120, '    ');
                 $this->router()->addControllerParams(
@@ -167,10 +167,10 @@ class Application extends \Pop\Application
             $string  = "    \x1b[1;37m\x1b[41m    " . str_repeat(' ', strlen($message)) . "    \x1b[0m" . PHP_EOL;
             $string .= "    \x1b[1;37m\x1b[41m    " . $message . "    \x1b[0m" . PHP_EOL;
             $string .= "    \x1b[1;37m\x1b[41m    " . str_repeat(' ', strlen($message)) . "    \x1b[0m" . PHP_EOL . PHP_EOL;
-            $string .= "    Try \x1b[1;33m./app help\x1b[0m for help" . PHP_EOL . PHP_EOL;
+            $string .= "    Try \x1b[1;33m./myapp help\x1b[0m for help" . PHP_EOL . PHP_EOL;
         } else {
             $string = $message . PHP_EOL . PHP_EOL;
-            $string .= '    Try \'./app help\' for help' . PHP_EOL . PHP_EOL;
+            $string .= '    Try \'./myapp help\' for help' . PHP_EOL . PHP_EOL;
         }
 
         echo $string;

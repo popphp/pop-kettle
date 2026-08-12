@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controller;
+namespace MyApp\Http\Controller;
 
 use Pop\Application;
 use Pop\Controller\HttpControllerTrait;

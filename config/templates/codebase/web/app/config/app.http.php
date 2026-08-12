@@ -3,11 +3,11 @@
 return [
     'routes' => [
         '[/]' => [
-            'controller' => 'App\Http\Controller\IndexController',
+            'controller' => 'MyApp\Http\Controller\IndexController',
             'action'     => 'index'
         ],
         '*'    => [
-            'controller' => 'App\Http\Controller\IndexController',
+            'controller' => 'MyApp\Http\Controller\IndexController',
             'action'     => 'error'
         ]
     ],
