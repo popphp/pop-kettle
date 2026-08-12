@@ -172,24 +172,24 @@ class Application extends AbstractModel
 
             copy(
                 __DIR__ . '/../../config/templates/database.php',
-                $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php'
+                $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php'
             );
         } else {
-            if (file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')) {
+            if (file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')) {
                 file_put_contents(
-                    $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php',
+                    $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php',
                     str_replace(
                         "    'database' => include __DIR__ . '/database.php'", "",
-                        file_get_contents($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')
+                        file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.http.php')
                     )
                 );
             }
-            if (file_exists($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')) {
+            if (file_exists($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')) {
                 file_put_contents(
-                    $location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php',
+                    $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php',
                     str_replace(
                         "    'database' => include __DIR__ . '/database.php'", "",
-                        file_get_contents($location . DIRECTORY_SEPARATOR . 'myapp' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')
+                        file_get_contents($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.console.php')
                     )
                 );
             }
