@@ -160,6 +160,7 @@ class Application extends AbstractModel
 
         // Set up database folder
         if ($createDb) {
+            mkdir($location . DIRECTORY_SEPARATOR . 'database');
             $dbPath   = realpath(__DIR__ . '/../../config/templates/database');
             $dir    = new Dir($dbPath);
             foreach ($dir as $entry) {
