@@ -25,7 +25,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', null, true, null);
+        $application->init(getcwd(), 'App', null, true, null);
 
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Event');
@@ -35,7 +35,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', true, true, null);
+        $application->init(getcwd(), 'App', true, true, null);
 
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/AbstractController.php');
@@ -45,7 +45,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', null, true, true);
+        $application->init(getcwd(), 'App', null, true, true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
     }
@@ -54,7 +54,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', true, null, true);
+        $application->init(getcwd(), 'App', true, null, true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
@@ -64,7 +64,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', null, null, true);
+        $application->init(getcwd(), 'App', null, null, true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
@@ -74,7 +74,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp', true, true, true);
+        $application->init(getcwd(), 'App', true, true, true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/AbstractController.php');
@@ -85,7 +85,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'MyApp');
+        $application->init(getcwd(), 'App');
 
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
     }
@@ -143,7 +143,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), null, null, true);
 
-        $this->assertSame(['MyApp\Console\Controller\MyController'], $result);
+        $this->assertSame(['App\Console\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/MyController.php');
     }
 
@@ -153,7 +153,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), true, null, null);
 
-        $this->assertSame(['MyApp\Http\Web\Controller\MyController'], $result);
+        $this->assertSame(['App\Http\Web\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/MyController.php');
     }
 
@@ -163,7 +163,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), null, true, null);
 
-        $this->assertSame(['MyApp\Http\Api\Controller\MyController'], $result);
+        $this->assertSame(['App\Http\Api\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/MyController.php');
     }
 
@@ -173,7 +173,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), null, null, null);
 
-        $this->assertSame(['MyApp\Http\Controller\MyController'], $result);
+        $this->assertSame(['App\Http\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/MyController.php');
     }
 
@@ -195,7 +195,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Users', getcwd(), null, null, null);
 
-        $this->assertSame(['MyApp\Http\Controller\Admin\Users'], $result);
+        $this->assertSame(['App\Http\Controller\Admin\Users'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/Admin/Users.php');
     }
 
@@ -205,7 +205,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), null, null, true);
 
-        $this->assertSame(['MyApp\Console\Controller\Admin\Tools'], $result);
+        $this->assertSame(['App\Console\Controller\Admin\Tools'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/Admin/Tools.php');
     }
 
@@ -215,7 +215,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), true, null, null);
 
-        $this->assertSame(['MyApp\Http\Web\Controller\Admin\Tools'], $result);
+        $this->assertSame(['App\Http\Web\Controller\Admin\Tools'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/Admin/Tools.php');
     }
 
@@ -225,7 +225,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), null, true, null);
 
-        $this->assertSame(['MyApp\Http\Api\Controller\Admin\Tools'], $result);
+        $this->assertSame(['App\Http\Api\Controller\Admin\Tools'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/Admin/Tools.php');
     }
 
@@ -271,7 +271,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createModel('User', getcwd());
 
-        $this->assertSame('MyApp\Model\User', $result);
+        $this->assertSame('App\Model\User', $result);
         $this->assertFileExists(getcwd() . '/app/src/Model/User.php');
     }
 
@@ -300,7 +300,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createModel('Admin/Setting', getcwd());
 
-        $this->assertSame('MyApp\Model\Admin\Setting', $result);
+        $this->assertSame('App\Model\Admin\Setting', $result);
         $this->assertFileExists(getcwd() . '/app/src/Model/Admin/Setting.php');
     }
 
@@ -321,7 +321,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'MyApp', 'My App Name');
+        $application->install('web', getcwd(), 'App', 'My App Name');
 
         $this->assertStringContainsString('APP_NAME="My App Name"', file_get_contents(getcwd() . '/.env'));
     }
@@ -329,7 +329,7 @@ class ApplicationTest extends TestCase
     public function testCreateViewCreatesMissingBaseFolder()
     {
         mkdir(getcwd() . '/app/src', 0777, true);
-        file_put_contents(getcwd() . '/app/src/Application.php', "<?php\n\nnamespace MyApp;\n");
+        file_put_contents(getcwd() . '/app/src/Application.php', "<?php\n\nnamespace App;\n");
 
         $application = new Model\Application();
         $application->createView('test.phtml', getcwd());

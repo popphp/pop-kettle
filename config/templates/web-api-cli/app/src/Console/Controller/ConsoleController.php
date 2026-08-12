@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp\Console\Controller;
+namespace App\Console\Controller;
 
 class ConsoleController extends AbstractController
 {

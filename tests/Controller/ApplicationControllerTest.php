@@ -59,7 +59,7 @@ class ApplicationControllerTest extends TestCase
         $console->setInputStream($this->createInputStream('', '2', '', 'n'));
 
         ob_start();
-        $this->controller($console)->init('MyApp');
+        $this->controller($console)->init('App');
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Done!', $result);
@@ -74,7 +74,7 @@ class ApplicationControllerTest extends TestCase
         $console->setInputStream($this->createInputStream('', '1', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('MyApp', ['cli' => true]);
+        $this->controller($console)->init('App', ['cli' => true]);
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
@@ -92,7 +92,7 @@ class ApplicationControllerTest extends TestCase
         ));
 
         ob_start();
-        $this->controller($console)->init('MyApp');
+        $this->controller($console)->init('App');
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/database/testdb.sqlite');
@@ -122,8 +122,8 @@ class ApplicationControllerTest extends TestCase
         $this->controller($console)->init('');
         ob_end_clean();
 
-        // Falls back to the 'MyApp' namespace, which install() uses to derive class references
-        $this->assertStringContainsString('MyApp', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
+        // Falls back to the 'App' namespace, which install() uses to derive class references
+        $this->assertStringContainsString('App', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
     }
 
     public function testEnvLocal()
@@ -331,7 +331,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createController('TestController');
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Controller class 'MyApp\Http\Controller\TestController' created.", $result);
+        $this->assertStringContainsString("Controller class 'App\Http\Controller\TestController' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/TestController.php');
     }
 
@@ -343,7 +343,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createController('TestController', ['cli' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Controller class 'MyApp\Console\Controller\TestController' created.", $result);
+        $this->assertStringContainsString("Controller class 'App\Console\Controller\TestController' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/TestController.php');
     }
 
@@ -355,7 +355,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createController('TestController', ['web' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Controller class 'MyApp\Http\Web\Controller\TestController' created.", $result);
+        $this->assertStringContainsString("Controller class 'App\Http\Web\Controller\TestController' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/TestController.php');
     }
 
@@ -367,7 +367,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createController('TestController', ['api' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Controller class 'MyApp\Http\Api\Controller\TestController' created.", $result);
+        $this->assertStringContainsString("Controller class 'App\Http\Api\Controller\TestController' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/TestController.php');
     }
 
@@ -387,7 +387,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createModel('TestModel');
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Model class 'MyApp\Model\TestModel' created.", $result);
+        $this->assertStringContainsString("Model class 'App\Model\TestModel' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Model/TestModel.php');
     }
 
@@ -399,7 +399,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller()->createModel('TestModel', ['data' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Model class 'MyApp\Model\TestModel' created.", $result);
+        $this->assertStringContainsString("Model class 'App\Model\TestModel' created.", $result);
         $this->assertFileExists(getcwd() . '/app/src/Model/TestModel.php');
         $this->assertFileExists(getcwd() . '/app/src/Table/TestModels.php');
     }

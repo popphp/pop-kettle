@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp;
+namespace App;
 
 use Pop\Db;
 use Pop\Http\Server\Request;
@@ -13,13 +13,13 @@ class Application extends \Pop\Application
      * Application name
      * @var ?string
      */
-    const string NAME = 'myapp';
+    const string NAME = 'app';
 
     /**
      * Application full name
      * @var ?string
      */
-    const string FULL_NAME = 'MyApp';
+    const string FULL_NAME = 'App';
 
     /**
      * Application version
@@ -66,7 +66,7 @@ class Application extends \Pop\Application
             );
         }
 
-        $this->on('app.dispatch.pre', 'MyApp\Http\Event\Options::send', 1);
+        $this->on('app.dispatch.pre', 'App\Http\Event\Options::send', 1);
 
         return $this;
     }

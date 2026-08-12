@@ -4,13 +4,13 @@ return [
     'routes' => [
         'get' => [
             '[/]' => [
-                'controller' => 'MyApp\Http\Controller\IndexController',
+                'controller' => 'App\Http\Controller\IndexController',
                 'action'     => 'index'
             ],
         ],
         '*' => [
             '*'    => [
-                'controller' => 'MyApp\Http\Controller\IndexController',
+                'controller' => 'App\Http\Controller\IndexController',
                 'action'     => 'error'
             ]
         ]

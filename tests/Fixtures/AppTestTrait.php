@@ -151,7 +151,7 @@ trait AppTestTrait
      * @param  string $namespace
      * @return void
      */
-    protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'MyApp'): void
+    protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'App'): void
     {
         $this->seedKettleIncOrig();
         (new Kettle\Model\Application())->install($install, getcwd(), $namespace);

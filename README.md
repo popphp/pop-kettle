@@ -80,7 +80,7 @@ required to run an application:
 $ ./kettle app:init [--web] [--api] [--cli] <namespace>
 ```
 
-The `<namespace>` parameter is the namespace of your application, for example `MyApp`.
+The `<namespace>` parameter is the namespace of your application, for example `App`.
 The optional parameters of `--web`, `--api`, and `--cli` will create the related files
 and folders to run the application as a normal web application, an API-driven web
 application, a CLI-driven console application or any combination thereof. If none of
@@ -94,7 +94,7 @@ If `--web` and/or `--api` are used, the front controller will be located in
 `public/index.php` (there is no `public` folder, and therefore no `public/index.php`,
 for a `--cli`-only install). If `--cli` is used, you'll be prompted to optionally
 initialize a stand-alone CLI application as well; if you accept, its main script will
-be located at `script/myapp`, renamed to the lowercased \<namespace\> value (backslashes
+be located at `script/app`, renamed to the lowercased \<namespace\> value (backslashes
 in a multi-segment namespace become hyphens, e.g. `My\App` &rarr; `script/my-app`). See
 [Application Console Scripts](#application-console-scripts) below for more on that
 stand-alone script versus registering one-off commands directly with `kettle`.
@@ -189,7 +189,7 @@ and its namespace. You can access the autoloader here and register your applicat
 `kettle` in the `kettle.inc.php` file:
 
 ```php
-$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
+$autoloader->addPsr4('App\\', __DIR__ . '/app/src');
 ```
 
 **Note:** If the `kettle.inc.php` file isn't available, you can copy the blank
@@ -396,7 +396,7 @@ called `.table` to be placed in the database migration folder:
 The contents of the table will be the table class name for the migrations table in the database, for example:
 
 ```text
-MyApp\Table\Migrations
+App\Table\Migrations
 ```
 
 Please note, while `kettle` is a CLI-helper tool that assists in wiring up your initial application, it is
@@ -405,7 +405,7 @@ table, `kettle` will have to be made aware of the namespace and location of your
 that by adding it to the autoloader in the `kettle.inc.php` file:
 
 ```php
-$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
+$autoloader->addPsr4('App\\', __DIR__ . '/app/src');
 ```
 
 Reference [Kettle Include](#kettle-include) for more information.
@@ -440,13 +440,13 @@ open them up and begin writing your application code.
 
 The `--data` option for the `create:model` command creates a model class that extends the
 `Pop\Model\AbstractDataModel` class, as well as a table class to interface with the corresponding
-table in the database. For example, assuming the namespace of the applicaton is `MyApp`, the command:
+table in the database. For example, assuming the namespace of the applicaton is `App`, the command:
 
 ```bash
 $ ./kettle create:model --data User
 ```
 
-will create class files for `MyApp\Model\User` and `MyApp\Table\Users`. From there, using the model
+will create class files for `App\Model\User` and `App\Table\Users`. From there, using the model
 class, you can begin to store and retrieve data from the `users` table in the database with very little
 additional coding.
 
@@ -477,7 +477,7 @@ combination that includes it, e.g. `--web --cli`), since the command class is sc
 
 The `<command>` value becomes both the CLI command signature and (in title case) the generated class
 name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/Kettle/SendEmail.php`,
-namespaced `MyApp\Console\Command\Kettle`. By default, commands are scaffolded into that `Kettle`
+namespaced `App\Console\Command\Kettle`. By default, commands are scaffolded into that `Kettle`
 subfolder, which is what `kettle` itself scans for auto-discovery (see below) — this keeps
 kettle-registered commands separate from any commands belonging to a stand-alone
 [Application Console Script](#application-console-scripts), which live directly under
@@ -488,7 +488,7 @@ e.g. if you want to hand-wire the command into your own console app's route tabl
 ```php
 <?php
 
-namespace MyApp\Console\Command\Kettle;
+namespace App\Console\Command\Kettle;
 
 class SendEmail extends \Pop\Console\Command\AbstractCommand
 {
@@ -603,7 +603,7 @@ And, if you `cd script`, you'll see the default CLI application that was created
 route available to the CLI application is the `help` route:
 
 ```bash
-$ ./myapp help
+$ ./app help
 ```
 [Top](#pop-kettle)
 

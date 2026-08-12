@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp\Console\Controller;
+namespace App\Console\Controller;
 
 use Pop\Application;
 use Pop\Console\Console;
@@ -28,18 +28,18 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->constructConsoleController($application, $console);
 
         $this->console->setHelpColors(Color::BOLD_CYAN, Color::BOLD_GREEN, Color::BOLD_MAGENTA);
-        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './myapp');
+        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './app');
     }
 
     /**
      * Default error action method
      *
-     * @throws \MyApp\Exception
+     * @throws \App\Exception
      * @return void
      */
     public function error()
     {
-        throw new \MyApp\Exception('Invalid Command');
+        throw new \App\Exception('Invalid Command');
     }
 
     /**

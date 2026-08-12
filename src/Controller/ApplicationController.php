@@ -90,7 +90,7 @@ class ApplicationController extends AbstractController
         $location = getcwd();
 
         if (empty($namespace)) {
-            $namespace = 'MyApp';
+            $namespace = 'App';
         }
 
         $createDb = $this->console->prompt(

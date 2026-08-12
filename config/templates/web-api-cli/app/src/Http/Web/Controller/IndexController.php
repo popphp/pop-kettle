@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp\Http\Web\Controller;
+namespace App\Http\Web\Controller;
 
 class IndexController extends AbstractController
 {
