@@ -31,7 +31,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
         $this->response->addHeaders($this->application->config['http_options_headers']);
 
-        $responseBody = (($this->response->getHeader('Content-Type') == 'application/json') && ($body  !== null) && ($body != '')) ?
+        $responseBody = (($this->response->getHeaderValue('Content-Type') == 'application/json') && ($body  !== null) && ($body != '')) ?
             json_encode($body, JSON_PRETTY_PRINT) : $body;
 
         $this->response->setBody($responseBody . PHP_EOL . PHP_EOL);
