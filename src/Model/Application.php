@@ -486,7 +486,7 @@ class Application extends AbstractModel
 
         if ($data) {
             $abstractModel = 'AbstractDataModel';
-            $useNamespace  = 'Pop\Db\Model\AbstractModel';
+            $useNamespace  = 'Pop\Db\Model\AbstractDataModel';
 
         } else {
             $abstractModel = 'AbstractModel';

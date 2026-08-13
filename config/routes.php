@@ -99,7 +99,7 @@ return [
     'create:command [-a|--app] <command>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createCommand',
-        'help'       => 'Create a new CLI command, registered with Kettle'
+        'help'       => 'Create a new CLI command'
     ],
     'create:ctrl [--web] [--api] [--cli] <ctrl>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
