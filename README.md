@@ -398,17 +398,6 @@ The contents of the table will be the table class name for the migrations table 
 MyApp\Table\Migrations
 ```
 
-Please note, while `kettle` is a CLI-helper tool that assists in wiring up your initial application, it is
-unaware of your application and its namespace. If you choose to manage database migrations with a database
-table, `kettle` will have to be made aware of the namespace and location of your application. You can do
-that by adding it to the autoloader in the `kettle.inc.php` file:
-
-```php
-$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
-```
-
-Reference [Kettle Include](#kettle-include) for more information.
-
 [Top](#pop-kettle)
 
 Creating Application Files
