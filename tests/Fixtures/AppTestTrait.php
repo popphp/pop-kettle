@@ -149,12 +149,13 @@ trait AppTestTrait
      *
      * @param  string $install One of the config/templates/ folder names (web, api, cli, web-api, ...)
      * @param  string $namespace
+     * @param  bool   $cliApp Whether to also scaffold the stand-alone ./script console application
      * @return void
      */
-    protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'App'): void
+    protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'App', bool $cliApp = false): void
     {
         $this->seedKettleIncOrig();
-        (new Kettle\Model\Application())->install($install, getcwd(), $namespace);
+        (new Kettle\Model\Application())->install($install, getcwd(), $namespace, cliApp: $cliApp);
     }
 
 }

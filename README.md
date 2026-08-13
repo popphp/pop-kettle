@@ -458,7 +458,8 @@ Creating Custom Commands
 There are two ways to add custom, application-specific CLI commands to your project: registering
 lightweight **Kettle Commands** directly with the `kettle` script itself, or building out a full,
 separate **Application Console Script** of your own. Which one you reach for depends on the shape of
-what you're building.
+what you're building — and, as covered below, it's a decision you effectively make once, up front,
+when you initialize the application.
 
 ### Kettle Commands
 
@@ -477,13 +478,7 @@ combination that includes it, e.g. `--web --cli`), since the command class is sc
 
 The `<command>` value becomes both the CLI command signature and (in title case) the generated class
 name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/Kettle/SendEmail.php`,
-namespaced `App\Console\Command\Kettle`. By default, commands are scaffolded into that `Kettle`
-subfolder, which is what `kettle` itself scans for auto-discovery (see below) — this keeps
-kettle-registered commands separate from any commands belonging to a stand-alone
-[Application Console Script](#application-console-scripts), which live directly under
-`app/src/Console/Command/` instead. Pass `--app` to scaffold there instead of the `Kettle` subfolder,
-e.g. if you want to hand-wire the command into your own console app's route table rather than have
-`kettle` auto-discover it:
+namespaced `App\Console\Command\Kettle`:
 
 ```php
 <?php
@@ -515,30 +510,64 @@ syntax (`<required>`, `[<optional>]`, `[--flag]`, `[-s|--long=]`), for example:
 public ?string $params = '<to> [--cc=]';
 ```
 
-Every class found in `app/src/Console/Command/Kettle/` (i.e. every command created without `--app`) is
-automatically discovered and merged into `kettle`'s own route table on every run — there's nothing
-further to wire up. Once created, run it like any other `kettle` command:
+By default (without `-a`/`--app`), commands are scaffolded into the `Kettle` subfolder shown above.
+Every class found there is automatically discovered and merged into `kettle`'s own route table on
+every run — there's nothing further to wire up, and the command shows up in `./kettle help` alongside
+Kettle's own built-in commands. Once created, run it like any other `kettle` command:
 
 ```bash
 $ ./kettle send-email
 $ ./kettle email:send test@test.com --cc=someone@test.com
 ```
 
+Even though it's invoked through `kettle`, the command doesn't actually run *as* Kettle. Once `kettle`
+matches the route to a non-native controller, it hands execution off to your own application's
+`Application` class (the one at `app/src/Application.php`) and runs the command through that instead —
+so inside `handle()`, `$this->application` is your app, with access to whatever services, config and
+database connection your app's own `Application::load()` sets up, not Kettle's internal ones. This
+"boot through Kettle, then switch to your app" behavior is what makes it possible to register commands
+against your own application's namespace without building and maintaining a second, separate console
+script.
+
+Pass `-a`/`--app` to scaffold the command into `app/src/Console/Command/` directly instead (no `Kettle`
+subfolder, and no `Kettle` namespace segment). Commands created this way are **not** merged into
+`kettle`'s route table and can't be run as `./kettle <command>` — they only exist for the stand-alone
+[Application Console Script](#application-console-scripts) described below, which auto-discovers them
+the same way `kettle` auto-discovers its own `Kettle`-subfolder commands. That means a stand-alone
+script must already exist for an `--app` command to be reachable at all — see the note about that in
+the next section before using this flag.
+
 ### Application Console Scripts
 
-For a CLI application with a larger number of related commands, it's often cleaner to group them
-under a dedicated `Console\Controller` class rather than registering many individual Kettle Commands
-— e.g. an `EmailController` housing several email-related commands, instead of a separate
-`SendEmail`/`QueueEmail`/`RetryEmail` command class for each one. This is the original approach and is
-still fully supported: running `./kettle app:init --cli <namespace>` (or a flag combination including
-`--cli`) scaffolds a standalone CLI front controller at `script/<namespace>` with its own
-`Console\Controller` classes and route table, completely separate from `kettle`. See
-[Accessing the Application](#accessing-the-application) below for how to run it, and use
-`./kettle create:ctrl --cli <ctrl>` to add additional controllers to it.
+For a CLI application with a larger number of related commands, it's often cleaner to build a fully
+separate, self-contained console application than to keep piggybacking Kettle Commands onto `kettle`
+itself. Whether that stand-alone script exists at all is a one-time decision made during
+`app:init --cli` (or a flag combination including `--cli`): you're prompted "Initialize a stand-alone
+CLI application?", and if you accept, its main script is scaffolded at `script/<namespace>` (see
+[Initializing an Application](#initializing-an-application) above for the exact naming rule). This
+choice isn't easily reversible after the fact — decide up front whether you want a second, independent
+console application, or to keep everything running through `kettle` as Kettle Commands.
+
+If you accepted the prompt, the stand-alone script's route table is built from three sources: its own
+baseline `help`/error handling (routed to a `Console\Controller\ConsoleController` class), any
+additional controllers you add with `./kettle create:ctrl --cli <ctrl>` (grouping related commands
+together under a class — e.g. an `EmailController` housing several email-related actions, instead of a
+separate `SendEmail`/`QueueEmail`/`RetryEmail` command class for each one), and any `-a`/`--app`
+commands created as described above. See [Accessing the Application](#accessing-the-application)
+below for how to run the script.
+
+If you declined the prompt, none of that scaffolding exists — `app/src/Console/Controller` and
+`script/` are never created — and `./kettle create:ctrl --cli <ctrl>` will refuse with an explicit
+error rather than silently failing:
+
+```text
+Error: This application was not initialized with a stand-alone console application.
+```
 
 In short: reach for a **Kettle Command** for a small number of standalone commands you want available
-immediately with no extra wiring; reach for an **Application Console Script** when you want a
-larger, self-contained CLI application with its own namespaced groups of commands.
+immediately with no extra wiring, running through your app's own `Application` class via `kettle`;
+reach for an **Application Console Script** when you want a larger, fully independent CLI application
+with its own namespaced groups of commands, decided once up front at `app:init` time.
 
 [Top](#pop-kettle)
 

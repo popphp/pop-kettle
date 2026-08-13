@@ -72,6 +72,93 @@ class KettleTest extends TestCase
         $this->assertStringContainsString('Pop Kettle', $output);
     }
 
+    public function testPrepareReturnsSelfForNativeKettleRoute()
+    {
+        $originalArgv    = $_SERVER['argv'];
+        $_SERVER['argv'] = ['kettle', 'help'];
+
+        $app    = $this->makeApp();
+        $result = $app->prepare();
+
+        $_SERVER['argv'] = $originalArgv;
+
+        $this->assertSame($app, $result);
+    }
+
+    public function testPrepareReturnsSelfForUnmatchedRoute()
+    {
+        $originalArgv    = $_SERVER['argv'];
+        $_SERVER['argv'] = ['kettle', 'this-command-does-not-exist'];
+
+        $app    = $this->makeApp();
+        $result = $app->prepare();
+
+        $_SERVER['argv'] = $originalArgv;
+
+        $this->assertSame($app, $result);
+    }
+
+    public function testPrepareSwitchesToCustomAppForPiggybackedCommand()
+    {
+        $this->enterSandbox();
+        $this->scaffoldApp('cli', 'KettlePrepareApp');
+
+        (new Kettle\Model\Application())->createCommand('greet', getcwd());
+
+        $autoloader = include __DIR__ . '/../vendor/autoload.php';
+        $autoloader->addPsr4('KettlePrepareApp\\', getcwd() . '/app/src');
+
+        // Mirrors the real `kettle` script: only the Console/Command/Kettle
+        // subfolder (piggybacked commands) is merged into Kettle's own route
+        // table up front, which is what makes the command reachable at all
+        // as `kettle greet` and lets it show up in `kettle help`.
+        $config           = include __DIR__ . '/../config/app.console.php';
+        $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($config['routes'], getcwd() . '/app/src/Console/Command/Kettle');
+
+        $originalArgv    = $_SERVER['argv'];
+        $_SERVER['argv'] = ['kettle', 'greet'];
+
+        $app    = new Kettle\Application($autoloader, $config);
+        $result = $app->prepare();
+
+        $_SERVER['argv'] = $originalArgv;
+
+        $this->assertInstanceOf('KettlePrepareApp\Application', $result);
+        $this->assertNotSame($app, $result);
+        $this->assertArrayHasKey('greet', $result->config()['routes']);
+
+        $this->leaveSandbox();
+    }
+
+    public function testPrepareIgnoresStandaloneAppCommand()
+    {
+        $this->enterSandbox();
+        $this->scaffoldApp('cli', 'KettlePrepareStandaloneApp');
+
+        // A command created with the `-a` flag is scaffolded for the
+        // separate `./script/myapp` entry point only - it never gets merged
+        // into Kettle's own route table, so it stays unreachable as
+        // `kettle greet` and shouldn't trigger the app switch.
+        (new Kettle\Model\Application())->createCommand('greet', getcwd(), true);
+
+        $autoloader = include __DIR__ . '/../vendor/autoload.php';
+        $autoloader->addPsr4('KettlePrepareStandaloneApp\\', getcwd() . '/app/src');
+
+        $config = include __DIR__ . '/../config/app.console.php';
+
+        $originalArgv    = $_SERVER['argv'];
+        $_SERVER['argv'] = ['kettle', 'greet'];
+
+        $app    = new Kettle\Application($autoloader, $config);
+        $result = $app->prepare();
+
+        $_SERVER['argv'] = $originalArgv;
+
+        $this->assertSame($app, $result);
+
+        $this->leaveSandbox();
+    }
+
     public function testInitDb()
     {
         $app = $this->makeApp();

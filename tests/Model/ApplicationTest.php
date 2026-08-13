@@ -45,7 +45,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, true, true);
+        $application->init(getcwd(), 'App', null, true, true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
     }
@@ -54,7 +54,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', true, null, true);
+        $application->init(getcwd(), 'App', true, null, true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
@@ -64,9 +64,19 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, null, true);
+        $application->init(getcwd(), 'App', null, null, true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
+    }
+
+    public function testInitCliOnlyWithoutStandaloneAppRemovesConsoleController()
+    {
+        $this->seedKettleIncOrig();
+        $application = new Model\Application();
+        $application->init(getcwd(), 'App', null, null, true);
+
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Controller');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
     }
 
@@ -74,7 +84,7 @@ class ApplicationTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', true, true, true);
+        $application->init(getcwd(), 'App', true, true, true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/AbstractController.php');
@@ -114,6 +124,20 @@ class ApplicationTest extends TestCase
         );
     }
 
+    public function testCreateCommandForStandaloneApp()
+    {
+        $this->scaffoldApp('cli');
+        $application = new Model\Application();
+        $application->createCommand('send-email', getcwd(), true);
+
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/SendEmail.php');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Command/Kettle/SendEmail.php');
+
+        $contents = file_get_contents(getcwd() . '/app/src/Console/Command/SendEmail.php');
+        $this->assertStringContainsString("'send-email'", $contents);
+        $this->assertStringContainsString('namespace App\Console\Command;', $contents);
+    }
+
     public function testCreateCommandIsNoopWhenFileAlreadyExists()
     {
         $this->scaffoldApp('cli');
@@ -139,7 +163,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerCli()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp('cli', 'App', true);
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), null, null, true);
 
@@ -179,7 +203,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerAllFlavors()
     {
-        $this->scaffoldApp('web-api-cli');
+        $this->scaffoldApp('web-api-cli', 'App', true);
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), true, true, true);
 
@@ -201,7 +225,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerCliNestedPath()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp('cli', 'App', true);
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), null, null, true);
 
@@ -235,6 +259,21 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
+        $application->createController('MyController', getcwd(), null, null, true);
+    }
+
+    public function testCreateControllerCliDeniedWithoutStandaloneApp()
+    {
+        // Scaffolded as 'cli' but without opting into a stand-alone ./script
+        // app - Console/Controller is removed in that case (you're expected
+        // to piggyback commands through Kettle instead), so create:ctrl --cli
+        // should refuse with a specific message rather than the generic
+        // "folder not created" error.
+        $this->scaffoldApp('cli');
+        $application = new Model\Application();
+
+        $this->expectException('Pop\Kettle\Exception');
+        $this->expectExceptionMessage('This application was not initialized with a stand-alone console application.');
         $application->createController('MyController', getcwd(), null, null, true);
     }
 

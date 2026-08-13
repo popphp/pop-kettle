@@ -71,13 +71,28 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '1', 'y', 'n'));
 
         ob_start();
         $this->controller($console)->init('App', ['cli' => true]);
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
+        $this->assertFileExists(getcwd() . '/script/app');
+    }
+
+    public function testInitWithCliFlagWithoutStandaloneAppRemovesConsoleController()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '1', 'n', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('App', ['cli' => true]);
+        ob_end_clean();
+
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Controller');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
     }
 
@@ -337,7 +352,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateControllerCli()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp('cli', 'App', true);
 
         ob_start();
         $this->controller()->createController('TestController', ['cli' => true]);
@@ -434,6 +449,19 @@ class ApplicationControllerTest extends TestCase
 
         $this->expectException('Pop\Kettle\Exception');
         $this->controller()->createCommand('send-email');
+    }
+
+    public function testCreateCommandWithAppFlag()
+    {
+        $this->scaffoldApp('cli');
+
+        ob_start();
+        $this->controller()->createCommand('send-email', ['app' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Command 'send-email' created.", $result);
+        $this->assertFileExists(getcwd() . '/app/src/Console/Command/SendEmail.php');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Command/Kettle/SendEmail.php');
     }
 
 }

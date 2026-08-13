@@ -226,7 +226,7 @@ class Application extends AbstractModel
         }
 
         $env = str_replace([
-            'APP_NAME=Pop',
+            'APP_NAME=MyApp',
             'APP_ENV=local',
             'APP_URL=http://localhost',
         ], [
@@ -329,8 +329,10 @@ class Application extends AbstractModel
 
         // Create CLI controller
         if ($cli === true) {
-            if (!file_exists($cliFolder)) {
-                throw new Exception('Error: The console folder and namespace has not been created');
+            $scriptFolder = $location . DIRECTORY_SEPARATOR . 'script';
+
+            if (!file_exists($cliFolder) || !file_exists($scriptFolder)) {
+                throw new Exception('Error: This application was not initialized with a stand-alone console application.');
             }
             $cliNamespace = $namespace . "\\Console\\Controller";
 
@@ -562,7 +564,7 @@ class Application extends AbstractModel
         }
 
         touch($viewFolder . DIRECTORY_SEPARATOR . $view);
-        $index = file_get_contents(realpath(__DIR__ . '/../../config/templates/web/app/view/index.phtml'));
+        $index = file_get_contents(realpath(__DIR__ . '/../../config/templates/view/index.phtml'));
         file_put_contents($viewFolder . DIRECTORY_SEPARATOR . $view, $index);
 
         return $origView;
