@@ -77,10 +77,10 @@ By running the following command, you can set up the basic files and folders
 required to run an application:
 
 ```bash
-$ ./kettle app:init [--web] [--api] [--cli] <namespace>
+$ ./kettle app:init [--web] [--api] [--cli] [<namespace>]
 ```
 
-The `<namespace>` parameter is the namespace of your application, for example `App`.
+The `<namespace>` parameter is the namespace of your application - it defaults to `MyApp`.
 The optional parameters of `--web`, `--api`, and `--cli` will create the related files
 and folders to run the application as a normal web application, an API-driven web
 application, a CLI-driven console application or any combination thereof. If none of
