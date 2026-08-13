@@ -404,7 +404,7 @@ Creating Application Files
 --------------------------
 
 You can create skeleton application files with the `create` commands to assist you in wiring up various
-MVC-based components, such as models, views and controllers: 
+MVC-based components, such as commands, controllers, model and views: 
 
 ```bash
 ./kettle create:command [-a|--app] <command>             Create a new CLI command, registered with Kettle

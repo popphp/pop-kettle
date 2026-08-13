@@ -484,13 +484,20 @@ class Application extends AbstractModel
             }
         }
 
-        $abstractModel = ($data) ? 'AbstractDataModel' : 'AbstractModel';
+        if ($data) {
+            $abstractModel = 'AbstractDataModel';
+            $useNamespace  = 'Pop\Db\Model\AbstractModel';
+
+        } else {
+            $abstractModel = 'AbstractModel';
+            $useNamespace  = 'Pop\Utils\AbstractModel';
+        }
 
         $modelClassObject = new Generator\ClassGenerator($model);
         $modelClassObject->setParent($abstractModel);
 
         $namespaceObject = new Generator\NamespaceGenerator($namespace);
-        $namespaceObject->addUse('Pop\Model\\' . $abstractModel);
+        $namespaceObject->addUse($useNamespace);
 
         $code = new Generator();
         $code->addCodeObjects([$namespaceObject, $modelClassObject]);
