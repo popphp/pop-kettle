@@ -15,7 +15,7 @@ namespace Pop\Kettle\Model;
 
 use Pop\Code\Generator;
 use Pop\Dir\Dir;
-use Pop\Model\AbstractModel;
+use Pop\Utils\AbstractModel;
 use Pop\Kettle\Exception;
 use Pop\Utils\Str;
 

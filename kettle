@@ -18,8 +18,9 @@ try {
     $config['routes'] = Pop\Console\CommandRegistry::loadRoutes($config['routes'], __DIR__ . '/app/src/Console/Command/Kettle');
 
     $app = new Pop\Kettle\Application($autoloader, $config);
-    $app->load();
-    $app->run();
+    $app->prepare()
+        ->load()
+        ->run();
 } catch (\Exception $exception) {
     $app = new Pop\Kettle\Application();
     $app->cliError($exception);

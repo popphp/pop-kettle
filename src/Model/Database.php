@@ -18,7 +18,7 @@ use Pop\Console\Color;
 use Pop\Db\Db;
 use Pop\Db\Adapter;
 use Pop\Db\Sql\Seeder;
-use Pop\Model\AbstractModel;
+use Pop\Utils\AbstractModel;
 
 /**
  * Database model class

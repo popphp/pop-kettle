@@ -107,6 +107,38 @@ class Application extends \Pop\Application
     }
 
     /**
+     * Prepare application
+     *   - determine if the route is a kettle native route or a custom application route
+     *
+     * @return \Pop\Application
+     */
+    public function prepare(): \Pop\Application
+    {
+        $app = $this;
+
+        if (($this->router !== null)) {
+            $this->router->getRouteMatch()->match();
+            $controller = $this->router->getRouteMatch()->getController();
+
+            // If it's a custom command
+            if (!str_starts_with($controller, 'Pop\Kettle')) {
+                $namespace = (new Model\Application())->getNamespace(__DIR__ . '/..');
+                $appClass  = $namespace . '\Application';
+
+                if (class_exists($appClass)) {
+                    // Load any custom application command routes
+                    $config           = include __DIR__ . '/../app/config/app.console.php';
+                    $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($this->config['routes'], __DIR__ . '/../app/src/Console/Command');
+
+                    $app = new $appClass($this->autoloader(), $config);
+                }
+            }
+        }
+
+        return $app;
+    }
+
+    /**
      * Get the shared console object
      *
      * @return ?Console

@@ -19,10 +19,12 @@
     ],
     "require": {
         "php": ">=8.4.0",
+        "popphp/popphp": "^5.0.0-beta.13",
         "popphp/pop-code": "^6.0.0-beta.1",
         "popphp/pop-console": "^5.0.0-beta.3",
         "popphp/pop-db": "^7.0.0-beta.3",
         "popphp/pop-dir": "^4.0.3",
+        "popphp/pop-utils": "^3.0.0-beta.2",
         "vlucas/phpdotenv": "^5.6.4"
     },
     "require-dev": {
@@ -43,6 +45,18 @@
     "scripts": {
         "test": "vendor/bin/phpunit"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../*",
+            "canonical": false,
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"

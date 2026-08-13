@@ -266,7 +266,7 @@ class ApplicationController extends AbstractController
     public function createCommand(string $command, array $options = []): void
     {
         $appModel = new Model\Application();
-        $appModel->createCommand($command, getcwd(), (isset($options['myapp'])));
+        $appModel->createCommand($command, getcwd(), (isset($options['app'])));
 
         $this->console->write("Command '" . $command ."' created.");
 

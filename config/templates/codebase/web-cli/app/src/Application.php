@@ -77,9 +77,8 @@ class Application extends \Pop\Application
                 );
 
                 $console->write(PHP_EOL . $console->header(self::FULL_NAME, '=', null, 'left', false, true));
-
-                $this->on('app.route.pre', function() { echo PHP_EOL; })
-                     ->on('app.dispatch.post', function() { echo PHP_EOL; });
+                $this->on('app.route.pre', function() { echo PHP_EOL; });
+                $this->on('app.dispatch.post', function() { echo PHP_EOL; });
             }
         }
 
