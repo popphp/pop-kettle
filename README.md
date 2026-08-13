@@ -427,16 +427,16 @@ open them up and begin writing your application code.
 ### Data Model
 
 The `--data` option for the `create:model` command creates a model class that extends the
-`Pop\Model\AbstractDataModel` class, as well as a table class to interface with the corresponding
-table in the database. For example, assuming the namespace of the applicaton is `MyApp`, the command:
+`Pop\Utils\AbstractDataModel` class, as well as a table class to interface with the corresponding
+table in the database. For example, assuming the namespace of the application is `MyApp`, the command:
 
 ```bash
 $ ./kettle create:model --data User
 ```
 
-will create class files for `MyApp\Model\User` and `MyApp\Table\Users`. From there, using the model
-class, you can begin to store and retrieve data from the `users` table in the database with very little
-additional coding.
+will create class files for `MyApp\Model\User` (extending the data model class `Pop\Db\Model\AbstractDataModel`)
+and `MyApp\Table\Users`. From there, you can begin to store and retrieve data from the `users` table in the
+database with very little additional coding.
 
 [Top](#pop-kettle)
 
