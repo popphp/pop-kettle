@@ -83,17 +83,7 @@ class Application extends \Pop\Application
             $this->initDb(include $dir . '/app/config/database.php');
         }
 
-        $this->console = new Console(120, '    ');
-
-        if ($this->router() !== null) {
-            $this->router()->addControllerParams(
-                '*', [
-                    'application' => $this,
-                    'console'     => $this->console
-                ]
-            );
-        }
-
+        $this->console = new Console(120);
         $this->console->write(PHP_EOL . $this->console->header(self::FULL_NAME, '=', null, 'left', true, true));
 
         $this->on('app.route.pre', function () {

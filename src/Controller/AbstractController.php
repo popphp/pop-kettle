@@ -14,6 +14,7 @@
 namespace Pop\Kettle\Controller;
 
 use Pop\Application;
+use Pop\Dispatch\ConsoleTrait;
 use Pop\Console\Color;
 use Pop\Console\Console;
 use Pop\Kettle\Exception;
@@ -30,6 +31,13 @@ use Pop\Kettle\Exception;
  */
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
+
+    /**
+     * Traits
+     */
+    use ConsoleTrait {
+        ConsoleTrait::__construct as private constructConsoleController;
+    }
 
     /**
      * Application object
@@ -55,10 +63,9 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      * @param  Application $application
      * @param  Console     $console
      */
-    public function __construct(Application $application, Console $console)
+    public function __construct(Application $application, Console $console = new Console(120))
     {
-        $this->application = $application;
-        $this->console     = $console;
+        $this->constructConsoleController($application, $console);
 
         $this->console->setHelpColors(Color::BOLD_CYAN, Color::BOLD_GREEN, Color::BOLD_MAGENTA);
         $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './kettle');
