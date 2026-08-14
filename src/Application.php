@@ -108,10 +108,10 @@ class Application extends \Pop\Application
 
         if (($this->router !== null)) {
             $this->router->getRouteMatch()->match();
-            $controller = $this->router->getRouteMatch()->getController();
+            $dispatchable = $this->router->getRouteMatch()->getDispatchable();
 
             // If it's a custom command
-            if (!str_starts_with($controller, 'Pop\Kettle')) {
+            if (!str_starts_with($dispatchable, 'Pop\Kettle')) {
                 $dir       = getcwd();
                 $namespace = (new Model\Application())->getNamespace($dir);
                 $appClass  = $namespace . '\Application';

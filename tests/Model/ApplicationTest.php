@@ -354,6 +354,37 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
     }
 
+    public function testScaffoldedApiOptionsEventClassIsLoadable()
+    {
+        // Regression guard for the popphp Router 'controller' -> 'dispatchable'
+        // rename: the scaffolded Options event class used to call the
+        // now-removed Router::hasController()/getController() methods, which
+        // only ever surfaced as a fatal "Call to undefined method" error once
+        // the event actually fired - no other test loads this class at all.
+        $this->scaffoldApp('api', 'ScaffoldOptsApi');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldOptsApi\\', getcwd() . '/app/src');
+
+        $application = new \Pop\Application($autoloader, ['routes' => []]);
+        \ScaffoldOptsApi\Http\Event\Options::send($application);
+
+        $this->assertFalse($application->router()->hasDispatchable());
+    }
+
+    public function testScaffoldedWebApiOptionsEventClassIsLoadable()
+    {
+        $this->scaffoldApp('web-api', 'ScaffoldOptsWebApi');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldOptsWebApi\\', getcwd() . '/app/src');
+
+        $application = new \Pop\Application($autoloader, ['routes' => []]);
+        \ScaffoldOptsWebApi\Http\Api\Event\Options::send($application);
+
+        $this->assertFalse($application->router()->hasDispatchable());
+    }
+
     public function testCreateControllerWebMissingFolderThrows()
     {
         $this->scaffoldApp('cli');
