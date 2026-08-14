@@ -138,6 +138,44 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('namespace App\Console\Command;', $contents);
     }
 
+    public function testScaffoldedKettleCommandIsInstantiable()
+    {
+        // Regression guard for pop-console's AbstractCommand refactor:
+        // its constructor now leads with (?Application, Console) via
+        // Pop\Dispatch\ConsoleTrait and load()/loadForApplication() were
+        // removed, so a scaffolded command must still be constructable
+        // with no arguments (as CommandRegistry::loadRoutes() does) and
+        // dispatchable via handle().
+        $this->scaffoldApp('cli', 'ScaffoldCmdKettle');
+        $application = new Model\Application();
+        $application->createCommand('greet', getcwd());
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldCmdKettle\\', getcwd() . '/app/src');
+
+        $command = new \ScaffoldCmdKettle\Console\Command\Kettle\Greet();
+
+        $this->assertInstanceOf('Pop\Console\Command\AbstractCommand', $command);
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $command);
+        $this->assertSame('greet', $command->getName());
+    }
+
+    public function testScaffoldedStandaloneCommandIsInstantiable()
+    {
+        $this->scaffoldApp('cli', 'ScaffoldCmdApp');
+        $application = new Model\Application();
+        $application->createCommand('greet', getcwd(), true);
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldCmdApp\\', getcwd() . '/app/src');
+
+        $command = new \ScaffoldCmdApp\Console\Command\Greet();
+
+        $this->assertInstanceOf('Pop\Console\Command\AbstractCommand', $command);
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $command);
+        $this->assertSame('greet', $command->getName());
+    }
+
     public function testCreateCommandIsNoopWhenFileAlreadyExists()
     {
         $this->scaffoldApp('cli');
@@ -275,6 +313,45 @@ class ApplicationTest extends TestCase
         $this->expectException('Pop\Kettle\Exception');
         $this->expectExceptionMessage('This application was not initialized with a stand-alone console application.');
         $application->createController('MyController', getcwd(), null, null, true);
+    }
+
+    public function testScaffoldedControllersAreInstantiable()
+    {
+        // Regression guard for the popphp Http/Console trait refactor: the
+        // scaffolding templates used to reference the now-removed
+        // Pop\Controller\HttpControllerTrait / ConsoleControllerTrait
+        // classes, which only ever surfaced as a fatal "Trait not found"
+        // error once a generated app's controller was actually loaded -
+        // none of the other tests here go further than asserting the file
+        // exists, so this instantiates each flavor for real.
+        $this->scaffoldApp('web-api-cli', 'ScaffoldCtrl', true);
+        $application = new Model\Application();
+        $application->createController('MyController', getcwd(), true, true, true);
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldCtrl\\', getcwd() . '/app/src');
+
+        $webController = new \ScaffoldCtrl\Http\Web\Controller\MyController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $webController);
+
+        $apiController = new \ScaffoldCtrl\Http\Api\Controller\MyController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $apiController);
+
+        $consoleController = new \ScaffoldCtrl\Console\Controller\MyController($this->makeApp());
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $consoleController);
+    }
+
+    public function testScaffoldedDefaultHttpControllerIsInstantiable()
+    {
+        $this->scaffoldApp('web', 'ScaffoldDefaultCtrl');
+        $application = new Model\Application();
+        $application->createController('MyController', getcwd(), null, null, null);
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldDefaultCtrl\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldDefaultCtrl\Http\Controller\MyController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
     }
 
     public function testCreateControllerWebMissingFolderThrows()

@@ -59,23 +59,8 @@ class Application extends \Pop\Application
         }
 
         if ($this->router() !== null) {
-            if ($this->router()->isHttp()) {
-                $this->router()->addControllerParams(
-                    '*', [
-                        'application' => $this,
-                        'request'     => new Request(),
-                        'response'    => new Response()
-                    ]
-                );
-            } else if ($this->router()->isCli()) {
-                $console = new Console(120, '    ');
-                $this->router()->addControllerParams(
-                    '*', [
-                        'application' => $this,
-                        'console'     => $console
-                    ]
-                );
-
+            if ($this->router()->isCli()) {
+                $console = new Console(120);
                 $console->write(PHP_EOL . $console->header(self::FULL_NAME, '=', null, 'left', false, true));
                 $this->on('app.route.pre', function() { echo PHP_EOL; });
                 $this->on('app.dispatch.post', function() { echo PHP_EOL; });

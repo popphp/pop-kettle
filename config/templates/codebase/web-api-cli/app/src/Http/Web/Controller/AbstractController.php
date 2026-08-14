@@ -2,7 +2,7 @@
 
 namespace MyApp\Http\Web\Controller;
 
-use Pop\Controller\HttpControllerTrait;
+use Pop\Dispatch\HttpTrait;
 use Pop\View\View;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
@@ -11,26 +11,26 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Traits
      */
-    use HttpControllerTrait;
+    use HttpTrait;
 
     /**
      * View path
      * @var string
      */
-    protected $viewPath = __DIR__ . '/../../../../view';
+    protected string $viewPath = __DIR__ . '/../../../../view';
 
     /**
      * View object
-     * @var View
+     * @var ?View
      */
-    protected $view = null;
+    protected ?View $view = null;
 
     /**
      * Get view object
      *
      * @return View
      */
-    public function getView()
+    public function getView(): View
     {
         return $this->view;
     }
@@ -40,7 +40,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      *
      * @return bool
      */
-    public function hasView()
+    public function hasView(): bool
     {
         return ($this->view !== null);
     }
@@ -53,7 +53,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      * @param  string $version
      * @return void
      */
-    public function redirect($url, $code = 302, $version = '1.1')
+    public function redirect(string $url, int $code = 302, string $version = '1.1'): void
     {
         \Pop\Http\Server\Response::redirect($url, $code, $version);
         exit();
@@ -62,13 +62,13 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Send method
      *
-     * @param  int    $code
-     * @param  string $body
-     * @param  string $message
-     * @param  array  $headers
+     * @param  int     $code
+     * @param  string  $body
+     * @param  ?string $message
+     * @param  ?array  $headers
      * @return void
      */
-    public function send($code = 200, $body = null, $message = null, array $headers = null)
+    public function send(int $code = 200, mixed $body = null, ?string $message = null, ?array $headers = null): void
     {
         if (($body === null) && ($this->view !== null)) {
             $body = $this->view->render();
@@ -89,7 +89,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
      * @param  string $template
      * @return void
      */
-    protected function prepareView($template)
+    protected function prepareView(string $template): void
     {
         $this->view = new View($this->viewPath . '/' . $template);
     }

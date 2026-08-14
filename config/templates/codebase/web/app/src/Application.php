@@ -58,16 +58,6 @@ class Application extends \Pop\Application
             $this->initDb($this->config['database']);
         }
 
-        if ($this->router() !== null) {
-            $this->router()->addControllerParams(
-                '*', [
-                    'application' => $this,
-                    'request'     => new Request(),
-                    'response'    => new Response()
-                ]
-            );
-        }
-
         return $this;
     }
 

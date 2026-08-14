@@ -2,7 +2,7 @@
 
 namespace MyApp\Http\Controller;
 
-use Pop\Controller\HttpControllerTrait;
+use Pop\Dispatch\HttpTrait;
 use Pop\View\View;
 
 class IndexController extends \Pop\Controller\AbstractController
@@ -11,7 +11,7 @@ class IndexController extends \Pop\Controller\AbstractController
     /**
      * Traits
      */
-    use HttpControllerTrait;
+    use HttpTrait;
 
     /**
      * Error action

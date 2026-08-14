@@ -5,7 +5,7 @@ namespace MyApp\Console\Controller;
 use Pop\Application;
 use Pop\Console\Console;
 use Pop\Console\Color;
-use Pop\Controller\ConsoleControllerTrait;
+use Pop\Dispatch\ConsoleTrait;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
 {
@@ -13,8 +13,8 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Traits
      */
-    use ConsoleControllerTrait {
-        ConsoleControllerTrait::__construct as private constructConsoleController;
+    use ConsoleTrait {
+        ConsoleTrait::__construct as private constructConsoleController;
     }
 
     /**

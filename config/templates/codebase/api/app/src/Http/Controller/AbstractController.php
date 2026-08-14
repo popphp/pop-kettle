@@ -2,7 +2,7 @@
 
 namespace MyApp\Http\Controller;
 
-use Pop\Controller\HttpControllerTrait;
+use Pop\Dispatch\HttpTrait;
 use Pop\Http\Server\Response;
 
 abstract class AbstractController extends \Pop\Controller\AbstractController
@@ -11,7 +11,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     /**
      * Traits
      */
-    use HttpControllerTrait;
+    use HttpTrait;
 
     /**
      * Send response
