@@ -72,33 +72,41 @@ class Application extends \Pop\Application
      */
     protected function initDb(array $database): void
     {
-        if (isset($database['default']) &&
-            !empty($database['default']['adapter']) && !empty($database['default']['database'])) {
-            $adapter = $database['default']['adapter'];
-            $options = [
-                'database' => $database['default']['database'],
-                'username' => $database['default']['username'] ?? null,
-                'password' => $database['default']['password'] ?? null,
-                'host'     => $database['default']['host'] ?? null,
-                'type'     => $database['default']['type'] ?? null
-            ];
+        foreach ($database as $db => $dbConfig) {
+            if (!empty($dbConfig['adapter']) && !empty($dbConfig['database'])) {
+                $adapter = $dbConfig['adapter'];
+                $options = [
+                    'database' => $dbConfig['database'],
+                    'username' => $dbConfig['username'] ?? null,
+                    'password' => $dbConfig['password'] ?? null,
+                    'host'     => $dbConfig['host'] ?? null,
+                    'type'     => $dbConfig['type'] ?? null
+                ];
 
-            $check = Db\Db::check($adapter, $options);
+                $check = Db\Db::check($adapter, $options);
 
-            if ($check !== true) {
-                throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
-            }
+                if ($check !== true) {
+                    throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
+                }
 
-            $this->services()->set('database', [
-                'call'   => 'Pop\Db\Db::connect',
-                'params' => [
-                    'adapter' => $adapter,
-                    'options' => $options
-                ]
-            ]);
+                $dbService = 'database';
+                if ($db != 'default') {
+                    $dbService .= '_' . $db;
+                }
 
-            if ($this->services()->isAvailable('database')) {
-                Db\Record::setDb($this->services['database']);
+                $this->services()->set($dbService, [
+                    'call'   => 'Pop\Db\Db::connect',
+                    'params' => [
+                        'adapter' => $adapter,
+                        'options' => $options
+                    ]
+                ]);
+
+                if ($db == 'default') {
+                    if ($this->services()->isAvailable('database')) {
+                        Db\Record::setDb($this->services['database']);
+                    }
+                }
             }
         }
     }

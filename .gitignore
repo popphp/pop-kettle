@@ -12,3 +12,4 @@ kettle
 /.env
 docs
 CLAUDE.md
+QUEUE-COMMANDS-HANDOFF.md

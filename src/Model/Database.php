@@ -65,15 +65,15 @@ class Database extends AbstractModel
         }
         if (!file_exists($location . '/database/migrations/' . $database)) {
             mkdir($location . '/database/migrations/' . $database);
-            touch($location . '/database/migrations/' . $database . '/.emtpy');
+            touch($location . '/database/migrations/' . $database . '/.empty');
         }
         if (!file_exists($location . '/database/seeds/' . $database)) {
             mkdir($location . '/database/seeds/' . $database);
-            touch($location . '/database/seeds/' . $database . '/.emtpy');
+            touch($location . '/database/seeds/' . $database . '/.empty');
         }
         if (!file_exists($location . '/database/snapshots/' . $database)) {
             mkdir($location . '/database/snapshots/' . $database);
-            touch($location . '/database/snapshots/' . $database . '/.emtpy');
+            touch($location . '/database/snapshots/' . $database . '/.empty');
         }
 
         foreach ($dbAdapters as $adapter => $result) {
@@ -201,23 +201,44 @@ class Database extends AbstractModel
             $dbPass = '"' . $dbPass . '"';
         }
 
-        $env = str_replace([
-            'DB_DATABASE=',
-            'DB_ADAPTER=',
-            'DB_USERNAME=',
-            'DB_PASSWORD=',
-            'DB_HOST=',
-            'DB_TYPE=',
-        ], [
-            'DB_DATABASE=' . $realDbName,
-            'DB_ADAPTER=' . strtolower($dbInterface),
-            'DB_USERNAME=' . $dbUser,
-            'DB_PASSWORD=' . $dbPass,
-            'DB_HOST=' . $dbHost,
-            'DB_TYPE=' . $dbType,
-        ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
+        if ($database != 'default') {
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', 'DB_' . strtoupper($database) . '_DATABASE=' . $realDbName, FILE_APPEND);
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', PHP_EOL . 'DB_' . strtoupper($database) . '_ADAPTER=' . strtolower($dbInterface), FILE_APPEND);
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', PHP_EOL . 'DB_' . strtoupper($database) . '_USERNAME=' . $dbUser, FILE_APPEND);
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', PHP_EOL . 'DB_' . strtoupper($database) . '_PASSWORD=' . $dbPass, FILE_APPEND);
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', PHP_EOL . 'DB_' . strtoupper($database) . '_HOST=' . $dbHost, FILE_APPEND);
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', PHP_EOL . 'DB_' . strtoupper($database) . '_TYPE=' . $dbType, FILE_APPEND);
 
-        file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
+            $dbConfig = file_get_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php');
+            $dbConfig = str_replace("];", "    '" . $database . "' => [", $dbConfig);
+            $dbConfig .= "        'database' => \$_ENV['DB_" . strtoupper($database) . "_DATABASE']," . PHP_EOL;
+            $dbConfig .= "        'adapter'  => \$_ENV['DB_" . strtoupper($database) . "_ADAPTER']," . PHP_EOL;
+            $dbConfig .= "        'username' => \$_ENV['DB_" . strtoupper($database) . "_USERNAME']," . PHP_EOL;
+            $dbConfig .= "        'password' => \$_ENV['DB_" . strtoupper($database) . "_PASSWORD']," . PHP_EOL;
+            $dbConfig .= "        'host'     => \$_ENV['DB_" . strtoupper($database) . "_HOST']," . PHP_EOL;
+            $dbConfig .= "        'type'     => \$_ENV['DB_" . strtoupper($database) . "_TYPE']," . PHP_EOL;
+            $dbConfig .= "    ]," . PHP_EOL;
+            $dbConfig .= "];" . PHP_EOL;
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/app/config/database.php', $dbConfig);
+        } else {
+            $env = str_replace([
+                'DB_DATABASE=',
+                'DB_ADAPTER=',
+                'DB_USERNAME=',
+                'DB_PASSWORD=',
+                'DB_HOST=',
+                'DB_TYPE=',
+            ], [
+                'DB_DATABASE=' . $realDbName,
+                'DB_ADAPTER=' . strtolower($dbInterface),
+                'DB_USERNAME=' . $dbUser,
+                'DB_PASSWORD=' . $dbPass,
+                'DB_HOST=' . $dbHost,
+                'DB_TYPE=' . $dbType,
+            ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
+
+            file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
+        }
 
         // Refresh $_ENV so that code running later in this same process (e.g. db:install
         // chaining straight into seed()) sees the DB_* values that were just written,
