@@ -51,6 +51,12 @@ class Queue extends AbstractModel
         $adapterChoices['database'] = $i;
         $i++;
 
+        if (class_exists('Redis', false)) {
+            $console->write($i . ': Redis');
+            $adapterChoices['redis'] = $i;
+            $i++;
+        }
+
         $console->write();
         $selected = $console->prompt('Please select one of the above queue adapters: ', $adapterChoices);
         $console->write();
@@ -78,6 +84,23 @@ class Queue extends AbstractModel
 
             $fields['connection'] = $connection;
             $fields['table']      = $table;
+        } else if ($adapter == 'redis') {
+            $host = $console->prompt('Redis Host: [localhost] ', null, true);
+            $host = ($host == '') ? 'localhost' : $host;
+
+            $port = $console->prompt('Redis Port: [6379] ', null, true);
+            $port = ($port == '') ? '6379' : $port;
+
+            $defaultPrefix = ($queue == 'default') ? 'pop-queue' : 'pop-queue-' . $queue;
+            $prefix        = $console->prompt('Redis Prefix: [' . $defaultPrefix . '] ', null, true);
+            $prefix        = ($prefix == '') ? $defaultPrefix : $prefix;
+
+            $password = $console->prompt('Redis Password: [none] ', null, true);
+
+            $fields['host']     = $host;
+            $fields['port']     = $port;
+            $fields['prefix']   = $prefix;
+            $fields['password'] = $password;
         }
 
         $priority = $console->prompt('Queue Priority (FIFO/FILO): [FIFO] ', null, true);

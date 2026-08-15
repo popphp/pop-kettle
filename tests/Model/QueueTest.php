@@ -83,4 +83,25 @@ class QueueTest extends TestCase
         $this->assertSame('pop_queue', $config['default']['table']);
     }
 
+    public function testConfigureRedisQueue()
+    {
+        if (!class_exists('Redis', false)) {
+            $this->markTestSkipped('ext-redis is not installed.');
+        }
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('3', '', '', '', '', '', ''));
+
+        $queue = new Model\Queue();
+        $queue->configure($console, getcwd());
+
+        $this->assertSame('redis', $_ENV['QUEUE_ADAPTER']);
+        $this->assertSame('localhost', $_ENV['QUEUE_HOST']);
+        $this->assertSame('6379', $_ENV['QUEUE_PORT']);
+        $this->assertSame('pop-queue', $_ENV['QUEUE_PREFIX']);
+
+        $config = include getcwd() . '/app/config/queue.php';
+        $this->assertSame('redis', $config['default']['adapter']);
+    }
+
 }
