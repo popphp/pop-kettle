@@ -15,6 +15,7 @@ pop-kettle
     + [Seeding the Database](#seeding-the-database)
     + [Database Migrations](#database-migrations)
     + [Migration State Storage](#migration-state-storage)
+    + [Queue Commands](#queue-commands)
 * [Creating Application Files](#creating-application-files)
     + [Data Model](#data-model)
 * [Creating Custom Commands](#creating-custom-commands)
@@ -397,6 +398,28 @@ The contents of the table will be the table class name for the migrations table 
 ```text
 MyApp\Table\Migrations
 ```
+
+[Top](#pop-kettle)
+
+### Queue Commands
+
+Kettle can configure and run a [pop-queue](https://github.com/popphp/pop-queue) worker against your
+application's own command routes. Creating jobs and scheduled tasks is entirely your application's
+responsibility (`$queue->addJob()` / `$queue->addTask()`, wherever that makes sense in your own code) —
+these commands only configure the connection and run/administer what's already there.
+
+- `queue:config [<queue>]` - configure a queue (File, Database, or Redis adapter). Defaults to `default`;
+  pass any other name to configure an additional queue, the same way `db:config <database>` works.
+- `queue:work [<queue>] [-o|--once] [-s|--sleep=]` - run the worker. Without `--once`, runs as a daemon
+  until stopped (Ctrl+C). With `--once`, processes a single pass and exits - useful for a cron-driven
+  setup instead of a supervised daemon. Pass `all` as `<queue>` to service every configured queue in one
+  worker, weighted by each queue's configured weight.
+- `queue:scheduler [<queue>] [-o|--once] [-s|--sleep=]` - same shape as `queue:work`, for scheduled tasks.
+- `queue:clear [<queue>] [-f|--failed] [-t|--tasks]` - clear completed jobs by default; `--failed` clears
+  the dead-letter queue instead, `--tasks` clears scheduled tasks instead. Flags combine.
+- `queue:jobs [<queue>]` - show pending and dead-letter job counts, and list dead-letter jobs with their
+  failure reason.
+- `queue:tasks [<queue>]` - list scheduled tasks with their cron expression and grace period.
 
 [Top](#pop-kettle)
 
