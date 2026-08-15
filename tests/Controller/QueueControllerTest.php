@@ -4,6 +4,7 @@ namespace Pop\Kettle\Test\Controller;
 
 use Pop\Console\Console;
 use Pop\Kettle;
+use Pop\Kettle\Model;
 use Pop\Kettle\Test\Fixtures\AppTestTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -129,6 +130,89 @@ class QueueControllerTest extends TestCase
         $result = ob_get_clean();
 
         $this->assertStringContainsString('No scheduled tasks.', $result);
+    }
+
+    public function testWorkLoopStopsAfterOnePassViaEvent()
+    {
+        $this->seedApp();
+        $this->seedFileQueueConfig();
+
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $events = new \Pop\Event\Manager();
+        $ran    = false;
+        // Pop\Event\Manager dispatches named params positionally (array_values() after
+        // addNamedParameter()) - Worker::workLoop() fires this as ['jobs' => ..., 'worker' => $this],
+        // so the listener must accept ($jobs, $worker) in that order, not just ($worker).
+        $events->on('worker.work_loop.tick', function($jobs, $worker) use (&$ran) {
+            $ran = true;
+            $worker->stop();
+        });
+        $worker->setEvents($events);
+
+        $controller = new class($this->makeApp(), new Console(120, '    '), $worker)
+            extends Kettle\Controller\QueueController
+        {
+            private \Pop\Queue\Worker $testWorker;
+
+            public function __construct($application, $console, \Pop\Queue\Worker $testWorker)
+            {
+                parent::__construct($application, $console);
+                $this->testWorker = $testWorker;
+            }
+
+            protected function worker(string $queue): ?\Pop\Queue\Worker
+            {
+                return $this->testWorker;
+            }
+        };
+
+        ob_start();
+        $controller->work('default', []);
+        ob_end_clean();
+
+        $this->assertTrue($ran);
+    }
+
+    public function testSchedulerLoopStopsAfterOnePassViaEvent()
+    {
+        $this->seedApp();
+        $this->seedFileQueueConfig();
+
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $events = new \Pop\Event\Manager();
+        $ran    = false;
+        // Same positional-dispatch note as above - Worker::runLoop() fires this as
+        // ['tasks' => ..., 'worker' => $this], so ($tasks, $worker) in that order.
+        $events->on('worker.run_loop.tick', function($tasks, $worker) use (&$ran) {
+            $ran = true;
+            $worker->stop();
+        });
+        $worker->setEvents($events);
+
+        $controller = new class($this->makeApp(), new Console(120, '    '), $worker)
+            extends Kettle\Controller\QueueController
+        {
+            private \Pop\Queue\Worker $testWorker;
+
+            public function __construct($application, $console, \Pop\Queue\Worker $testWorker)
+            {
+                parent::__construct($application, $console);
+                $this->testWorker = $testWorker;
+            }
+
+            protected function worker(string $queue): ?\Pop\Queue\Worker
+            {
+                return $this->testWorker;
+            }
+        };
+
+        ob_start();
+        $controller->scheduler('default', []);
+        ob_end_clean();
+
+        $this->assertTrue($ran);
     }
 
 }
