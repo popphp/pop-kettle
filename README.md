@@ -417,8 +417,8 @@ these commands only configure the connection and run/administer what's already t
 - `queue:scheduler [<queue>] [-o|--once] [-s|--sleep=]` - same shape as `queue:work`, for scheduled tasks.
 - `queue:clear [<queue>] [-f|--failed] [-t|--tasks]` - clear pending and in-flight (leased) jobs by
   default - **not** completed ones; `--failed` clears the dead-letter queue instead, `--tasks` clears
-  scheduled tasks instead. Flags combine. Use with caution: run against a queue a worker is currently
-  servicing, this drops undone work, including jobs that worker has already leased.
+  scheduled tasks instead. Flags combine. Use with caution: running this against a queue a worker is
+  currently servicing drops undone work, including jobs that worker has already leased.
 - `queue:jobs [<queue>]` - show pending and dead-letter job counts, and list dead-letter jobs with their
   failure reason.
 - `queue:tasks [<queue>]` - list scheduled tasks with their cron expression and grace period.
