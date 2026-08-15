@@ -215,4 +215,69 @@ class QueueTest extends TestCase
         (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
     }
 
+    public function testClearClearsPendingJobsByDefault()
+    {
+        $this->seedFileQueueConfig();
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+        $worker->getQueue('default')->addJob(\Pop\Queue\Process\Job::create(function() {}));
+
+        (new Model\Queue())->clear($worker, 'default');
+
+        $summary = (new Model\Queue())->jobsSummary($worker->getQueue('default'));
+        $this->assertSame(0, $summary['pending']);
+    }
+
+    public function testClearFailedAndTasksCombine()
+    {
+        $this->seedFileQueueConfig();
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $job = \Pop\Queue\Process\Job::create(function() { throw new \Exception('nope'); });
+        $job->setMaxAttempts(1);
+        $worker->getQueue('default')->addJob($job);
+        $worker->work('default');
+
+        $task = \Pop\Queue\Process\Task::create(function() {})->everyMinute();
+        $worker->getQueue('default')->addTask($task);
+
+        (new Model\Queue())->clear($worker, 'default', true, true);
+
+        $jobSummary = (new Model\Queue())->jobsSummary($worker->getQueue('default'));
+        $this->assertSame(0, $jobSummary['dead']);
+        $this->assertSame([], (new Model\Queue())->tasksSummary($worker->getQueue('default')));
+    }
+
+    public function testJobsSummaryListsDeadJobsWithReason()
+    {
+        $this->seedFileQueueConfig();
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $job = \Pop\Queue\Process\Job::create(function() { throw new \Exception('boom'); });
+        $job->setMaxAttempts(1);
+        $worker->getQueue('default')->addJob($job);
+        $worker->work('default');
+
+        $summary = (new Model\Queue())->jobsSummary($worker->getQueue('default'));
+
+        $this->assertSame(1, $summary['dead']);
+        $this->assertCount(1, $summary['deadJobs']);
+        $this->assertStringContainsString('boom', reset($summary['deadJobs']));
+    }
+
+    public function testTasksSummaryListsScheduleAndGracePeriod()
+    {
+        $this->seedFileQueueConfig();
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $task = \Pop\Queue\Process\Task::create(function() {}, id: 'nightly-report')->everyMinute();
+        $task->setGracePeriod(30);
+        $worker->getQueue('default')->addTask($task);
+
+        $summary = (new Model\Queue())->tasksSummary($worker->getQueue('default'));
+
+        $this->assertArrayHasKey('nightly-report', $summary);
+        $this->assertSame(30, $summary['nightly-report']['gracePeriod']);
+        $this->assertNotNull($summary['nightly-report']['schedule']);
+    }
+
 }
