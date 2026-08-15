@@ -523,4 +523,41 @@ class ApplicationTest extends TestCase
         $application->getNamespace(getcwd());
     }
 
+    public function testResolveAppInstanceReturnsNullWhenAppClassMissing()
+    {
+        mkdir(getcwd() . '/app/src', 0777, true);
+        file_put_contents(
+            getcwd() . '/app/src/Application.php',
+            '<?php' . PHP_EOL . 'namespace NoSuchAutoloadedApp;' . PHP_EOL . 'class Application {}' . PHP_EOL
+        );
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $result     = (new Model\Application())->resolveAppInstance(getcwd(), $autoloader, []);
+
+        $this->assertNull($result);
+    }
+
+    public function testResolveAppInstanceThrowsWhenNothingScaffolded()
+    {
+        $this->expectException('Pop\Kettle\Exception');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        (new Model\Application())->resolveAppInstance(getcwd(), $autoloader, []);
+    }
+
+    public function testResolveAppInstanceReturnsConfiguredAppInstance()
+    {
+        $this->scaffoldApp('cli', 'KettleResolveApp');
+        (new Model\Application())->createCommand('greet', getcwd());
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('KettleResolveApp\\', getcwd() . '/app/src');
+
+        $baseRoutes = include __DIR__ . '/../../config/routes.php';
+        $result     = (new Model\Application())->resolveAppInstance(getcwd(), $autoloader, $baseRoutes);
+
+        $this->assertInstanceOf('KettleResolveApp\Application', $result);
+        $this->assertArrayHasKey('greet', $result->config()['routes']);
+    }
+
 }

@@ -607,4 +607,37 @@ class Application extends AbstractModel
         }
     }
 
+    /**
+     * Resolve a full instance of the consuming application, if one is scaffolded, merging
+     * $baseRoutes with its own app/src/Console/Command routes
+     *
+     * @param  string $dir
+     * @param  mixed  $autoloader
+     * @param  array  $baseRoutes
+     * @throws Exception
+     * @return ?\Pop\Application
+     */
+    public function resolveAppInstance(string $dir, mixed $autoloader, array $baseRoutes): ?\Pop\Application
+    {
+        $namespace = $this->getNamespace($dir);
+        $appClass  = $namespace . '\Application';
+
+        if (!class_exists($appClass)) {
+            return null;
+        }
+
+        $config           = include $dir . '/app/config/app.console.php';
+        $commandPath      = $dir . '/app/src/Console/Command';
+
+        // Load any piggybacked kettle commands from the Kettle subfolder
+        if (file_exists($commandPath . '/Kettle')) {
+            $baseRoutes = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $commandPath . '/Kettle');
+        }
+
+        // Then load any app-specific commands from the entire Console/Command directory
+        $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $commandPath);
+
+        return new $appClass($autoloader, $config);
+    }
+
 }
