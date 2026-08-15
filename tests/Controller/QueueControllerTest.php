@@ -38,7 +38,7 @@ class QueueControllerTest extends TestCase
 
     private function seedFileQueueConfig(string $queue = 'default'): void
     {
-        $folder = getcwd() . '/database/queue/' . $queue;
+        $folder = getcwd() . '/data/queue/' . $queue;
         mkdir($folder, 0777, true);
 
         file_put_contents(getcwd() . '/app/config/queue.php', '<?php return ' . var_export([

@@ -65,7 +65,7 @@ class Queue extends AbstractModel
         $fields  = [];
 
         if ($adapter == 'file') {
-            $default = 'database/queue/' . $queue;
+            $default = 'data/queue/' . $queue;
             $folder  = $console->prompt('Queue Folder: [' . $default . '] ', null, true);
             $folder  = ($folder == '') ? $default : $folder;
 
@@ -277,7 +277,7 @@ class Queue extends AbstractModel
      */
     protected function createFileAdapter(string $location, string $name, array $config): \Pop\Queue\Adapter\File
     {
-        $folder = $config['folder'] ?? ($location . '/database/queue/' . $name);
+        $folder = $config['folder'] ?? ($location . '/data/queue/' . $name);
         if (!file_exists($folder)) {
             mkdir($folder, 0777, true);
         }
