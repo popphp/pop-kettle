@@ -318,4 +318,80 @@ class Queue extends AbstractModel
         );
     }
 
+    /**
+     * Clear jobs/failed jobs/tasks from the given queue (or every configured queue when $queue == 'all')
+     *
+     * @param  \Pop\Queue\Worker $worker
+     * @param  string            $queue
+     * @param  bool              $failed
+     * @param  bool              $tasks
+     * @return void
+     */
+    public function clear(\Pop\Queue\Worker $worker, string $queue, bool $failed = false, bool $tasks = false): void
+    {
+        $names = ($queue == 'all') ? array_keys($worker->getQueues()) : [$queue];
+
+        foreach ($names as $name) {
+            if (!$failed && !$tasks) {
+                $worker->clear($name);
+            }
+            if ($failed) {
+                $worker->clearFailed($name);
+            }
+            if ($tasks) {
+                $worker->clearTasks($name);
+            }
+        }
+    }
+
+    /**
+     * Summarize pending/dead-letter jobs for a queue
+     *
+     * @param  \Pop\Queue\Queue $queue
+     * @return array
+     */
+    public function jobsSummary(\Pop\Queue\Queue $queue): array
+    {
+        $adapter = $queue->getAdapter();
+
+        $summary = [
+            'pending'  => $adapter->hasJobs() ? $adapter->count() : 0,
+            'dead'     => $adapter->hasDeadJobs() ? $adapter->countDead() : 0,
+            'deadJobs' => [],
+        ];
+
+        if ($summary['dead'] > 0) {
+            foreach ($adapter->getDeadJobs() as $jobId => $job) {
+                $reason = null;
+                if (($job instanceof \Pop\Queue\Process\AbstractJob) && $job->hasFailedMessages()) {
+                    $messages = $job->getFailedMessages();
+                    $reason   = end($messages);
+                }
+                $summary['deadJobs'][$jobId] = $reason;
+            }
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Summarize scheduled tasks for a queue
+     *
+     * @param  \Pop\Queue\Queue $queue
+     * @return array
+     */
+    public function tasksSummary(\Pop\Queue\Queue $queue): array
+    {
+        $summary = [];
+
+        foreach ($queue->getScheduledTasks() as $taskId => $task) {
+            $summary[$taskId] = [
+                'schedule'    => $task->cron()?->getSchedule(),
+                'gracePeriod' => $task->hasGracePeriod() ? $task->getGracePeriod() : null,
+            ];
+        }
+
+        return $summary;
+    }
+
 }
