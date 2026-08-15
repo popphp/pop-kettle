@@ -33,7 +33,9 @@ class Console
      * Production check omit commands
      * @var array
      */
-    protected static array $omitCommands = ['app:env', 'app:status', 'help', 'version'];
+    protected static array $omitCommands = [
+        'app:env', 'app:status', 'help', 'version', 'queue:jobs', 'queue:tasks', 'queue:work', 'queue:scheduler'
+    ];
 
     /**
      * Display maintenance alert

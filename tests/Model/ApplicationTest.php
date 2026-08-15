@@ -537,6 +537,34 @@ class ApplicationTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function testResolveAppInstanceWithoutConsoleConfigDoesNotWarn()
+    {
+        $this->scaffoldApp('web', 'KettleWebOnlyApp');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('KettleWebOnlyApp\\', getcwd() . '/app/src');
+
+        // A web-only scaffold has no app/config/app.console.php to include
+        $this->assertFileDoesNotExist(getcwd() . '/app/config/app.console.php');
+
+        $warnings = [];
+        set_error_handler(function($errno, $errstr) use (&$warnings) {
+            $warnings[] = $errstr;
+            return true;
+        }, E_WARNING | E_NOTICE);
+
+        try {
+            $result = (new Model\Application())->resolveAppInstance(
+                getcwd(), $autoloader, include __DIR__ . '/../../config/routes.php'
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $warnings);
+        $this->assertInstanceOf('KettleWebOnlyApp\Application', $result);
+    }
+
     public function testResolveAppInstanceThrowsWhenNothingScaffolded()
     {
         $this->expectException('Pop\Kettle\Exception');

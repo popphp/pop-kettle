@@ -626,7 +626,10 @@ class Application extends AbstractModel
             return null;
         }
 
-        $config           = include $dir . '/app/config/app.console.php';
+        $config = file_exists($dir . '/app/config/app.console.php')
+            ? include $dir . '/app/config/app.console.php'
+            : [];
+
         $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $dir . '/app/src/Console/Command');
 
         return new $appClass($autoloader, $config);

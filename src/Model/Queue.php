@@ -135,15 +135,30 @@ class Queue extends AbstractModel
     {
         $prefix  = ($queue == 'default') ? 'QUEUE_' : 'QUEUE_' . strtoupper($queue) . '_';
         $envFile = $location . '/.env';
-        $env     = file_get_contents($envFile);
+
+        if (!file_exists($envFile)) {
+            copy(__DIR__ . '/../../config/templates/orig.env', $envFile);
+        }
+
+        $env = file_get_contents($envFile);
 
         foreach ($fields as $key => $value) {
             $envKey = $prefix . strtoupper($key);
+            $value  = (string)$value;
 
-            if (($queue == 'default') && preg_match('/^' . preg_quote($envKey, '/') . '=.*$/m', $env)) {
-                $env = preg_replace('/^' . preg_quote($envKey, '/') . '=.*$/m', $envKey . '=' . $value, $env);
+            // Any value containing a space has to be quoted, or the resulting .env is unparseable
+            if (str_contains($value, ' ') && !str_starts_with($value, '"') && !str_ends_with($value, '"')) {
+                $value = '"' . $value . '"';
+            }
+
+            $pattern = '/^' . preg_quote($envKey, '/') . '=.*$/m';
+            $line    = $envKey . '=' . $value;
+
+            if (($queue == 'default') && preg_match($pattern, $env)) {
+                // Callback form so that any $1/\1 sequences in the value are written verbatim
+                $env = preg_replace_callback($pattern, fn() => $line, $env);
             } else {
-                $env .= PHP_EOL . $envKey . '=' . $value;
+                $env .= PHP_EOL . $line;
             }
         }
 
@@ -355,8 +370,8 @@ class Queue extends AbstractModel
         $adapter = $queue->getAdapter();
 
         $summary = [
-            'pending'  => $adapter->hasJobs() ? $adapter->count() : 0,
-            'dead'     => $adapter->hasDeadJobs() ? $adapter->countDead() : 0,
+            'pending'  => $adapter->count(),
+            'dead'     => $adapter->countDead(),
             'deadJobs' => [],
         ];
 

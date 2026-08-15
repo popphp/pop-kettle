@@ -90,7 +90,8 @@ class QueueTest extends TestCase
         }
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('3', '', '', '', '', '', ''));
+        // 8 prompts: adapter, host, port, prefix, password, priority, lease, weight
+        $console->setInputStream($this->createInputStream('3', '', '', '', '', '', '', ''));
 
         $queue = new Model\Queue();
         $queue->configure($console, getcwd());
@@ -102,6 +103,30 @@ class QueueTest extends TestCase
 
         $config = include getcwd() . '/app/config/queue.php';
         $this->assertSame('redis', $config['default']['adapter']);
+    }
+
+    public function testConfigureQuotesEnvValuesWithSpacesAndWritesThemVerbatim()
+    {
+        $folder = 'database/queue/my $1 queue';
+
+        // Configure twice, so both the append branch and the existing-key replace branch are exercised
+        for ($i = 0; $i < 2; $i++) {
+            $console = new Console(120, '    ');
+            $console->setInputStream($this->createInputStream('1', $folder, '', '', ''));
+            (new Model\Queue())->configure($console, getcwd());
+        }
+
+        $expected = realpath(getcwd() . '/' . $folder);
+        $env      = file_get_contents(getcwd() . '/.env');
+
+        $this->assertStringContainsString('QUEUE_FOLDER="' . $expected . '"', $env);
+        $this->assertSame(1, substr_count($env, 'QUEUE_FOLDER='));
+
+        // The .env must still be parseable - an unquoted value with a space throws here
+        (\Dotenv\Dotenv::createMutable(getcwd()))->load();
+
+        $this->assertSame($expected, $_ENV['QUEUE_FOLDER']);
+        $this->assertStringEndsWith('my $1 queue', $_ENV['QUEUE_FOLDER']);
     }
 
     private function seedFileQueueConfig(string $queue = 'default', int $weight = 0): void
