@@ -47,6 +47,10 @@ class Queue extends AbstractModel
         $adapterChoices['file'] = $i;
         $i++;
 
+        $console->write($i . ': Database');
+        $adapterChoices['database'] = $i;
+        $i++;
+
         $console->write();
         $selected = $console->prompt('Please select one of the above queue adapters: ', $adapterChoices);
         $console->write();
@@ -64,6 +68,16 @@ class Queue extends AbstractModel
             }
 
             $fields['folder'] = realpath($location . '/' . $folder);
+        } else if ($adapter == 'database') {
+            $connection = $console->prompt('DB Connection: [default] ', null, true);
+            $connection = ($connection == '') ? 'default' : $connection;
+
+            $defaultTable = ($queue == 'default') ? 'pop_queue' : 'pop_queue_' . $queue;
+            $table        = $console->prompt('Queue Table: [' . $defaultTable . '] ', null, true);
+            $table        = ($table == '') ? $defaultTable : $table;
+
+            $fields['connection'] = $connection;
+            $fields['table']      = $table;
         }
 
         $priority = $console->prompt('Queue Priority (FIFO/FILO): [FIFO] ', null, true);
