@@ -42,7 +42,7 @@ class QueueTest extends TestCase
         $this->assertSame('file', $_ENV['QUEUE_ADAPTER']);
         $this->assertSame('FIFO', $_ENV['QUEUE_PRIORITY']);
         $this->assertSame('60', $_ENV['QUEUE_LEASE']);
-        $this->assertDirectoryExists(getcwd() . '/database/queue/default');
+        $this->assertDirectoryExists(getcwd() . '/data/queue/default');
         $this->assertFileExists(getcwd() . '/app/config/queue.php');
 
         $config = include getcwd() . '/app/config/queue.php';
@@ -59,7 +59,7 @@ class QueueTest extends TestCase
         $queue->configure($console, getcwd(), 'logging');
 
         $this->assertSame('file', $_ENV['QUEUE_LOGGING_ADAPTER']);
-        $this->assertDirectoryExists(getcwd() . '/database/queue/logging');
+        $this->assertDirectoryExists(getcwd() . '/data/queue/logging');
 
         $config = include getcwd() . '/app/config/queue.php';
         $this->assertSame('file', $config['logging']['adapter']);
@@ -107,7 +107,7 @@ class QueueTest extends TestCase
 
     public function testConfigureQuotesEnvValuesWithSpacesAndWritesThemVerbatim()
     {
-        $folder = 'database/queue/my $1 queue';
+        $folder = 'data/queue/my $1 queue';
 
         // Configure twice, so both the append branch and the existing-key replace branch are exercised
         for ($i = 0; $i < 2; $i++) {
@@ -131,7 +131,7 @@ class QueueTest extends TestCase
 
     private function seedFileQueueConfig(string $queue = 'default', int $weight = 0): void
     {
-        $folder = getcwd() . '/database/queue/' . $queue;
+        $folder = getcwd() . '/data/queue/' . $queue;
         mkdir($folder, 0777, true);
 
         $this->writeQueueConfig([
@@ -166,7 +166,7 @@ class QueueTest extends TestCase
     {
         $this->seedFileQueueConfig('default', 0);
 
-        $folder = getcwd() . '/database/queue/logging';
+        $folder = getcwd() . '/data/queue/logging';
         mkdir($folder, 0777, true);
 
         $config           = include getcwd() . '/app/config/queue.php';
