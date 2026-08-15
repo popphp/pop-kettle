@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -200,14 +201,12 @@ class MigrationController extends AbstractController
             $ids = array_map(function($value) {
                 return substr($value, 0, strpos($value, '_'));
             },
-                array_values(array_filter(scandir($location . '/database/migrations/' . $database), function ($value){
-                        if (($value != '.') && ($value != '..') && ($value != '.current') && ($value != '.empty') && (stripos($value, '_') !== false)) {
-                            return $value;
-                        }
+                array_values(array_filter(scandir($location . '/database/migrations/' . $database), function ($value) {
+                        return ($value != '.') && ($value != '..') && ($value != '.current') && ($value != '.empty') && (stripos($value, '_') !== false);
                     })
                 ));
 
-            if (!empty($ids) && is_array($ids)) {
+            if (!empty($ids)) {
                 sort($ids, SORT_NUMERIC);
             }
 

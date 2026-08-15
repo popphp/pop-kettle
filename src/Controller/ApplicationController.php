@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -93,10 +94,6 @@ class ApplicationController extends AbstractController
         $dbModel  = new Model\Database();
         $location = getcwd();
 
-        if (empty($namespace)) {
-            $namespace = 'MyApp';
-        }
-
         $configDb = $this->console->prompt(
             'Would you like to configure a database? [Y/N] ', ['y', 'n']
         );
@@ -162,7 +159,7 @@ class ApplicationController extends AbstractController
         $secret   = null;
 
         if (array_key_exists('secret', $options)) {
-            $secret = (($options['secret'] === null) || ($options['secret'] == '')) ? sha1(time()) : $options['secret'];
+            $secret = (($options['secret'] === null) || ($options['secret'] == '')) ? sha1((string)time()) : $options['secret'];
         }
 
         if (file_exists($location . '/.env') && (App::isUp())) {

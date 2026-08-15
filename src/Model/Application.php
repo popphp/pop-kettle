@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -102,7 +103,7 @@ class Application extends AbstractModel
         $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
-            if ($path . DIRECTORY_SEPARATOR . $entry) {
+            if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
                 $d = new Dir($path . DIRECTORY_SEPARATOR . $entry);
                 $d->copyTo($location);
             }
@@ -174,7 +175,7 @@ class Application extends AbstractModel
             $dbPath = realpath(__DIR__ . '/../../config/templates/database');
             $dir    = new Dir($dbPath);
             foreach ($dir as $entry) {
-                if ($dbPath . DIRECTORY_SEPARATOR . $entry) {
+                if (is_dir($dbPath . DIRECTORY_SEPARATOR . $entry)) {
                     $d = new Dir($dbPath . DIRECTORY_SEPARATOR . $entry);
                     $d->copyTo($location . DIRECTORY_SEPARATOR . 'database');
                 }
@@ -267,7 +268,7 @@ class Application extends AbstractModel
             substr($command, (strrpos($command, ':') + 1)) : $command;
 
         if (!file_exists($commandFolder . DIRECTORY_SEPARATOR . $classCommandName . '.php')) {
-            $classCommandName = Str::kebabCaseToTitleCase($classCommandName);
+            $classCommandName = ucfirst(Str::convertToCamelCase($classCommandName, '-'));
 
             $commandNamespace = $namespace . "\\Console\\Command";
 

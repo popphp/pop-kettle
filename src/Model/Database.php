@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -269,9 +270,7 @@ class Database extends AbstractModel
      */
     public function seed(Console $console, string $location, string $database = 'default'): Database
     {
-        if ($database === null) {
-            $databases = ['default'];
-        } else if ($database == 'all') {
+        if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
@@ -321,9 +320,7 @@ class Database extends AbstractModel
      */
     public function export(Console $console, string $location, string $database = 'default'): Database
     {
-        if ($database === null) {
-            $databases = ['default'];
-        } else if ($database == 'all') {
+        if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
@@ -375,9 +372,7 @@ class Database extends AbstractModel
      */
     public function import(Console $console, string $location, string $importFile, string $database = 'default'): Database
     {
-        if ($database === null) {
-            $databases = ['default'];
-        } else if ($database == 'all') {
+        if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
@@ -452,9 +447,7 @@ class Database extends AbstractModel
      */
     public function reset(Console $console, string $location, string $database = 'default'): Database
     {
-        if ($database === null) {
-            $databases = ['default'];
-        } else if ($database == 'all') {
+        if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });
@@ -499,6 +492,12 @@ class Database extends AbstractModel
                                 $schema->truncate($table)->cascade();
                                 $dbAdapter->query($schema);
                             }
+                        } else if (($dbAdapter instanceof \Pop\Db\Adapter\Sqlite) ||
+                            (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'sqlite'))) {
+                            // SQLite has no TRUNCATE statement, so delete all rows instead
+                            foreach ($tables as $table) {
+                                $dbAdapter->query('DELETE FROM ' . $schema->quoteId($table));
+                            }
                         } else {
                             foreach ($tables as $table) {
                                 $schema->truncate($table);
@@ -529,9 +528,7 @@ class Database extends AbstractModel
      */
     public function clear(Console $console, string $location, string $database = 'default'): Database
     {
-        if ($database === null) {
-            $databases = ['default'];
-        } else if ($database == 'all') {
+        if ($database == 'all') {
             $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
                 return (($value != '.') && ($value != '..'));
             });

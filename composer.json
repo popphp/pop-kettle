@@ -22,15 +22,16 @@
         "popphp/popphp": "^5.0.0-beta.17",
         "popphp/pop-code": "^6.0.0-beta.1",
         "popphp/pop-console": "^5.0.0-beta.7",
-        "popphp/pop-db": "^7.0.0-beta.4",
+        "popphp/pop-db": "^7.0.0-beta.5",
         "popphp/pop-dir": "^4.0.3",
         "popphp/pop-queue": "^3.0.0-beta.1",
-        "popphp/pop-utils": "^3.0.0-beta.2",
+        "popphp/pop-utils": "^3.0.0-beta.4",
         "vlucas/phpdotenv": "^5.6.4"
     },
     "require-dev": {
         "popphp/pop-view": "^5.0.0-beta.1",
         "phpunit/phpunit": "^12.5.0",
+        "phpstan/phpstan": "^2.2",
         "ext-sqlite3": "*"
     },
     "autoload" : {
@@ -44,7 +45,8 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "analyse": "vendor/bin/phpstan analyse"
     },
     "extra": {
         "branch-alias": {

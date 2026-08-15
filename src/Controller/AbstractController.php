@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -18,6 +19,7 @@ use Pop\Dispatch\ConsoleTrait;
 use Pop\Console\Color;
 use Pop\Console\Console;
 use Pop\Kettle\Exception;
+use Pop\Router\Match\Cli;
 
 /**
  * Console abstract controller class
@@ -68,7 +70,11 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
         $this->constructConsoleController($application, $console);
 
         $this->console->setHelpColors(Color::BOLD_CYAN, Color::BOLD_GREEN, Color::BOLD_MAGENTA);
-        $this->console->addCommandsFromRoutes($application->router()->getRouteMatch(), './kettle');
+
+        $routeMatch = $application->router()->getRouteMatch();
+        if ($routeMatch instanceof Cli) {
+            $this->console->addCommandsFromRoutes($routeMatch, './kettle');
+        }
     }
 
     /**
