@@ -61,6 +61,23 @@ class QueueControllerTest extends TestCase
         $this->assertStringContainsString('No application', $result);
     }
 
+    public function testWorkWithNonAutoloadableAppPrintsFriendlyError()
+    {
+        // App class exists on disk, but isn't autoloadable (e.g. a missing kettle.inc.php),
+        // so resolveAppInstance() returns null instead of throwing
+        mkdir(getcwd() . '/app/src', 0777, true);
+        file_put_contents(
+            getcwd() . '/app/src/Application.php',
+            '<?php' . PHP_EOL . 'namespace NoSuchAutoloadedQueueApp;' . PHP_EOL . 'class Application {}' . PHP_EOL
+        );
+
+        ob_start();
+        $this->controller()->work('default', []);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('No application', $result);
+    }
+
     public function testWorkWithMissingQueueConfigPrintsFriendlyError()
     {
         $this->seedApp();

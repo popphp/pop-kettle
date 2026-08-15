@@ -103,6 +103,42 @@ class ConsoleTest extends TestCase
         $this->assertStringNotContainsString('Application in Production', $result);
     }
 
+    public function testProductionDisplaySuppressedOnQueueWorkerAndIntrospectionCommands()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        foreach (['queue:jobs', 'queue:tasks', 'queue:work', 'queue:scheduler'] as $command) {
+            $_SERVER['argv'] = ['kettle', $command];
+            $this->makeApp();
+
+            ob_start();
+            Kettle\Event\Console::productionDisplay();
+            $result = ob_get_clean();
+
+            $this->assertStringNotContainsString('Application in Production', $result);
+        }
+    }
+
+    public function testProductionDisplayStillConfirmsOnQueueClear()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'queue:clear'];
+        $this->makeApp();
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('y'));
+
+        ob_start();
+        Kettle\Event\Console::productionDisplay($console);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Application in Production', $result);
+        $this->assertStringContainsString('Are you sure you want to run this command?', $result);
+    }
+
     public function testProductionDisplaySuppressedWhenNotProduction()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
