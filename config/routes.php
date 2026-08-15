@@ -96,6 +96,36 @@ return [
         'action'     => 'reset',
         'help'       => 'Perform complete rollback of the database' . PHP_EOL
     ],
+    'queue:config [<queue>]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'config',
+        'help'       => 'Configure a queue'
+    ],
+    'queue:work [<queue>] [-o|--once] [-s|--sleep=]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'work',
+        'help'       => 'Run the queue worker'
+    ],
+    'queue:scheduler [<queue>] [-o|--once] [-s|--sleep=]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'scheduler',
+        'help'       => 'Run scheduled queue tasks'
+    ],
+    'queue:clear [<queue>] [-f|--failed] [-t|--tasks]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'clear',
+        'help'       => 'Clear the queue'
+    ],
+    'queue:jobs [<queue>]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'jobs',
+        'help'       => 'List pending and dead-letter queue jobs'
+    ],
+    'queue:tasks [<queue>]' => [
+        'controller' => 'Pop\Kettle\Controller\QueueController',
+        'action'     => 'tasks',
+        'help'       => 'List scheduled queue tasks' . PHP_EOL
+    ],
     'create:command [-a|--app] <command>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createCommand',
