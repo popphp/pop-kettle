@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (http://www.popphp.org/)
  *
@@ -31,13 +32,13 @@ class Application extends \Pop\Application
 
     /**
      * Application name
-     * @var ?string
+     * @var string
      */
     const string NAME = 'pop-kettle';
 
     /**
      * Application full name
-     * @var ?string
+     * @var string
      */
     const string FULL_NAME = 'Pop Kettle';
 
