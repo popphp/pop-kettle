@@ -177,7 +177,6 @@ class QueueTest extends TestCase
 
     public function testBuildWorkerDatabaseAdapter()
     {
-        mkdir(getcwd() . '/app/config', 0777, true);
         touch(getcwd() . '/database.sqlite');
         file_put_contents(getcwd() . '/app/config/database.php', '<?php return ' . var_export([
             'default' => [
