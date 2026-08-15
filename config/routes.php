@@ -89,7 +89,7 @@ return [
     'migrate:point [<id>] [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'point',
-        'help'       => 'Point to specific migration, w/o running (.current file only)'
+        'help'       => 'Point to specific migration, w/o running'
     ],
     'migrate:reset [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
@@ -101,17 +101,17 @@ return [
         'action'     => 'config',
         'help'       => 'Configure a queue'
     ],
-    'queue:work [<queue>] [-o|--once] [-s|--sleep=]' => [
+    'queue:work [-o|--once] [-s|--sleep=] [<queue>]' => [
         'controller' => 'Pop\Kettle\Controller\QueueController',
         'action'     => 'work',
-        'help'       => 'Run the queue worker'
+        'help'       => 'Run the queue worker to process jobs'
     ],
-    'queue:scheduler [<queue>] [-o|--once] [-s|--sleep=]' => [
+    'queue:scheduler [-o|--once] [-s|--sleep=] [<queue>]' => [
         'controller' => 'Pop\Kettle\Controller\QueueController',
         'action'     => 'scheduler',
-        'help'       => 'Run scheduled queue tasks'
+        'help'       => 'Run scheduler to process tasks'
     ],
-    'queue:clear [<queue>] [-f|--failed] [-t|--tasks]' => [
+    'queue:clear [-f|--failed] [-t|--tasks] [<queue>]' => [
         'controller' => 'Pop\Kettle\Controller\QueueController',
         'action'     => 'clear',
         'help'       => 'Clear the queue'

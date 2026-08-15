@@ -163,7 +163,7 @@ Use that string one time in the browser as a URL query parameter to view the app
 still in maintenance mode. It will store in the browser's cookies so subsequent requests will be valid:
 
 ```text
-http://localhost:8000/?secret=SECRET_STRING
+http://localhost:8000/?secret=MY_SECRET_STRING
 ```
 
 To take the application out of maintenance mode and make it live again, use the following command:
@@ -219,21 +219,21 @@ SQLite adapter, you'll only be prompted for a DB name, and a corresponding `.sql
 file is created under `/database`.
 
 ```bash
-./kettle db:install [<database>]                    Install the database (Runs the config, test and seed commands)
-./kettle db:config [<database>]                     Configure the database
-./kettle db:test [<database>]                       Test the database connection
-./kettle db:create-seed <seed> [<database>]         Create database seed class
-./kettle db:seed [<database>]                       Seed the database with data
-./kettle db:export [<database>]                     Export the database to a file (MySQL only)
-./kettle db:import <file> [<database>]              Import the database from a file (MySQL only)
-./kettle db:reset [<database>]                      Reset the database with original seed data
-./kettle db:clear [<database>]                      Clear the database of all data
+./kettle db:install [<database>]                 Install the database (Runs config, test & seed)
+./kettle db:config [<database>]                  Configure the database
+./kettle db:test [<database>]                    Test the database connection
+./kettle db:create-seed <seed> [<database>]      Create database seed class
+./kettle db:seed [<database>]                    Seed the database with data
+./kettle db:export [<database>]                  Export the database to a file (MySQL only)
+./kettle db:import <file> [<database>]           Import the database from a file (MySQL only)
+./kettle db:reset [<database>]                   Reset the database with original seed data
+./kettle db:clear [<database>]                   Clear the database of all data
 
-./kettle migrate:create <class> [<database>]        Create new database migration class
-./kettle migrate:run [<steps>] [<database>]         Perform forward database migration
-./kettle migrate:rollback [<steps>] [<database>]    Perform backward database migration
-./kettle migrate:point [<id>] [<database>]          Point to specific migration, w/o running (.current file only)
-./kettle migrate:reset [<database>]                 Perform complete rollback of the database
+./kettle migrate:create <class> [<database>]     Create new database migration class
+./kettle migrate:run [<steps>] [<database>]      Perform forward database migration
+./kettle migrate:rollback [<steps>] [<database>] Perform backward database migration
+./kettle migrate:point [<id>] [<database>]       Point to specific migration, w/o running
+./kettle migrate:reset [<database>]              Perform complete rollback of the database
 ```
 
 ### Seeding the Database
@@ -409,20 +409,49 @@ application's own command routes. Creating jobs and scheduled tasks is entirely 
 responsibility (`$queue->addJob()` / `$queue->addTask()`, wherever that makes sense in your own code) —
 these commands only configure the connection and run/administer what's already there.
 
-- `queue:config [<queue>]` - configure a queue (File, Database, or Redis adapter). Defaults to `default`;
-  pass any other name to configure an additional queue, the same way `db:config <database>` works.
-- `queue:work [<queue>] [-o|--once] [-s|--sleep=]` - run the worker. Without `--once`, runs as a daemon
-  until stopped (Ctrl+C). With `--once`, processes a single pass and exits - useful for a cron-driven
-  setup instead of a supervised daemon. Pass `all` as `<queue>` to service every configured queue in one
-  worker, weighted by each queue's configured weight.
-- `queue:scheduler [<queue>] [-o|--once] [-s|--sleep=]` - same shape as `queue:work`, for scheduled tasks.
-- `queue:clear [<queue>] [-f|--failed] [-t|--tasks]` - clear pending and in-flight (leased) jobs by
-  default - **not** completed ones; `--failed` clears the dead-letter queue instead, `--tasks` clears
-  scheduled tasks instead. Flags combine. Use with caution: running this against a queue a worker is
-  currently servicing drops undone work, including jobs that worker has already leased.
-- `queue:jobs [<queue>]` - show pending and dead-letter job counts, and list dead-letter jobs with their
-  failure reason.
-- `queue:tasks [<queue>]` - list scheduled tasks with their cron expression and grace period.
+```bash
+./kettle queue:config [<queue>]                              Configure a queue
+./kettle queue:work [-o|--once] [-s|--sleep=] [<queue>]      Run the queue worker to process jobs
+./kettle queue:scheduler [-o|--once] [-s|--sleep=] [<queue>] Run scheduler to process tasks
+./kettle queue:clear [-f|--failed] [-t|--tasks] [<queue>]    Clear the queue
+./kettle queue:jobs [<queue>]                                List pending and dead-letter queue jobs
+./kettle queue:tasks [<queue>]                               List scheduled queue tasks
+```
+
+```bash
+$ ./kettle queue:config [<queue>]
+```
+Configure a queue (File, Database, or Redis adapter). Defaults to `default`. Pass any other name to configure
+an additional queue, the same way `db:config <database>` works.
+
+```bash
+$ ./kettle queue:work [-o|--once] [-s|--sleep=] [<queue>]
+```
+Run the worker. Without `--once`, runs as a daemon until stopped (Ctrl+C). With `--once`, processes a single
+pass and exits - useful for a cron-driven setup instead of a supervised daemon. Pass `all` as `<queue>` to
+service every configured queue in one worker, weighted by each queue's configured weight.
+
+```bash
+$ ./kettle queue:scheduler [-o|--once] [-s|--sleep=] [<queue>]
+```
+Same shape as `queue:work`, but for scheduled tasks.
+
+```bash
+$ ./kettle queue:clear [-f|--failed] [-t|--tasks] [<queue>] 
+```
+Clear pending and in-flight (leased) jobs by default - **not** completed ones; `--failed` clears the dead-letter
+queue instead, `--tasks` clears scheduled tasks instead. Flags combine. Use with caution: running this against a
+queue a worker is currently servicing drops undone work, including jobs that worker has already leased.
+
+```bash
+$ ./kettle queue:jobs [<queue>] 
+```
+Show pending and dead-letter job counts, and list dead-letter jobs with their failure reason.
+
+```bash
+$ ./kettle queue:tasks [<queue>]  
+```
+List scheduled tasks with their cron expression and grace period.
 
 [Top](#pop-kettle)
 
@@ -430,13 +459,13 @@ Creating Application Files
 --------------------------
 
 You can create skeleton application files with the `create` commands to assist you in wiring up various
-MVC-based components, such as commands, controllers, model and views: 
+MVC-based components, such as commands, controllers, models and views: 
 
 ```bash
-./kettle create:command [-a|--app] <command>             Create a new CLI command, registered with Kettle
-./kettle create:ctrl [--web] [--api] [--cli] <ctrl>      Create a new controller class
-./kettle create:model [-d|--data] <model>                Create a new model class
-./kettle create:view <view>                              Create a new view file
+./kettle create:command [-a|--app] <command>        Create a new CLI command
+./kettle create:ctrl [--web] [--api] [--cli] <ctrl> Create a new controller class
+./kettle create:model [-d|--data] <model>           Create a new model class
+./kettle create:view <view>                         Create a new view file
 ```
 
 (See [Creating Custom Commands](#creating-custom-commands) below for more on `create:command`.)
@@ -629,6 +658,8 @@ $ ./kettle version
 Accessing the Application
 -------------------------
 
+### Web/API
+
 If you have wired up the beginnings of an application, you can then access the default routes
 in the following ways. Assuming you've started the web server as described above using
 `./kettle serve`, you can access the web application by going to the address `http://localhost:8000/`
@@ -642,12 +673,24 @@ and you can access it like this to see the default JSON response:
 $ curl -i -X GET http://localhost:8000/api
 ```
 
-And, if you `cd script`, you'll see the default CLI application that was created. The default
-route available to the CLI application is the `help` route:
+### CLI: Through Kettle
+
+If you have created commands to register with Kettle, then you can access them by calling them directly
+through `./kettle` (they will display at the top of the `./kettle help` command):
+
+```bash
+$ ./kettle myapp:custom-command
+```
+
+### CLI: Stand-alone Application
+
+If you initialized a stand-alone CLI application, you can `cd script`, you'll see the default CLI application
+that was created. The default route available to the CLI application is the `help` route:
 
 ```bash
 $ ./app help
 ```
+
 [Top](#pop-kettle)
 
 Shell Completion
