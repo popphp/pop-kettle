@@ -195,4 +195,127 @@ class Queue extends AbstractModel
         file_put_contents($configFile, $contents);
     }
 
+    /**
+     * Build a worker for the given queue (or every configured queue when $queue == 'all')
+     *
+     * @param  string           $location
+     * @param  \Pop\Application $app
+     * @param  string           $queue
+     * @throws Exception
+     * @return \Pop\Queue\Worker
+     */
+    public function buildWorker(string $location, \Pop\Application $app, string $queue = 'default'): \Pop\Queue\Worker
+    {
+        $configFile = $location . '/app/config/queue.php';
+
+        if (!file_exists($configFile)) {
+            throw new Exception('Error: The queue configuration was not found.');
+        }
+
+        $queueConfig = include $configFile;
+
+        if ($queue == 'all') {
+            $names = array_keys($queueConfig);
+        } else {
+            if (!isset($queueConfig[$queue])) {
+                throw new Exception("Error: The queue configuration was not found for '" . $queue . "'.");
+            }
+            $names = [$queue];
+        }
+
+        $worker = \Pop\Queue\Worker::create(null, $app);
+
+        foreach ($names as $name) {
+            $config = $queueConfig[$name];
+            $worker->addQueue($this->createQueue($location, $name, $config), (int)($config['weight'] ?? 0));
+        }
+
+        return $worker;
+    }
+
+    /**
+     * Build a single Queue object from its stored config
+     *
+     * @param  string $location
+     * @param  string $name
+     * @param  array  $config
+     * @throws Exception
+     * @return \Pop\Queue\Queue
+     */
+    protected function createQueue(string $location, string $name, array $config): \Pop\Queue\Queue
+    {
+        $adapter = match ($config['adapter'] ?? null) {
+            'file'     => $this->createFileAdapter($location, $name, $config),
+            'database' => $this->createDatabaseAdapter($location, $config),
+            'redis'    => $this->createRedisAdapter($config),
+            default    => throw new Exception("Error: Unknown queue adapter '" . ($config['adapter'] ?? '') . "'."),
+        };
+
+        return \Pop\Queue\Queue::create($name, $adapter, $config['priority'] ?? null);
+    }
+
+    /**
+     * @param  string $location
+     * @param  string $name
+     * @param  array  $config
+     * @return \Pop\Queue\Adapter\File
+     */
+    protected function createFileAdapter(string $location, string $name, array $config): \Pop\Queue\Adapter\File
+    {
+        $folder = $config['folder'] ?? ($location . '/database/queue/' . $name);
+        if (!file_exists($folder)) {
+            mkdir($folder, 0777, true);
+        }
+
+        return new \Pop\Queue\Adapter\File($folder, $config['priority'] ?? null, (int)($config['lease'] ?? 60));
+    }
+
+    /**
+     * @param  string $location
+     * @param  array  $config
+     * @throws Exception
+     * @return \Pop\Queue\Adapter\Database
+     */
+    protected function createDatabaseAdapter(string $location, array $config): \Pop\Queue\Adapter\Database
+    {
+        $connection   = $config['connection'] ?? 'default';
+        $dbConfigFile = $location . '/app/config/database.php';
+
+        if (!file_exists($dbConfigFile)) {
+            throw new Exception('Error: The database configuration was not found.');
+        }
+
+        $dbConfig = include $dbConfigFile;
+
+        if (!isset($dbConfig[$connection])) {
+            throw new Exception("Error: The database configuration was not found for '" . $connection . "'.");
+        }
+
+        $db = \Pop\Db\Db::connect(
+            $dbConfig[$connection]['adapter'], array_diff_key($dbConfig[$connection], array_flip(['adapter']))
+        );
+
+        return new \Pop\Queue\Adapter\Database(
+            $db, $config['table'] ?? 'pop_queue', $config['priority'] ?? null, (int)($config['lease'] ?? 60)
+        );
+    }
+
+    /**
+     * @param  array $config
+     * @return \Pop\Queue\Adapter\Redis
+     */
+    protected function createRedisAdapter(array $config): \Pop\Queue\Adapter\Redis
+    {
+        $password = !empty($config['password']) ? $config['password'] : null;
+
+        return new \Pop\Queue\Adapter\Redis(
+            $config['host'] ?? 'localhost',
+            $config['port'] ?? 6379,
+            $config['prefix'] ?? 'pop-queue',
+            $config['priority'] ?? null,
+            (int)($config['lease'] ?? 60),
+            $password
+        );
+    }
+
 }

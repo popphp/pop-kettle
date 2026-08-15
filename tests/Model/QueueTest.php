@@ -104,4 +104,116 @@ class QueueTest extends TestCase
         $this->assertSame('redis', $config['default']['adapter']);
     }
 
+    private function seedFileQueueConfig(string $queue = 'default', int $weight = 0): void
+    {
+        $folder = getcwd() . '/database/queue/' . $queue;
+        mkdir($folder, 0777, true);
+
+        $this->writeQueueConfig([
+            $queue => [
+                'adapter'  => 'file',
+                'folder'   => $folder,
+                'priority' => 'FIFO',
+                'lease'    => 60,
+                'weight'   => $weight,
+            ],
+        ]);
+    }
+
+    private function writeQueueConfig(array $config): void
+    {
+        file_put_contents(getcwd() . '/app/config/queue.php', '<?php return ' . var_export($config, true) . ';');
+    }
+
+    public function testBuildWorkerFileAdapter()
+    {
+        $this->seedFileQueueConfig();
+
+        $app    = $this->makeApp();
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $app);
+
+        $this->assertInstanceOf('Pop\Queue\Worker', $worker);
+        $this->assertTrue($worker->hasQueue('default'));
+        $this->assertSame($app, $worker->getApplication());
+    }
+
+    public function testBuildWorkerAllQueuesRegistersEveryQueueWeighted()
+    {
+        $this->seedFileQueueConfig('default', 0);
+
+        $folder = getcwd() . '/database/queue/logging';
+        mkdir($folder, 0777, true);
+
+        $config           = include getcwd() . '/app/config/queue.php';
+        $config['logging'] = [
+            'adapter'  => 'file',
+            'folder'   => $folder,
+            'priority' => 'FIFO',
+            'lease'    => 60,
+            'weight'   => 10,
+        ];
+        $this->writeQueueConfig($config);
+
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp(), 'all');
+
+        $this->assertTrue($worker->hasQueue('default'));
+        $this->assertTrue($worker->hasQueue('logging'));
+        $this->assertSame(10, $worker->getWeight('logging'));
+    }
+
+    public function testBuildWorkerMissingQueueKeyThrows()
+    {
+        $this->seedFileQueueConfig();
+
+        $this->expectException('Pop\Kettle\Exception');
+        (new Model\Queue())->buildWorker(getcwd(), $this->makeApp(), 'does-not-exist');
+    }
+
+    public function testBuildWorkerMissingConfigFileThrows()
+    {
+        $this->expectException('Pop\Kettle\Exception');
+        (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+    }
+
+    public function testBuildWorkerDatabaseAdapter()
+    {
+        mkdir(getcwd() . '/app/config', 0777, true);
+        touch(getcwd() . '/database.sqlite');
+        file_put_contents(getcwd() . '/app/config/database.php', '<?php return ' . var_export([
+            'default' => [
+                'database' => getcwd() . '/database.sqlite',
+                'adapter'  => 'sqlite',
+                'username' => null,
+                'password' => null,
+                'host'     => null,
+                'type'     => null,
+            ],
+        ], true) . ';');
+
+        $this->writeQueueConfig([
+            'default' => [
+                'adapter'    => 'database',
+                'connection' => 'default',
+                'table'      => 'pop_queue',
+                'priority'   => 'FIFO',
+                'lease'      => 60,
+                'weight'     => 0,
+            ],
+        ]);
+
+        $worker = (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+
+        $this->assertTrue($worker->hasQueue('default'));
+    }
+
+    public function testBuildWorkerUnknownAdapterThrows()
+    {
+        $this->writeQueueConfig([
+            'default' => ['adapter' => 'bogus', 'weight' => 0],
+        ]);
+
+        $this->expectException('Pop\Kettle\Exception');
+        (new Model\Queue())->buildWorker(getcwd(), $this->makeApp());
+    }
+
 }
