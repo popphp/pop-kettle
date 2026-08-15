@@ -627,15 +627,7 @@ class Application extends AbstractModel
         }
 
         $config           = include $dir . '/app/config/app.console.php';
-        $commandPath      = $dir . '/app/src/Console/Command';
-
-        // Load any piggybacked kettle commands from the Kettle subfolder
-        if (file_exists($commandPath . '/Kettle')) {
-            $baseRoutes = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $commandPath . '/Kettle');
-        }
-
-        // Then load any app-specific commands from the entire Console/Command directory
-        $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $commandPath);
+        $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($baseRoutes, $dir . '/app/src/Console/Command');
 
         return new $appClass($autoloader, $config);
     }

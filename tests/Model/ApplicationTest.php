@@ -548,7 +548,7 @@ class ApplicationTest extends TestCase
     public function testResolveAppInstanceReturnsConfiguredAppInstance()
     {
         $this->scaffoldApp('cli', 'KettleResolveApp');
-        (new Model\Application())->createCommand('greet', getcwd());
+        (new Model\Application())->createCommand('greet', getcwd(), app: true);
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
         $autoloader->addPsr4('KettleResolveApp\\', getcwd() . '/app/src');
