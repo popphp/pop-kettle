@@ -15,7 +15,7 @@ pop-kettle
     + [Seeding the Database](#seeding-the-database)
     + [Database Migrations](#database-migrations)
     + [Migration State Storage](#migration-state-storage)
-    + [Queue Commands](#queue-commands)
+* [Queue Commands](#queue-commands)
 * [Creating Application Files](#creating-application-files)
     + [Data Model](#data-model)
 * [Creating Custom Commands](#creating-custom-commands)
@@ -401,7 +401,8 @@ MyApp\Table\Migrations
 
 [Top](#pop-kettle)
 
-### Queue Commands
+Queue Commands
+--------------
 
 Kettle can configure and run a [pop-queue](https://github.com/popphp/pop-queue) worker against your
 application's own command routes. Creating jobs and scheduled tasks is entirely your application's
