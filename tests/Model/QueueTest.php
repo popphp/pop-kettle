@@ -66,4 +66,21 @@ class QueueTest extends TestCase
         $this->assertSame(5, $config['logging']['weight']);
     }
 
+    public function testConfigureDatabaseQueue()
+    {
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('2', '', '', '', '', ''));
+
+        $queue = new Model\Queue();
+        $queue->configure($console, getcwd());
+
+        $this->assertSame('database', $_ENV['QUEUE_ADAPTER']);
+        $this->assertSame('default', $_ENV['QUEUE_CONNECTION']);
+        $this->assertSame('pop_queue', $_ENV['QUEUE_TABLE']);
+
+        $config = include getcwd() . '/app/config/queue.php';
+        $this->assertSame('database', $config['default']['adapter']);
+        $this->assertSame('pop_queue', $config['default']['table']);
+    }
+
 }
