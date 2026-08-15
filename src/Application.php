@@ -112,16 +112,9 @@ class Application extends \Pop\Application
 
             // If it's a custom command
             if (!str_starts_with($dispatchable, 'Pop\Kettle')) {
-                $dir       = getcwd();
-                $namespace = (new Model\Application())->getNamespace($dir);
-                $appClass  = $namespace . '\Application';
-
-                if (class_exists($appClass)) {
-                    // Load any custom application command routes
-                    $config           = include $dir . '/app/config/app.console.php';
-                    $config['routes'] = \Pop\Console\CommandRegistry::loadRoutes($this->config['routes'], $dir . '/app/src/Console/Command');
-
-                    $app = new $appClass($this->autoloader(), $config);
+                $resolved = (new Model\Application())->resolveAppInstance(getcwd(), $this->autoloader(), $this->config['routes']);
+                if ($resolved !== null) {
+                    $app = $resolved;
                 }
             }
         }
