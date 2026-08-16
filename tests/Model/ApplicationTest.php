@@ -473,6 +473,17 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('APP_NAME="My App Name"', file_get_contents(getcwd() . '/.env'));
     }
 
+    public function testInstallPreservesExistingCustomizedKettleInc()
+    {
+        $this->seedKettleIncOrig();
+        file_put_contents(getcwd() . '/kettle.inc.php', "<?php\n\n// customized by the user\n");
+
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App');
+
+        $this->assertStringContainsString('customized by the user', file_get_contents(getcwd() . '/kettle.inc.php'));
+    }
+
     public function testCreateViewCreatesMissingBaseFolder()
     {
         mkdir(getcwd() . '/app/src', 0777, true);
