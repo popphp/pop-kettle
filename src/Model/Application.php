@@ -97,7 +97,10 @@ class Application extends AbstractModel
         string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false
     ): void
     {
-        copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
+        if (!file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php') &&
+            file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php')) {
+            copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
+        }
 
         $script = strtolower(str_replace('\\', '-', $namespace));
         $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
