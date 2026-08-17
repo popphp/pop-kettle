@@ -62,13 +62,14 @@ class ConsoleController extends AbstractController
     /**
      * Help command
      *
-     * @param  array $options
+     * @param  ?string $command
+     * @param  array   $options
      * @return void
      */
-    public function help(array $options = []): void
+    public function help(?string $command = null, array $options = []): void
     {
         $raw = isset($options['raw']);
-        $this->console->help(null, $raw);
+        $this->console->help(null, $raw, $command);
     }
 
     /**

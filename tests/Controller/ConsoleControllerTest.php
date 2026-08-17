@@ -68,10 +68,26 @@ class ConsoleControllerTest extends TestCase
         $controller = new Kettle\Controller\ConsoleController($app, new Console(120, '    '));
 
         ob_start();
-        $controller->help(['raw' => true]);
+        $controller->help(null, ['raw' => true]);
         $result = ob_get_clean();
 
         $this->assertStringContainsString('app:init', $result);
+    }
+
+    public function testHelpFiltersBySubCommand()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/dev');
+        $dotEnv->safeLoad();
+
+        $app        = $this->makeApp();
+        $controller = new Kettle\Controller\ConsoleController($app, new Console(120, '    '));
+
+        ob_start();
+        $controller->help('db');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('db:config', $result);
+        $this->assertStringNotContainsString('app:init', $result);
     }
 
     public function testVersion()
