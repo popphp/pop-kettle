@@ -48,6 +48,11 @@ class ApplicationController extends AbstractController
         $web  = (isset($options['web']));
         $api  = (isset($options['api']));
         $cli  = (isset($options['cli']));
+
+        if ((!$web) && (!$api) && (!$cli)) {
+            $web = true;
+        }
+
         $envs = [
             'local'      => 1,
             'dev'        => 2,
