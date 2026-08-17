@@ -649,6 +649,17 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('node_modules/', file_get_contents(getcwd() . '/.gitignore'));
     }
 
+    public function testInstallScaffoldsVueFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App', frontend: 'vue');
+
+        $this->assertStringContainsString('"vue"', file_get_contents(getcwd() . '/package.json'));
+        $this->assertFileExists(getcwd() . '/app/assets/js/components/App.vue');
+        $this->assertStringContainsString('id="app"', file_get_contents(getcwd() . '/app/view/index.phtml'));
+    }
+
     public function testInstallWithoutFrontendLeavesDefaultView()
     {
         $this->seedKettleIncOrig();
