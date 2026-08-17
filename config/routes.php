@@ -126,6 +126,16 @@ return [
         'action'     => 'tasks',
         'help'       => 'List scheduled queue tasks' . PHP_EOL
     ],
+    'asset:watch' => [
+        'controller' => 'Pop\Kettle\Controller\AssetController',
+        'action'     => 'watch',
+        'help'       => 'Watch and rebuild front-end assets (JS/CSS) on file changes'
+    ],
+    'asset:build' => [
+        'controller' => 'Pop\Kettle\Controller\AssetController',
+        'action'     => 'build',
+        'help'       => 'Build front-end assets (JS/CSS) for production' . PHP_EOL
+    ],
     'create:command [-a|--app] <command>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createCommand',
