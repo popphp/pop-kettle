@@ -599,4 +599,39 @@ class ApplicationTest extends TestCase
         $this->assertArrayHasKey('greet', $result->config()['routes']);
     }
 
+    public function testResolveInstallTypeApiOnly()
+    {
+        $this->assertSame('api', Model\Application::resolveInstallType(null, true, null));
+    }
+
+    public function testResolveInstallTypeWebApi()
+    {
+        $this->assertSame('web-api', Model\Application::resolveInstallType(true, true, null));
+    }
+
+    public function testResolveInstallTypeApiCli()
+    {
+        $this->assertSame('api-cli', Model\Application::resolveInstallType(null, true, true));
+    }
+
+    public function testResolveInstallTypeWebCli()
+    {
+        $this->assertSame('web-cli', Model\Application::resolveInstallType(true, null, true));
+    }
+
+    public function testResolveInstallTypeCliOnly()
+    {
+        $this->assertSame('cli', Model\Application::resolveInstallType(null, null, true));
+    }
+
+    public function testResolveInstallTypeAll()
+    {
+        $this->assertSame('web-api-cli', Model\Application::resolveInstallType(true, true, true));
+    }
+
+    public function testResolveInstallTypeDefaultsToWeb()
+    {
+        $this->assertSame('web', Model\Application::resolveInstallType(null, null, null));
+    }
+
 }

@@ -36,65 +36,82 @@ class Application extends AbstractModel
     /**
      * Init application
      *
-     * @param  string $location
-     * @param  string $namespace
-     * @param  ?bool  $web
-     * @param  ?bool  $api
-     * @param  ?bool  $cli
-     * @param  string $name
-     * @param  string $env
-     * @param  string $url
-     * @param  bool   $cliApp
-     * @param  bool   $createDb
+     * @param  string  $location
+     * @param  string  $namespace
+     * @param  ?bool   $web
+     * @param  ?bool   $api
+     * @param  ?bool   $cli
+     * @param  string  $name
+     * @param  string  $env
+     * @param  string  $url
+     * @param  bool    $cliApp
+     * @param  bool    $createDb
+     * @param  ?string $frontend
      * @return void
      */
     public function init(
         string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null,
-        string $name = 'MyApp', string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false
+        string $name = 'MyApp', string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false,
+        ?string $frontend = null
     ): void
+    {
+        $install = self::resolveInstallType($web, $api, $cli);
+
+        $this->install($install, $location, $namespace, $name, $env, $url, $cliApp, $createDb, $frontend);
+    }
+
+    /**
+     * Resolve the install flavor from the web/api/cli flags
+     *
+     * @param  ?bool $web
+     * @param  ?bool $api
+     * @param  ?bool $cli
+     * @return string
+     */
+    public static function resolveInstallType(?bool $web, ?bool $api, ?bool $cli): string
     {
         // API-only
         if (($api === true) && empty($web) && empty($cli)) {
-            $install = 'api';
+            return 'api';
         // Web+API
         } else if (($web === true) && ($api === true) && empty($cli)) {
-            $install = 'web-api';
+            return 'web-api';
         // API+CLI
         } else if (($api === true) && ($cli === true) && empty($web)) {
-            $install = 'api-cli';
+            return 'api-cli';
         // Web+CLI
         } else if (($web === true) && ($cli === true) && empty($api)) {
-            $install = 'web-cli';
+            return 'web-cli';
         // CLI-only
         } else if (($cli === true) && empty($web) && empty($api)) {
-            $install = 'cli';
+            return 'cli';
         // Install all
         } else if (($web === true) && ($api === true) && ($cli === true)) {
-            $install = 'web-api-cli';
+            return 'web-api-cli';
         // Default to web-only
         } else {
-            $install = 'web';
+            return 'web';
         }
-
-        $this->install($install, $location, $namespace, $name, $env, $url, $cliApp, $createDb);
     }
 
     /**
      * Install application files
      *
-     * @param  string $install
-     * @param  string $location
-     * @param  string $namespace
-     * @param  string $name
-     * @param  string $env
-     * @param  string $url
-     * @param  bool   $cliApp
-     * @param  bool   $createDb
+     * @param  string  $install
+     * @param  string  $location
+     * @param  string  $namespace
+     * @param  string  $name
+     * @param  string  $env
+     * @param  string  $url
+     * @param  bool    $cliApp
+     * @param  bool    $createDb
+     * @param  ?string $frontend
      * @return void
      */
     public function install(
         string $install, string $location, string $namespace, string $name = 'MyApp',
-        string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false
+        string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false,
+        ?string $frontend = null
     ): void
     {
         if (!file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php') &&
