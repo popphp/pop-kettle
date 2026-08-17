@@ -41,6 +41,15 @@ class AssetTest extends TestCase
         $this->assertFalse($asset->isNpmAvailable());
     }
 
+    public function testIsNpmAvailableTrueForRealBinaryOnPath()
+    {
+        // Exercises the OS-aware probe (PHP_OS_FAMILY branch in isNpmAvailable())
+        // against a binary guaranteed to be on PATH in any PHP CLI environment,
+        // confirming the non-Windows branch still correctly detects success.
+        $asset = new Model\Asset('php');
+        $this->assertTrue($asset->isNpmAvailable());
+    }
+
     public function testInstallInvokesConfiguredBinary()
     {
         $logPath = getcwd() . '/npm.log';
