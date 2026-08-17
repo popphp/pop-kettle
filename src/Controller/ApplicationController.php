@@ -99,7 +99,39 @@ class ApplicationController extends AbstractController
         );
         $createDb = (strtolower($configDb) == 'y');
 
-        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url, $cliApp, $createDb);
+        $frontend = null;
+        $install  = Model\Application::resolveInstallType($web, $api, $cli);
+
+        if (str_contains($install, 'web')) {
+            $installFrontend = $this->console->prompt(
+                'Would you like to install a front-end? [Y/N] ', ['y', 'n']
+            );
+
+            if (strtolower($installFrontend) == 'y') {
+                $frameworks = [
+                    'AlpineJS' => 1,
+                    'Vue'      => 2,
+                    'React'    => 3,
+                ];
+
+                $this->console->write();
+                foreach ($frameworks as $label => $i) {
+                    $this->console->write($i . ': ' . $label);
+                }
+                $this->console->write();
+
+                $f     = $this->console->prompt('Please select a front-end framework from above: ', $frameworks);
+                $label = array_search($f, $frameworks);
+                $frontend = match ($label) {
+                    'AlpineJS' => 'alpine',
+                    'Vue'      => 'vue',
+                    'React'    => 'react',
+                    default    => null,
+                };
+            }
+        }
+
+        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url, $cliApp, $createDb, $frontend);
 
         $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");

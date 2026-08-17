@@ -56,7 +56,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n'));
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -103,7 +103,7 @@ class ApplicationControllerTest extends TestCase
 
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream(
-            '', '1', '', 'y', (string)$sqliteIndex, 'testdb'
+            '', '1', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
         ));
 
         ob_start();
@@ -118,7 +118,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('My App', '1', '', 'n'));
+        $console->setInputStream($this->createInputStream('My App', '1', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('');
@@ -131,7 +131,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', '', 'n'));
+        $console->setInputStream($this->createInputStream('', '1', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('');
@@ -139,6 +139,59 @@ class ApplicationControllerTest extends TestCase
 
         // Falls back to the 'App' namespace, which install() uses to derive class references
         $this->assertStringContainsString('App', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
+    }
+
+    public function testInitSkipsFrontendInstallWhenAnsweredNo()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        ob_end_clean();
+
+        $this->assertFileDoesNotExist(getcwd() . '/package.json');
+    }
+
+    public function testInitInstallsAlpineFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        ob_end_clean();
+
+        $this->assertFileExists(getcwd() . '/package.json');
+        $this->assertStringContainsString('alpinejs', file_get_contents(getcwd() . '/package.json'));
+    }
+
+    public function testInitInstallsVueFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '2'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        ob_end_clean();
+
+        $this->assertStringContainsString('"vue"', file_get_contents(getcwd() . '/package.json'));
+    }
+
+    public function testInitInstallsReactFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '3'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        ob_end_clean();
+
+        $this->assertStringContainsString('"react"', file_get_contents(getcwd() . '/package.json'));
     }
 
     public function testEnvLocal()
