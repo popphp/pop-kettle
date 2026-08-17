@@ -56,7 +56,12 @@ class Asset extends AbstractModel
      */
     public function isNpmAvailable(): bool
     {
-        exec('command -v ' . escapeshellarg($this->npmBinary) . ' 2>/dev/null', $output, $exitCode);
+        if (PHP_OS_FAMILY === 'Windows') {
+            exec('where ' . escapeshellarg($this->npmBinary), $output, $exitCode);
+        } else {
+            exec('command -v ' . escapeshellarg($this->npmBinary) . ' 2>/dev/null', $output, $exitCode);
+        }
+
         return ($exitCode === 0) && !empty($output);
     }
 
