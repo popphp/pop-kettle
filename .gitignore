@@ -13,3 +13,7 @@ kettle
 docs
 CLAUDE.md
 .worktrees
+node_modules/
+package-lock.json
+package.json
+vite.config.js
