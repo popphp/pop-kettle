@@ -660,6 +660,18 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('id="app"', file_get_contents(getcwd() . '/app/view/index.phtml'));
     }
 
+    public function testInstallScaffoldsReactFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App', frontend: 'react');
+
+        $this->assertStringContainsString('"react"', file_get_contents(getcwd() . '/package.json'));
+        $this->assertFileExists(getcwd() . '/app/assets/js/app.jsx');
+        $this->assertFileExists(getcwd() . '/app/assets/js/components/App.jsx');
+        $this->assertStringContainsString('id="app"', file_get_contents(getcwd() . '/app/view/index.phtml'));
+    }
+
     public function testInstallWithoutFrontendLeavesDefaultView()
     {
         $this->seedKettleIncOrig();
