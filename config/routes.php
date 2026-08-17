@@ -126,16 +126,6 @@ return [
         'action'     => 'tasks',
         'help'       => 'List scheduled queue tasks' . PHP_EOL
     ],
-    'asset:watch' => [
-        'controller' => 'Pop\Kettle\Controller\AssetController',
-        'action'     => 'watch',
-        'help'       => 'Watch/rebuild front-end assets on file changes'
-    ],
-    'asset:build' => [
-        'controller' => 'Pop\Kettle\Controller\AssetController',
-        'action'     => 'build',
-        'help'       => 'Build front-end assets for production' . PHP_EOL
-    ],
     'create:command [-a|--app] <command>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createCommand',
@@ -156,12 +146,22 @@ return [
         'action'     => 'createView',
         'help'       => 'Create a new view file' . PHP_EOL
     ],
-    'serve [--host=] [--port=] [--folder=]' => [
+    'web:serve [--host=] [--port=] [--folder=]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',
         'action'     => 'serve',
         'help'       => 'Start the web server'
     ],
-    'help [-r|--raw]' => [
+    'web:watch' => [
+        'controller' => 'Pop\Kettle\Controller\AssetController',
+        'action'     => 'watch',
+        'help'       => 'Watch/rebuild front-end assets on file changes'
+    ],
+    'web:build' => [
+        'controller' => 'Pop\Kettle\Controller\AssetController',
+        'action'     => 'build',
+        'help'       => 'Build front-end assets for production' . PHP_EOL
+    ],
+    'help [-r|--raw] [<command>]' => [
         'controller' => 'Pop\Kettle\Controller\ConsoleController',
         'action'     => 'help',
         'help'       => 'Show the help screen'

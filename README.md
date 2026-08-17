@@ -79,7 +79,7 @@ By running the following command, you can set up the basic files and folders
 required to run an application:
 
 ```bash
-$ ./kettle app:init [--web] [--api] [--cli] [<namespace>]
+./kettle app:init [--web] [--api] [--cli] [<namespace>]
 ```
 
 The `<namespace>` parameter is the namespace of your application - it defaults to `MyApp`.
@@ -123,7 +123,7 @@ The environment is set in the `.env` file under the `APP_ENV` variable. Options 
 - `production` (or `prod`)
 
 ```bash
-$ ./kettle app:env
+./kettle app:env
 ```
 
 #### Check (or change) the current status:
@@ -132,20 +132,20 @@ The status of the application can either be "live" or in "maintenance mode". The
 in the `.env` file under the `MAINTENANCE_MODE` variable (`true` or `false`).
 
 ```bash
-$ ./kettle app:status
+./kettle app:status
 ```
 
 To put the application into maintenance mode, where it's not accessible, use the following command:
 
 ```bash
-$ ./kettle app:down
+./kettle app:down
 ```
 
 You can generate a "secret" key to allow a select set of users to view the application while still in
 maintenance mode:
 
 ```bash
-$ ./kettle app:down --secret
+./kettle app:down --secret
 ```
 
 When the command finishes, it will output the auto-generated secret:
@@ -157,7 +157,7 @@ When the command finishes, it will output the auto-generated secret:
 You can also provide your own secret:
 
 ```bash
-$ ./kettle app:down --secret=MY_SECRET_STRING
+./kettle app:down --secret=MY_SECRET_STRING
 ```
 
 Use that string one time in the browser as a URL query parameter to view the application while it is
@@ -170,7 +170,7 @@ http://localhost:8000/?secret=MY_SECRET_STRING
 To take the application out of maintenance mode and make it live again, use the following command:
 
 ```bash
-$ ./kettle app:up
+./kettle app:up
 ```
 
 [Top](#pop-kettle)
@@ -207,19 +207,19 @@ a production build, so those `<link>`/`<script>` tags in `index.phtml` never nee
 two.
 
 Once the files are scaffolded, `app:init` automatically runs `npm install` in the project root, then
-`npm run build` (the same thing `asset:build` runs), so the landing page is already built and styled the
+`npm run build` (the same thing `web:build` runs), so the landing page is already built and styled the
 first time you hit it - no extra step needed before you see it working. If Node/npm isn't found on your
 `PATH`, `app:init` still finishes successfully - you'll just see a warning telling you to install Node and
 then run `npm install`/`npm run build` yourself before using the commands below.
 
 ```bash
-./kettle asset:watch   Watch and rebuild front-end assets (JS/CSS) on file changes
-./kettle asset:build   Build front-end assets (JS/CSS) for production
+./kettle web:watch   Watch/rebuild front-end assets on file changes
+./kettle web:build   Build front-end assets for production
 ```
 
-`asset:watch` runs `npm run watch` (`vite build --watch`), which rebuilds `public/assets/js/app.js` and
+`web:watch` runs `npm run watch` (`vite build --watch`), which rebuilds `public/assets/js/app.js` and
 `public/assets/css/app.css` to disk on every save - there's no dev server or hot-module-reload, so you
-refresh the browser yourself to pick up changes. `asset:build` runs `npm run build`, a one-shot production
+refresh the browser yourself to pick up changes. `web:build` runs `npm run build`, a one-shot production
 build. Both are thin convenience wrappers around those two npm scripts - you could just as easily run
 `npm run watch`/`npm run build` directly - and both simply print a message and do nothing if no front-end
 was installed for the project, or if Node/npm isn't on your `PATH`.
@@ -295,7 +295,7 @@ SQL file with the extension `.sql` in the `/database/seeds/<database>` folder, o
 can write a seeder class using PHP. To create a seeder class, you can run:
 
 ```bash
-$ ./kettle db:create-seed <seed> [<database>]
+./kettle db:create-seed <seed> [<database>]
 ```
 
 Where the `<seed>` is the base class name of the seeder class that will be created.
@@ -348,7 +348,7 @@ class DatabaseSeeder extends AbstractSeeder
 Then running the following command will execute any SQL in the seeder classes or any raw SQL in SQL files:
 
 ```bash
-$ ./kettle db:seed
+./kettle db:seed
 ```
 
 ### Database Migrations
@@ -357,7 +357,7 @@ You can create the initial database migration that would modify your database sc
 your application grows by running the command:
 
 ```bash
-$ ./kettle migrate:create <class> [<database>]
+./kettle migrate:create <class> [<database>]
 ```
 
 Where the `<class>` is the base class name of the migration class that will be created.
@@ -420,13 +420,13 @@ class MyFirstMigration5dd822cdede29 extends AbstractMigration
 You can run the migration and create the `users` table by running the command:
 
 ```bash
-$ ./kettle migrate:run
+./kettle migrate:run
 ```
 
 And you can rollback the migration and drop the `users` table by running the command:
 
 ```bash
-$ ./kettle migrate:rollback
+./kettle migrate:rollback
 ```
 
 ### Migration State Storage
@@ -471,37 +471,37 @@ these commands only configure the connection and run/administer what's already t
 ```
 
 ```bash
-$ ./kettle queue:config [<queue>]
+./kettle queue:config [<queue>]
 ```
 Configure a queue (File, Database, or Redis adapter). Defaults to `default`. Pass any other name to configure
 an additional queue, the same way `db:config <database>` works.
 
 ```bash
-$ ./kettle queue:work [-o|--once] [-s|--sleep=] [<queue>]
+./kettle queue:work [-o|--once] [-s|--sleep=] [<queue>]
 ```
 Run the worker. Without `--once`, runs as a daemon until stopped (Ctrl+C). With `--once`, processes a single
 pass and exits - useful for a cron-driven setup instead of a supervised daemon. Pass `all` as `<queue>` to
 service every configured queue in one worker, weighted by each queue's configured weight.
 
 ```bash
-$ ./kettle queue:scheduler [-o|--once] [-s|--sleep=] [<queue>]
+./kettle queue:scheduler [-o|--once] [-s|--sleep=] [<queue>]
 ```
 Same shape as `queue:work`, but for scheduled tasks.
 
 ```bash
-$ ./kettle queue:clear [-f|--failed] [-t|--tasks] [<queue>] 
+./kettle queue:clear [-f|--failed] [-t|--tasks] [<queue>] 
 ```
 Clear pending and in-flight (leased) jobs by default - **not** completed ones; `--failed` clears the dead-letter
 queue instead, `--tasks` clears scheduled tasks instead. Flags combine. Use with caution: running this against a
 queue a worker is currently servicing drops undone work, including jobs that worker has already leased.
 
 ```bash
-$ ./kettle queue:jobs [<queue>] 
+./kettle queue:jobs [<queue>] 
 ```
 Show pending and dead-letter job counts, and list dead-letter jobs with their failure reason.
 
 ```bash
-$ ./kettle queue:tasks [<queue>]  
+./kettle queue:tasks [<queue>]  
 ```
 List scheduled tasks with their cron expression and grace period.
 
@@ -538,7 +538,7 @@ The `--data` option for the `create:model` command creates a model class that ex
 table in the database. For example, assuming the namespace of the application is `MyApp`, the command:
 
 ```bash
-$ ./kettle create:model --data User
+./kettle create:model --data User
 ```
 
 will create class files for `MyApp\Model\User` (extending the data model class `Pop\Db\Model\AbstractDataModel`)
@@ -564,7 +564,7 @@ and wire up a separate console application. Each command is its own class with a
 action — a 1:1 relationship between class and command.
 
 ```bash
-$ ./kettle create:command [-a|--app] <command>
+./kettle create:command [-a|--app] <command>
 ```
 
 This requires that the application has already been initialized with the `--cli` flag (or a
@@ -611,8 +611,8 @@ every run — there's nothing further to wire up, and the command shows up in `.
 Kettle's own built-in commands. Once created, run it like any other `kettle` command:
 
 ```bash
-$ ./kettle send-email
-$ ./kettle email:send test@test.com --cc=someone@test.com
+./kettle send-email
+./kettle email:send test@test.com --cc=someone@test.com
 ```
 
 Even though it's invoked through `kettle`, the command doesn't actually run *as* Kettle. Once `kettle`
@@ -672,7 +672,7 @@ Running the Web Server
 `pop-kettle` also provides a simple way to run PHP's built-in web-server, by running the command:
 
 ```bash
-$ ./kettle serve [--host=] [--port=] [--folder=]
+./kettle web:serve [--host=] [--port=] [--folder=]
 ```
 
 If omitted, `--host` defaults to `localhost`, `--port` defaults to `8000`, and `--folder` defaults
@@ -684,25 +684,47 @@ web server in a production environment in any way.
 [Top](#pop-kettle)
 
 Getting Help and Version
------------------------
+------------------------
 
 To see the full list of available commands with their descriptions:
 
 ```bash
-$ ./kettle help
+./kettle help
 ```
 
 Pass `--raw` (or `-r`) to print the help screen without ANSI color codes, useful when piping the
 output somewhere that doesn't render them:
 
 ```bash
-$ ./kettle help --raw
+./kettle help --raw
 ```
+
+Pass a `<command>` to narrow the list down to just the commands under that namespace, instead of the
+full list - `./kettle help db` (the trailing `:` is optional) only shows `db:*` commands:
+
+```bash
+./kettle help db
+```
+
+```text
+./kettle db:install [<database>]             Install the database (Runs config, test & seed)
+./kettle db:config [<database>]              Configure the database
+./kettle db:test [<database>]                Test the database connection
+./kettle db:create-seed <seed> [<database>]  Create database seed class
+./kettle db:seed [<database>]                Seed the database with data
+./kettle db:export [<database>]              Export the database to a file (MySQL only)
+./kettle db:import <file> [<database>]       Import the database from a file (MySQL only)
+./kettle db:reset [<database>]               Reset the database with original seed data
+./kettle db:clear [<database>]               Clear the database of all data
+```
+
+`--raw` and `<command>` combine freely (`./kettle help --raw db`), and a `<command>` that doesn't
+match anything just prints an empty list rather than erroring.
 
 To see the currently installed version of `pop-kettle`:
 
 ```bash
-$ ./kettle version
+./kettle version
 ```
 
 [Top](#pop-kettle)
@@ -714,7 +736,7 @@ Accessing the Application
 
 If you have wired up the beginnings of an application, you can then access the default routes
 in the following ways. Assuming you've started the web server as described above using
-`./kettle serve`, you can access the web application by going to the address `http://localhost:8000/`
+`./kettle web:serve`, you can access the web application by going to the address `http://localhost:8000/`
 in any web browser and seeing the default index HTML page.
 
 If you create both a web and API application, the HTML application will be accessible at `http://localhost:8000/`.
@@ -731,7 +753,7 @@ If you have created commands to register with Kettle, then you can access them b
 through `./kettle` (they will display at the top of the `./kettle help` command):
 
 ```bash
-$ ./kettle myapp:custom-command
+./kettle myapp:custom-command
 ```
 
 ### CLI: Stand-alone Application
@@ -740,7 +762,7 @@ If you initialized a stand-alone CLI application, you can `cd script`, you'll se
 that was created. The default route available to the CLI application is the `help` route:
 
 ```bash
-$ ./app help
+./app help
 ```
 
 [Top](#pop-kettle)

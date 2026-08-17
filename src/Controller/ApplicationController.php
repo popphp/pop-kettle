@@ -161,7 +161,7 @@ class ApplicationController extends AbstractController
                 }
             } else {
                 $this->console->alertWarning(
-                    'Node/npm not found -- install Node, then run `npm install` before using asset:watch/asset:build.',
+                    'Node/npm not found -- install Node, then run `npm install` before using web:watch/web:build.',
                     60
                 );
             }
