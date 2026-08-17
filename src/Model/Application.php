@@ -155,7 +155,7 @@ class Application extends AbstractModel
 
             // Copy view files
             mkdir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view');
-            $indexView = ($frontend !== null) ? 'index-' . (($frontend == 'react') ? 'vue' : $frontend) . '.phtml' : 'index.phtml';
+            $indexView = ($frontend !== null) ? 'index-' . $frontend . '.phtml' : 'index.phtml';
             copy(__DIR__ . '/../../config/templates/view/' . $indexView, $location . DIRECTORY_SEPARATOR . 'app/view/index.phtml');
             copy(__DIR__ . '/../../config/templates/view/error.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/error.phtml');
             copy(__DIR__ . '/../../config/templates/view/exception.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/exception.phtml');

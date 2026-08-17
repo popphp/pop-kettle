@@ -1,4 +1,4 @@
 #!/bin/sh
-echo "$@" > "$FAKE_NPM_LOG"
+echo "$@" >> "$FAKE_NPM_LOG"
 pwd >> "$FAKE_NPM_LOG"
 exit 0

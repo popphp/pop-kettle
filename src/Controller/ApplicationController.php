@@ -74,6 +74,7 @@ class ApplicationController extends AbstractController
         $url = '';
 
         if (($web) || ($api)) {
+            $this->console->write();
             $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
             if ($url == '') {
                 $url = 'http://localhost';
@@ -86,7 +87,6 @@ class ApplicationController extends AbstractController
             $createCliApp = $this->console->prompt(
                 'Initialize a stand-alone CLI application? [Y/N] ', ['y', 'n']
             );
-            $this->console->write();
             $cliApp = (strtolower($createCliApp) == 'y');
         }
 
@@ -94,6 +94,7 @@ class ApplicationController extends AbstractController
         $dbModel  = new Model\Database();
         $location = getcwd();
 
+        $this->console->write();
         $configDb = $this->console->prompt(
             'Would you like to configure a database? [Y/N] ', ['y', 'n']
         );
@@ -103,6 +104,7 @@ class ApplicationController extends AbstractController
         $install  = Model\Application::resolveInstallType($web, $api, $cli);
 
         if (str_contains($install, 'web')) {
+            $this->console->write();
             $installFrontend = $this->console->prompt(
                 'Would you like to install a front-end? [Y/N] ', ['y', 'n']
             );
@@ -149,7 +151,14 @@ class ApplicationController extends AbstractController
             if ($assetModel->isNpmAvailable()) {
                 $this->console->write("Installing front-end dependencies for '" . $namespace . "'...");
                 $this->console->write();
-                $assetModel->install($location);
+                $installResult = $assetModel->install($location);
+
+                if ($installResult === 0) {
+                    $this->console->write();
+                    $this->console->write("Building front-end assets for '" . $namespace . "'...");
+                    $this->console->write();
+                    $assetModel->build($location);
+                }
             } else {
                 $this->console->alertWarning(
                     'Node/npm not found -- install Node, then run `npm install` before using asset:watch/asset:build.',
