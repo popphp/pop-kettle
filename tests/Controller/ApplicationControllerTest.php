@@ -12,13 +12,18 @@ class ApplicationControllerTest extends TestCase
 
     use AppTestTrait;
 
+    protected string $originalPath = '';
+
     protected function setUp(): void
     {
         $this->enterSandbox();
+        $this->originalPath = (string)getenv('PATH');
+        putenv('PATH=' . sys_get_temp_dir() . '/pop-kettle-test-no-such-path-' . uniqid());
     }
 
     protected function tearDown(): void
     {
+        putenv('PATH=' . $this->originalPath);
         $this->leaveSandbox();
     }
 
@@ -192,6 +197,44 @@ class ApplicationControllerTest extends TestCase
         ob_end_clean();
 
         $this->assertStringContainsString('"react"', file_get_contents(getcwd() . '/package.json'));
+    }
+
+    public function testInitWarnsWhenNpmNotFoundForFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Node/npm not found', $result);
+        $this->assertFileDoesNotExist(getcwd() . '/node_modules');
+    }
+
+    public function testInitInstallsFrontendDependenciesWhenNpmAvailable()
+    {
+        $this->seedKettleIncOrig();
+
+        $fakeBinDir = getcwd() . '/fake-bin';
+        mkdir($fakeBinDir);
+        copy(__DIR__ . '/../tmp/fake-npm', $fakeBinDir . '/npm');
+        chmod($fakeBinDir . '/npm', 0755);
+        putenv('FAKE_NPM_LOG=' . getcwd() . '/npm.log');
+        putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Installing front-end dependencies', $result);
+        $this->assertStringContainsString('install', file_get_contents(getcwd() . '/npm.log'));
+
+        putenv('FAKE_NPM_LOG');
     }
 
     public function testEnvLocal()

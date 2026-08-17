@@ -144,6 +144,21 @@ class ApplicationController extends AbstractController
             $this->console->write();
         }
 
+        if ($frontend !== null) {
+            $assetModel = new Model\Asset();
+            if ($assetModel->isNpmAvailable()) {
+                $this->console->write("Installing front-end dependencies for '" . $namespace . "'...");
+                $this->console->write();
+                $assetModel->install($location);
+            } else {
+                $this->console->alertWarning(
+                    'Node/npm not found -- install Node, then run `npm install` before using asset:watch/asset:build.',
+                    60
+                );
+            }
+            $this->console->write();
+        }
+
         $this->console->write('Done!');
     }
 
