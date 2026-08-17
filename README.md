@@ -10,6 +10,7 @@ pop-kettle
 * [Install](#install)
 * [Initializing an Application](#initializing-an-application)
     + [Application Status](#application-status)
+* [Front-End Assets](#front-end-assets)
 * [Kettle Include](#kettle-include)
 * [Managing the Database](#managing-the-database)
     + [Seeding the Database](#seeding-the-database)
@@ -171,6 +172,55 @@ To take the application out of maintenance mode and make it live again, use the 
 ```bash
 $ ./kettle app:up
 ```
+
+[Top](#pop-kettle)
+
+Front-End Assets
+----------------
+
+`app:init` will additionally prompt you to install a front-end whenever the install flavor includes
+`--web` - that's `--web` on its own, `--web --api`, `--web --cli`, `--web --api --cli`, or simply no
+flavor flags at all, since `--web` is assumed by default:
+
+```text
+Would you like to install a front-end? [Y/N]
+```
+
+If you accept, you'll be shown a numbered list to pick from:
+
+```text
+1: AlpineJS
+2: Vue
+3: React
+```
+
+Whichever framework you pick, Tailwind CSS v4 is scaffolded right alongside it, configured CSS-first via
+the `@tailwindcss/vite` plugin - there's no `tailwind.config.js` to maintain. Vite is the build tool for
+all three.
+
+The scaffolded source assets land in `app/assets/css` and `app/assets/js`, and `package.json` and
+`vite.config.js` are placed in the project root, next to the `kettle` script itself. `app/view/index.phtml`
+is generated already pointing at the eventual build output. Vite is configured (via
+`rollupOptions.output.entryFileNames`/`assetFileNames`) to always write that output to the same, fixed,
+non-hashed paths - `public/assets/js/app.js` and `public/assets/css/app.css` - for both a watch build and
+a production build, so those `<link>`/`<script>` tags in `index.phtml` never need to change between the
+two.
+
+Once the files are scaffolded, `app:init` automatically runs `npm install` in the project root. If
+Node/npm isn't found on your `PATH`, `app:init` still finishes successfully - you'll just see a warning
+telling you to install Node and then run `npm install` yourself before using the commands below.
+
+```bash
+./kettle asset:watch   Watch and rebuild front-end assets (JS/CSS) on file changes
+./kettle asset:build   Build front-end assets (JS/CSS) for production
+```
+
+`asset:watch` runs `npm run watch` (`vite build --watch`), which rebuilds `public/assets/js/app.js` and
+`public/assets/css/app.css` to disk on every save - there's no dev server or hot-module-reload, so you
+refresh the browser yourself to pick up changes. `asset:build` runs `npm run build`, a one-shot production
+build. Both are thin convenience wrappers around those two npm scripts - you could just as easily run
+`npm run watch`/`npm run build` directly - and both simply print a message and do nothing if no front-end
+was installed for the project, or if Node/npm isn't on your `PATH`.
 
 [Top](#pop-kettle)
 
