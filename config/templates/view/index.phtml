@@ -1,9 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title><?=$title; ?></title>
+    <link rel="icon" href="https://www.popphp.org/assets/img/pop-php-icon.png">
+    <style>
+        :root {
+            --pop-orange: #c2410c;
+            --pop-orange-dark: #9a3412;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+            color: var(--ink);
+        }
+        .stripe {
+            width: 100%;
+            background: var(--pop-orange);
+            padding: 56px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo { width: 180px; height: 180px; display: block; }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px 48px;
+        }
+        .card { width: 100%; max-width: 460px; }
+        .eyebrow {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--pop-orange);
+            margin-bottom: 12px;
+        }
+        h1 { font-size: 48px; font-weight: 300; margin: 0 0 12px; letter-spacing: -0.02em; color: #57534e; }
+        p { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0; }
+        footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
+        footer a { color: var(--pop-orange); font-weight: 600; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-    <h1><?=$title;?></h1>
+    <div class="stripe">
+        <img class="logo" src="https://media.popphp.org/img/pop-php-logo-white.png" alt="Pop PHP">
+    </div>
+    <div class="content">
+        <div class="card">
+            <span class="eyebrow">Application Ready</span>
+            <h1><?=$title;?></h1>
+            <p>Your Pop PHP application is up and running.</p>
+            <footer>Built with <a href="https://www.popphp.org" target="_blank" rel="noopener">Pop PHP</a></footer>
+        </div>
+    </div>
 </body>
 </html>

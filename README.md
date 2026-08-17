@@ -206,9 +206,11 @@ non-hashed paths - `public/assets/js/app.js` and `public/assets/css/app.css` - f
 a production build, so those `<link>`/`<script>` tags in `index.phtml` never need to change between the
 two.
 
-Once the files are scaffolded, `app:init` automatically runs `npm install` in the project root. If
-Node/npm isn't found on your `PATH`, `app:init` still finishes successfully - you'll just see a warning
-telling you to install Node and then run `npm install` yourself before using the commands below.
+Once the files are scaffolded, `app:init` automatically runs `npm install` in the project root, then
+`npm run build` (the same thing `asset:build` runs), so the landing page is already built and styled the
+first time you hit it - no extra step needed before you see it working. If Node/npm isn't found on your
+`PATH`, `app:init` still finishes successfully - you'll just see a warning telling you to install Node and
+then run `npm install`/`npm run build` yourself before using the commands below.
 
 ```bash
 ./kettle asset:watch   Watch and rebuild front-end assets (JS/CSS) on file changes

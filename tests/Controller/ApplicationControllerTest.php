@@ -232,7 +232,12 @@ class ApplicationControllerTest extends TestCase
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Installing front-end dependencies', $result);
-        $this->assertStringContainsString('install', file_get_contents(getcwd() . '/npm.log'));
+        $this->assertStringContainsString('Building front-end assets', $result);
+
+        $log = file_get_contents(getcwd() . '/npm.log');
+        $this->assertStringContainsString('install', $log);
+        $this->assertStringContainsString('run build', $log);
+        $this->assertTrue(strpos($log, 'install') < strpos($log, 'run build'), 'install should run before build');
 
         putenv('FAKE_NPM_LOG');
     }

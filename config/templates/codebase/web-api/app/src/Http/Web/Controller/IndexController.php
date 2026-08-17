@@ -13,7 +13,7 @@ class IndexController extends AbstractController
     public function index()
     {
         $this->prepareView('index.phtml');
-        $this->view->title = 'Index';
+        $this->view->title = 'Welcome';
         $this->send();
     }
 
