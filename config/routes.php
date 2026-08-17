@@ -129,12 +129,12 @@ return [
     'asset:watch' => [
         'controller' => 'Pop\Kettle\Controller\AssetController',
         'action'     => 'watch',
-        'help'       => 'Watch and rebuild front-end assets (JS/CSS) on file changes'
+        'help'       => 'Watch/rebuild front-end assets on file changes'
     ],
     'asset:build' => [
         'controller' => 'Pop\Kettle\Controller\AssetController',
         'action'     => 'build',
-        'help'       => 'Build front-end assets (JS/CSS) for production' . PHP_EOL
+        'help'       => 'Build front-end assets for production' . PHP_EOL
     ],
     'create:command [-a|--app] <command>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',

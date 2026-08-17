@@ -30,12 +30,20 @@ class Asset extends AbstractModel
 {
 
     /**
+     * npm binary to invoke
+     * @var string
+     */
+    protected string $npmBinary = 'npm';
+
+    /**
      * Constructor
      *
      * @param string $npmBinary
      */
-    public function __construct(protected string $npmBinary = 'npm')
+    public function __construct(string $npmBinary = 'npm')
     {
+        parent::__construct();
+        $this->npmBinary = $npmBinary;
     }
 
     /**
