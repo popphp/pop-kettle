@@ -155,10 +155,15 @@ class Application extends AbstractModel
 
             // Copy view files
             mkdir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view');
-            copy(__DIR__ . '/../../config/templates/view/index.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/index.phtml');
+            $indexView = ($frontend !== null) ? 'index-' . (($frontend == 'react') ? 'vue' : $frontend) . '.phtml' : 'index.phtml';
+            copy(__DIR__ . '/../../config/templates/view/' . $indexView, $location . DIRECTORY_SEPARATOR . 'app/view/index.phtml');
             copy(__DIR__ . '/../../config/templates/view/error.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/error.phtml');
             copy(__DIR__ . '/../../config/templates/view/exception.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/exception.phtml');
             copy(__DIR__ . '/../../config/templates/view/maintenance.phtml', $location . DIRECTORY_SEPARATOR . 'app/view/maintenance.phtml');
+
+            if ($frontend !== null) {
+                $this->installFrontend($frontend, $location, $namespace, $script);
+            }
         }
 
         // Set up CLI /script folder and application script
@@ -257,6 +262,53 @@ class Application extends AbstractModel
         ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
 
         file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
+    }
+
+    /**
+     * Install front-end tooling (package.json, vite config, source assets)
+     *
+     * @param  string $frontend
+     * @param  string $location
+     * @param  string $namespace
+     * @param  string $script
+     * @return void
+     */
+    protected function installFrontend(string $frontend, string $location, string $namespace, string $script): void
+    {
+        $frontendPath = realpath(__DIR__ . '/../../config/templates/frontend/' . $frontend);
+        $dir          = new Dir($frontendPath);
+
+        foreach ($dir as $entry) {
+            $entryPath = $frontendPath . DIRECTORY_SEPARATOR . $entry;
+            if (is_dir($entryPath)) {
+                if (!file_exists($location . DIRECTORY_SEPARATOR . $entry)) {
+                    mkdir($location . DIRECTORY_SEPARATOR . $entry);
+                }
+                (new Dir($entryPath))->copyTo($location . DIRECTORY_SEPARATOR . $entry, false);
+            } else {
+                copy($entryPath, $location . DIRECTORY_SEPARATOR . $entry);
+            }
+        }
+
+        $placeholders = ['MyApp', 'myapp'];
+        $replacements = [$namespace, $script];
+
+        $packageJson = $location . DIRECTORY_SEPARATOR . 'package.json';
+        file_put_contents($packageJson, str_replace($placeholders, $replacements, file_get_contents($packageJson)));
+
+        $assetsDir = new Dir($location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'assets', [
+            'filesOnly' => true, 'recursive' => true, 'absolute' => true
+        ]);
+        foreach ($assetsDir as $file) {
+            file_put_contents($file, str_replace($placeholders, $replacements, file_get_contents($file)));
+        }
+
+        $gitignore = $location . DIRECTORY_SEPARATOR . '.gitignore';
+        if (!file_exists($gitignore)) {
+            file_put_contents($gitignore, 'node_modules/' . PHP_EOL);
+        } else if (!str_contains(file_get_contents($gitignore), 'node_modules/')) {
+            file_put_contents($gitignore, 'node_modules/' . PHP_EOL, FILE_APPEND);
+        }
     }
 
     /**

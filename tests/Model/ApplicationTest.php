@@ -634,4 +634,29 @@ class ApplicationTest extends TestCase
         $this->assertSame('web', Model\Application::resolveInstallType(null, null, null));
     }
 
+    public function testInstallScaffoldsAlpineFrontend()
+    {
+        $this->seedKettleIncOrig();
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App', frontend: 'alpine');
+
+        $this->assertFileExists(getcwd() . '/package.json');
+        $this->assertStringContainsString('alpinejs', file_get_contents(getcwd() . '/package.json'));
+        $this->assertFileExists(getcwd() . '/vite.config.js');
+        $this->assertFileExists(getcwd() . '/app/assets/css/app.css');
+        $this->assertFileExists(getcwd() . '/app/assets/js/app.js');
+        $this->assertStringContainsString('x-data', file_get_contents(getcwd() . '/app/view/index.phtml'));
+        $this->assertStringContainsString('node_modules/', file_get_contents(getcwd() . '/.gitignore'));
+    }
+
+    public function testInstallWithoutFrontendLeavesDefaultView()
+    {
+        $this->seedKettleIncOrig();
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App');
+
+        $this->assertFileDoesNotExist(getcwd() . '/package.json');
+        $this->assertStringNotContainsString('x-data', file_get_contents(getcwd() . '/app/view/index.phtml'));
+    }
+
 }
