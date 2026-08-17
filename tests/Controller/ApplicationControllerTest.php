@@ -70,6 +70,20 @@ class ApplicationControllerTest extends TestCase
         $this->assertStringContainsString('Done!', $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
         $this->assertStringContainsString('APP_ENV=dev', file_get_contents(getcwd() . '/.env'));
+        $this->assertStringContainsString('APP_URL=http://localhost', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testInitDefaultsToWebInstallPromptsForUrl()
+    {
+        $this->seedKettleIncOrig();
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '2', 'http://example.com', 'n', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        ob_end_clean();
+
+        $this->assertStringContainsString('APP_URL=http://example.com', file_get_contents(getcwd() . '/.env'));
     }
 
     public function testInitWithCliFlag()
