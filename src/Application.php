@@ -143,6 +143,11 @@ class Application extends \Pop\Application
     public function cliError(\Exception $exception, bool $exit = true): void
     {
         (new Console())->alertDanger(strip_tags($exception->getMessage()));
+
+        echo (stripos(PHP_OS, 'win') === false) ?
+            "    Try \x1b[1;33m./kettle help\x1b[0m for help" . PHP_EOL . PHP_EOL :
+            '    Try \'./kettle help\' for help' . PHP_EOL . PHP_EOL;
+
         if ($exit) {
             exit(127);
         }
