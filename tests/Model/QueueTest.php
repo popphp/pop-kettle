@@ -16,7 +16,7 @@ class QueueTest extends TestCase
     {
         $this->enterSandbox();
         mkdir(getcwd() . '/app/config', 0777, true);
-        copy(__DIR__ . '/../../config/templates/orig.env', getcwd() . '/.env');
+        copy(__DIR__ . '/../../config/templates/.env.example', getcwd() . '/.env');
     }
 
     protected function tearDown(): void

@@ -138,7 +138,7 @@ class Queue extends AbstractModel
         $envFile = $location . '/.env';
 
         if (!file_exists($envFile)) {
-            copy(__DIR__ . '/../../config/templates/orig.env', $envFile);
+            copy(__DIR__ . '/../../config/templates/.env.example', $envFile);
         }
 
         $env = file_get_contents($envFile);

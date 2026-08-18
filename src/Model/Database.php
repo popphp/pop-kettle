@@ -184,7 +184,7 @@ class Database extends AbstractModel
 
         if (!file_exists($location . DIRECTORY_SEPARATOR . '/.env')) {
             copy(
-                __DIR__ . '/../../config/templates/orig.env',
+                __DIR__ . '/../../config/templates/.env.example',
                 $location . DIRECTORY_SEPARATOR . '/.env'
             );
         }
