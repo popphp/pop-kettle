@@ -10,9 +10,6 @@ $dotEnv->safeLoad();
 
 try {
     $config = include __DIR__ . '/config/app.console.php';
-    if (file_exists(__DIR__ . '/kettle.inc.php')) {
-        include __DIR__ . '/kettle.inc.php';
-    }
 
     // Load any custom application command routes
     $config['routes'] = Pop\Console\CommandRegistry::loadRoutes($config['routes'], __DIR__ . '/app/src/Console/Command/Kettle');

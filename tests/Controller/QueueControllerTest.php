@@ -63,7 +63,7 @@ class QueueControllerTest extends TestCase
 
     public function testWorkWithNonAutoloadableAppPrintsFriendlyError()
     {
-        // App class exists on disk, but isn't autoloadable (e.g. a missing kettle.inc.php),
+        // App class exists on disk, but isn't autoloadable (e.g. a stale composer autoloader),
         // so resolveAppInstance() returns null instead of throwing
         mkdir(getcwd() . '/app/src', 0777, true);
         file_put_contents(

@@ -11,7 +11,6 @@ pop-kettle
 * [Initializing an Application](#initializing-an-application)
     + [Application Status](#application-status)
 * [Front-End Assets](#front-end-assets)
-* [Kettle Include](#kettle-include)
 * [Managing the Database](#managing-the-database)
     + [Seeding the Database](#seeding-the-database)
     + [Database Migrations](#database-migrations)
@@ -108,6 +107,13 @@ database adapter/connection prompts to create the database configuration file. S
 [Managing the Database](#managing-the-database) below for the list of supported database
 adapters and what you'll be prompted for. The application environment always starts out
 as `local` - use `app:env --set` (below) to change it afterward.
+
+`app:init` also registers your app's namespace directly in `composer.json`'s `autoload.psr-4`
+map (e.g. `"App\\": "app/src/"`) and runs `composer dump-autoload`, so `public/index.php`,
+a stand-alone `script/<app>`, and `kettle` itself all pick up your classes from the one
+Composer-generated autoloader - no separate include file to keep in sync. If Composer isn't
+found on your `PATH`, you'll see a warning and can run `composer dump-autoload` yourself
+afterward.
 
 ### Application Status
 
@@ -250,31 +256,6 @@ refresh the browser yourself to pick up changes. `web:build` runs `npm run build
 build. Both are thin convenience wrappers around those two npm scripts - you could just as easily run
 `npm run watch`/`npm run build` directly - and both simply print a message and do nothing if no front-end
 was installed for the project, or if Node/npm isn't on your `PATH`.
-
-[Top](#pop-kettle)
-
-Kettle Include
---------------
-
-You should see a file `kettle.inc.php` next to the main `kettle` script. This serves
-as a configuration file for anything additional that needs to be wired up for your
-application to work with kettle. The file is included right after the `$autoloader` is
-created and the routes config is loaded, but before the `Pop\Kettle\Application` object
-itself is built, so you will have direct access to `$autoloader` and `$config` (and can,
-for example, add to `$config['routes']`). In this file you can add any additional
-runtime requirements, configurations or routes.
-
-By default, when you initialize an application, `kettle` is made aware of your application
-and its namespace by automatically adding this line to the `kettle.inc.php` file:
-
-```php
-$autoloader->addPsr4('MyApp\\', __DIR__ . '/app/src');
-```
-
-**Note:** If the `kettle.inc.php` file isn't available, you can copy the blank
-`kettle.inc.orig.php` template from the `vendor/popphp/pop-kettle` package folder to
-the main project folder (adjacent to the `vendor` folder) and rename it to
-`kettle.inc.php` — this is the same file `app:init` copies into place automatically.
 
 [Top](#pop-kettle)
 

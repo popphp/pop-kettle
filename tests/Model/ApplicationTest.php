@@ -23,7 +23,6 @@ class ApplicationTest extends TestCase
 
     public function testInitApiOnly()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', null, true, null);
 
@@ -33,7 +32,6 @@ class ApplicationTest extends TestCase
 
     public function testInitWebApi()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', true, true, null);
 
@@ -43,7 +41,6 @@ class ApplicationTest extends TestCase
 
     public function testInitApiCli()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', null, true, true, cliApp: true);
 
@@ -52,7 +49,6 @@ class ApplicationTest extends TestCase
 
     public function testInitWebCli()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', true, null, true, cliApp: true);
 
@@ -62,7 +58,6 @@ class ApplicationTest extends TestCase
 
     public function testInitCliOnly()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', null, null, true, cliApp: true);
 
@@ -72,7 +67,6 @@ class ApplicationTest extends TestCase
 
     public function testInitCliOnlyWithoutStandaloneAppRemovesConsoleController()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', null, null, true);
 
@@ -82,7 +76,6 @@ class ApplicationTest extends TestCase
 
     public function testInitWebApiCli()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App', true, true, true, cliApp: true);
 
@@ -93,7 +86,6 @@ class ApplicationTest extends TestCase
 
     public function testInitDefaultsToWeb()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->init(getcwd(), 'App');
 
@@ -466,22 +458,44 @@ class ApplicationTest extends TestCase
 
     public function testInstallQuotesNameContainingSpaces()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App', 'My App Name');
 
         $this->assertStringContainsString('APP_NAME="My App Name"', file_get_contents(getcwd() . '/.env'));
     }
 
-    public function testInstallPreservesExistingCustomizedKettleInc()
+    public function testInstallRegistersComposerAutoload()
     {
-        $this->seedKettleIncOrig();
-        file_put_contents(getcwd() . '/kettle.inc.php', "<?php\n\n// customized by the user\n");
+        $this->seedComposerJson();
 
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App');
 
-        $this->assertStringContainsString('customized by the user', file_get_contents(getcwd() . '/kettle.inc.php'));
+        $composer = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
+        $this->assertSame('app/src/', $composer['autoload']['psr-4']['App\\']);
+    }
+
+    public function testInstallPreservesExistingCustomComposerAutoloadEntry()
+    {
+        file_put_contents(getcwd() . '/composer.json', json_encode([
+            'name'     => 'test/app',
+            'autoload' => ['psr-4' => ['App\\' => 'custom/path/']],
+        ], JSON_PRETTY_PRINT) . PHP_EOL);
+
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App');
+
+        $composer = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
+        $this->assertCount(1, $composer['autoload']['psr-4']);
+        $this->assertSame('custom/path/', $composer['autoload']['psr-4']['App\\']);
+    }
+
+    public function testInstallSkipsAutoloadRegistrationWithoutComposerJson()
+    {
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'App');
+
+        $this->assertFileDoesNotExist(getcwd() . '/composer.json');
     }
 
     public function testCreateViewCreatesMissingBaseFolder()
@@ -636,7 +650,6 @@ class ApplicationTest extends TestCase
 
     public function testInstallScaffoldsAlpineFrontend()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App', frontend: 'alpine');
 
@@ -651,7 +664,6 @@ class ApplicationTest extends TestCase
 
     public function testInstallScaffoldsVueFrontend()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App', frontend: 'vue');
 
@@ -662,7 +674,6 @@ class ApplicationTest extends TestCase
 
     public function testInstallScaffoldsReactFrontend()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App', frontend: 'react');
 
@@ -674,7 +685,6 @@ class ApplicationTest extends TestCase
 
     public function testInstallWithoutFrontendLeavesDefaultView()
     {
-        $this->seedKettleIncOrig();
         $application = new Model\Application();
         $application->install('web', getcwd(), 'App');
 
