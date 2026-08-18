@@ -103,6 +103,21 @@ class ConsoleTest extends TestCase
         $this->assertStringNotContainsString('Application in Production', $result);
     }
 
+    public function testProductionDisplaySuppressedOnOmittedCommandWithFlags()
+    {
+        $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
+        $dotEnv->safeLoad();
+
+        $_SERVER['argv'] = ['kettle', 'help', '--raw'];
+        $this->makeApp();
+
+        ob_start();
+        Kettle\Event\Console::productionDisplay();
+        $result = ob_get_clean();
+
+        $this->assertStringNotContainsString('Application in Production', $result);
+    }
+
     public function testProductionDisplaySuppressedOnQueueWorkerAndIntrospectionCommands()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');

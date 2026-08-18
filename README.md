@@ -144,7 +144,14 @@ Please select an app environment from above:
 ```
 
 Only one of those five values can be entered - anything else just re-prompts - so there's no risk of
-writing an invalid `APP_ENV` value into `.env`.
+writing an invalid `APP_ENV` value into `.env`. Once set, it shows you the same colorized status box as
+plain `app:env`, reflecting the new value:
+
+```text
+                                        
+         Application in Staging        
+                                        
+```
 
 #### Check (or change) the current status:
 
