@@ -692,4 +692,91 @@ class ApplicationTest extends TestCase
         $this->assertStringNotContainsString('x-data', file_get_contents(getcwd() . '/app/view/index.phtml'));
     }
 
+    public function testParseNamespaceSingleWord()
+    {
+        $parsed = Model\Application::parseNamespace('App');
+
+        $this->assertSame('App', $parsed['namespace']);
+        $this->assertSame('app', $parsed['slug']);
+        $this->assertSame('App', $parsed['fullName']);
+    }
+
+    public function testParseNamespaceCamelCase()
+    {
+        $parsed = Model\Application::parseNamespace('NicksApp');
+
+        $this->assertSame('NicksApp', $parsed['namespace']);
+        $this->assertSame('nicks-app', $parsed['slug']);
+        $this->assertSame('Nicks App', $parsed['fullName']);
+    }
+
+    public function testParseNamespaceKebabInput()
+    {
+        $parsed = Model\Application::parseNamespace('nick-user-app');
+
+        $this->assertSame('NickUserApp', $parsed['namespace']);
+        $this->assertSame('nick-user-app', $parsed['slug']);
+        $this->assertSame('Nick User App', $parsed['fullName']);
+    }
+
+    public function testParseNamespaceMultiSegmentBackslash()
+    {
+        $parsed = Model\Application::parseNamespace('Nick\\Users\\App');
+
+        $this->assertSame('Nick\\Users\\App', $parsed['namespace']);
+        $this->assertSame('nick-users-app', $parsed['slug']);
+        $this->assertSame('Nick Users App', $parsed['fullName']);
+    }
+
+    public function testParseNamespaceDoubledBackslash()
+    {
+        $parsed = Model\Application::parseNamespace('Nick\\\\Users\\\\App');
+
+        $this->assertSame('Nick\\Users\\App', $parsed['namespace']);
+        $this->assertSame('nick-users-app', $parsed['slug']);
+        $this->assertSame('Nick Users App', $parsed['fullName']);
+    }
+
+    public function testParseNamespaceStripsPathTraversalSegments()
+    {
+        $parsed = Model\Application::parseNamespace('../../etc/App');
+
+        $this->assertSame('Etc\\App', $parsed['namespace']);
+        $this->assertSame('etc-app', $parsed['slug']);
+        $this->assertStringNotContainsString('/', $parsed['slug']);
+        $this->assertStringNotContainsString('.', $parsed['slug']);
+    }
+
+    public function testParseNamespaceLeadingDigitSegmentIsPrefixed()
+    {
+        $parsed = Model\Application::parseNamespace('123App');
+
+        $this->assertSame('_123App', $parsed['namespace']);
+    }
+
+    public function testParseNamespaceThrowsOnNoValidCharacters()
+    {
+        $this->expectException('Pop\Kettle\Exception');
+        Model\Application::parseNamespace('---');
+    }
+
+    public function testInstallWritesSlugBasedNameConstAndHumanFullNameConst()
+    {
+        $application = new Model\Application();
+        $application->install('web', getcwd(), 'nick-user-app');
+
+        $contents = file_get_contents(getcwd() . '/app/src/Application.php');
+        $this->assertStringContainsString("namespace NickUserApp;", $contents);
+        $this->assertStringContainsString("const string NAME = 'nick-user-app';", $contents);
+        $this->assertStringContainsString("const string FULL_NAME = 'Nick User App';", $contents);
+    }
+
+    public function testInstallScriptFileNameUsesSlug()
+    {
+        $application = new Model\Application();
+        $application->install('cli', getcwd(), 'nick-user-app', cliApp: true);
+
+        $this->assertFileExists(getcwd() . '/script/nick-user-app');
+    }
+
 }

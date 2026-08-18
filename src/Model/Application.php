@@ -94,6 +94,62 @@ class Application extends AbstractModel
     }
 
     /**
+     * Parse a raw namespace value typed by the user into a valid PHP namespace,
+     * a filesystem-safe kebab-case slug and a human-readable full name.
+     *
+     * @param  string $input
+     * @throws Exception
+     * @return array{namespace: string, slug: string, fullName: string}
+     */
+    public static function parseNamespace(string $input): array
+    {
+        $segments       = preg_split('/[\\\\\/\s]+/', trim($input), -1, PREG_SPLIT_NO_EMPTY);
+        $namespaceParts = [];
+        $allWords       = [];
+
+        foreach ($segments as $segment) {
+            $words = self::splitIntoWords($segment);
+            if (empty($words)) {
+                continue;
+            }
+
+            $part = implode('', array_map(fn($word) => ucfirst(strtolower($word)), $words));
+            if (preg_match('/^[0-9]/', $part)) {
+                $part = '_' . $part;
+            }
+
+            $namespaceParts[] = $part;
+            array_push($allWords, ...$words);
+        }
+
+        if (empty($namespaceParts)) {
+            throw new Exception("Error: Unable to derive a valid namespace from '" . $input . "'.");
+        }
+
+        return [
+            'namespace' => implode('\\', $namespaceParts),
+            'slug'      => strtolower(implode('-', $allWords)),
+            'fullName'  => implode(' ', array_map(fn($word) => ucfirst(strtolower($word)), $allWords)),
+        ];
+    }
+
+    /**
+     * Split a single namespace segment into its component words, on
+     * non-alphanumeric separators and camelCase boundaries.
+     *
+     * @param  string $segment
+     * @return array
+     */
+    protected static function splitIntoWords(string $segment): array
+    {
+        $segment = preg_replace('/[^A-Za-z0-9]+/', ' ', $segment);
+        $segment = preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $segment);
+        $segment = preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1 $2', $segment);
+
+        return preg_split('/\s+/', trim($segment), -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
      * Install application files
      *
      * @param  string  $install
@@ -112,7 +168,11 @@ class Application extends AbstractModel
         ?string $frontend = null
     ): void
     {
-        $script = strtolower(str_replace('\\', '-', $namespace));
+        $parsed    = self::parseNamespace($namespace);
+        $namespace = $parsed['namespace'];
+        $script    = $parsed['slug'];
+        $fullName  = $parsed['fullName'];
+
         $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
@@ -130,6 +190,17 @@ class Application extends AbstractModel
 
         foreach ($dir as $file) {
             file_put_contents($file, str_replace(['MyApp', 'myapp'], [$namespace, $script], file_get_contents($file)));
+        }
+
+        // The main Application class' FULL_NAME const should be the human-readable
+        // name, not the raw PHP namespace token used everywhere else in the file
+        $appClassFile = $location . DIRECTORY_SEPARATOR . 'app/src/Application.php';
+        if (file_exists($appClassFile)) {
+            file_put_contents($appClassFile, str_replace(
+                "FULL_NAME = '" . $namespace . "'",
+                "FULL_NAME = '" . $fullName . "'",
+                file_get_contents($appClassFile)
+            ));
         }
 
         // Set up web /public folder and files
