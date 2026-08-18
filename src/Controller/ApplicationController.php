@@ -173,15 +173,26 @@ class ApplicationController extends AbstractController
             return;
         }
 
-        if (App::isProduction()) {
+        $this->displayEnv((string)App::environment());
+    }
+
+    /**
+     * Display the colorized environment alert box for the given environment
+     *
+     * @param  string $env
+     * @return void
+     */
+    protected function displayEnv(string $env): void
+    {
+        if (str_starts_with($env, 'prod')) {
             $this->console->alertWarning('Application in Production', 40);
-        } else if (App::isStaging()) {
+        } else if ($env == 'staging') {
             $this->console->alertPrimary('Application in Staging', 40);
-        } else if (App::isTesting()) {
+        } else if ($env == 'testing') {
             $this->console->alertSecondary('Application in Testing', 40);
-        } else if (App::isDev()) {
+        } else if ($env == 'dev') {
             $this->console->alertDark('Application in Dev', 40);
-        } else if (App::isLocal()) {
+        } else if ($env == 'local') {
             $this->console->alertLight('Application in Local', 40);
         }
     }
@@ -231,7 +242,7 @@ class ApplicationController extends AbstractController
         file_put_contents($location . '/.env', $contents);
 
         $this->console->write();
-        $this->console->write("Application environment set to '" . $env . "'.");
+        $this->displayEnv($env);
     }
 
     /**

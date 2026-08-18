@@ -64,8 +64,9 @@ class Console
     {
         $console     = $console ?? new \Pop\Console\Console();
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
+        $command     = explode(' ', $routeString, 2)[0];
 
-        if ((App::isProduction()) && !in_array($routeString, self::$omitCommands)) {
+        if ((App::isProduction()) && !in_array($command, self::$omitCommands)) {
             $console->alertWarning('Application in Production', 40);
             $console->confirm('Are you sure you want to run this command?');
         }

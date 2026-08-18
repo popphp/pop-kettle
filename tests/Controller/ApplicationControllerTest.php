@@ -322,7 +322,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller($console)->env(['set' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString("Application environment set to 'staging'", $result);
+        $this->assertStringContainsString('Application in Staging', $result);
         $this->assertStringContainsString('APP_ENV=staging', file_get_contents(getcwd() . '/.env'));
     }
 
