@@ -42,7 +42,6 @@ class Application extends AbstractModel
      * @param  ?bool   $api
      * @param  ?bool   $cli
      * @param  string  $name
-     * @param  string  $env
      * @param  string  $url
      * @param  bool    $cliApp
      * @param  bool    $createDb
@@ -51,13 +50,13 @@ class Application extends AbstractModel
      */
     public function init(
         string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null,
-        string $name = 'MyApp', string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false,
+        string $name = 'MyApp', string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
     {
         $install = self::resolveInstallType($web, $api, $cli);
 
-        $this->install($install, $location, $namespace, $name, $env, $url, $cliApp, $createDb, $frontend);
+        $this->install($install, $location, $namespace, $name, $url, $cliApp, $createDb, $frontend);
     }
 
     /**
@@ -101,7 +100,6 @@ class Application extends AbstractModel
      * @param  string  $location
      * @param  string  $namespace
      * @param  string  $name
-     * @param  string  $env
      * @param  string  $url
      * @param  bool    $cliApp
      * @param  bool    $createDb
@@ -110,7 +108,7 @@ class Application extends AbstractModel
      */
     public function install(
         string $install, string $location, string $namespace, string $name = 'MyApp',
-        string $env = 'local', string $url = '', bool $cliApp = false, bool $createDb = false,
+        string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
     {
@@ -251,17 +249,15 @@ class Application extends AbstractModel
             $name = '"' . $name . '"';
         }
 
-        $env = str_replace([
+        $contents = str_replace([
             'APP_NAME=MyApp',
-            'APP_ENV=local',
             'APP_URL=http://localhost',
         ], [
             'APP_NAME=' . $name,
-            'APP_ENV=' . $env,
             'APP_URL=' . $url,
         ], file_get_contents($location . DIRECTORY_SEPARATOR . '/.env'));
 
-        file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $env);
+        file_put_contents($location . DIRECTORY_SEPARATOR . '/.env', $contents);
     }
 
     /**
