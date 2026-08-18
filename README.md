@@ -82,6 +82,12 @@ required to run an application:
 ```
 
 The `<namespace>` parameter is the namespace of your application - it defaults to `MyApp`.
+It's normalized into a valid PHP namespace: each `\`- or `/`-separated segment is split into
+words on hyphens, underscores, and camelCase boundaries and re-cased, so `my-user-app`
+becomes `MyUserApp` and `My\Users\App` stays a three-segment namespace. If your namespace
+contains backslashes, quote it (e.g. `"My\Users\App"`) - typed unquoted at the shell, the
+backslashes are stripped by bash itself before `kettle` ever sees the value.
+
 The optional parameters of `--web`, `--api`, and `--cli` will create the related files
 and folders to run the application as a normal web application, an API-driven web
 application, a CLI-driven console application or any combination thereof. If none of
@@ -95,8 +101,8 @@ If `--web` and/or `--api` are used, the front controller will be located in
 `public/index.php` (there is no `public` folder, and therefore no `public/index.php`,
 for a `--cli`-only install). If `--cli` is used, you'll be prompted to optionally
 initialize a stand-alone CLI application as well; if you accept, its main script will
-be located at `script/myapp`, renamed to the lowercased \<namespace\> value (backslashes
-in a multi-segment namespace become hyphens, e.g. `My\App` &rarr; `script/my-app`). See
+be located at `script/myapp`, renamed to a kebab-case slug built from the same normalized
+namespace (e.g. `My\Users\App` &rarr; `script/my-users-app`). See
 [Application Console Scripts](#application-console-scripts) below for more on that
 stand-alone script versus registering one-off commands directly with `kettle`.
 

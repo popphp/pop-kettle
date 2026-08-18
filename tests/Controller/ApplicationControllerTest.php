@@ -84,6 +84,20 @@ class ApplicationControllerTest extends TestCase
         $this->assertStringContainsString('APP_URL=http://example.com', file_get_contents(getcwd() . '/.env'));
     }
 
+    public function testInitPromptDefaultsAppNameToHumanReadableFullName()
+    {
+        $console = new Console(120, '    ');
+        // Blank line for the app-name prompt accepts the shown default
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+
+        ob_start();
+        $result = $this->controller($console)->init('nick-user-app');
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('[Nick User App]', $output);
+        $this->assertStringContainsString('APP_NAME="Nick User App"', file_get_contents(getcwd() . '/.env'));
+    }
+
     public function testInitWarnsWhenComposerNotFoundForAutoload()
     {
         $console = new Console(120, '    ');

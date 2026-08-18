@@ -45,6 +45,10 @@ class ApplicationController extends AbstractController
             $namespace = 'MyApp';
         }
 
+        $parsed    = Model\Application::parseNamespace($namespace);
+        $namespace = $parsed['namespace'];
+        $fullName  = $parsed['fullName'];
+
         $web  = (isset($options['web']));
         $api  = (isset($options['api']));
         $cli  = (isset($options['cli']));
@@ -53,9 +57,9 @@ class ApplicationController extends AbstractController
             $web = true;
         }
 
-        $name = $this->console->prompt('What is the name of your app? [' . $namespace . '] ', null, true);
+        $name = $this->console->prompt('What is the name of your app? [' . $fullName . '] ', null, true);
         if ($name == '') {
-            $name = $namespace;
+            $name = $fullName;
         } else if (str_contains($name, ' ') && !str_starts_with($name, '"') && !str_ends_with($name, '"')) {
             $name = '"' . $name . '"';
         }
