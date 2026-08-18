@@ -6,10 +6,10 @@ return [
         'action'     => 'init',
         'help'       => "Initialize an application"
     ],
-    'app:env' => [
+    'app:env [-s|--set]' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'env',
-        'help'       => 'Display current application environment'
+        'help'       => 'Display (or set) current application environment'
     ],
     'app:status' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',

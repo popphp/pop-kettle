@@ -61,7 +61,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -69,7 +69,7 @@ class ApplicationControllerTest extends TestCase
 
         $this->assertStringContainsString('Done!', $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
-        $this->assertStringContainsString('APP_ENV=dev', file_get_contents(getcwd() . '/.env'));
+        $this->assertStringContainsString('APP_ENV=local', file_get_contents(getcwd() . '/.env'));
         $this->assertStringContainsString('APP_URL=http://localhost', file_get_contents(getcwd() . '/.env'));
     }
 
@@ -77,7 +77,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', 'http://example.com', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', 'http://example.com', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -90,7 +90,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', 'y', 'n'));
+        $console->setInputStream($this->createInputStream('', 'y', 'n'));
 
         ob_start();
         $this->controller($console)->init('App', ['cli' => true]);
@@ -105,7 +105,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('App', ['cli' => true]);
@@ -122,7 +122,7 @@ class ApplicationControllerTest extends TestCase
 
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream(
-            '', '1', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
+            '', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
         ));
 
         ob_start();
@@ -137,7 +137,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('My App', '1', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('My App', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('');
@@ -150,7 +150,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '1', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('');
@@ -164,7 +164,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -177,7 +177,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -191,7 +191,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '2'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '2'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -204,7 +204,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '3'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '3'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -217,7 +217,7 @@ class ApplicationControllerTest extends TestCase
     {
         $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -239,7 +239,7 @@ class ApplicationControllerTest extends TestCase
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '2', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init('App');
@@ -309,6 +309,44 @@ class ApplicationControllerTest extends TestCase
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Application in Production', $result);
+    }
+
+    public function testEnvSetChangesEnvironment()
+    {
+        $this->writeEnv(['APP_ENV' => 'local']);
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('4'));
+
+        ob_start();
+        $this->controller($console)->env(['set' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Application environment set to 'staging'", $result);
+        $this->assertStringContainsString('APP_ENV=staging', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testEnvSetReprompsOnInvalidSelection()
+    {
+        $this->writeEnv(['APP_ENV' => 'local']);
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('9', '2'));
+
+        ob_start();
+        $this->controller($console)->env(['set' => true]);
+        ob_end_clean();
+
+        $this->assertStringContainsString('APP_ENV=dev', file_get_contents(getcwd() . '/.env'));
+    }
+
+    public function testEnvSetWithNoEnvFile()
+    {
+        ob_start();
+        $this->controller()->env(['set' => true]);
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('No .env file found.', $result);
     }
 
     public function testStatus()

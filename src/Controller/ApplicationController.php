@@ -53,14 +53,6 @@ class ApplicationController extends AbstractController
             $web = true;
         }
 
-        $envs = [
-            'local'      => 1,
-            'dev'        => 2,
-            'testing'    => 3,
-            'staging'    => 4,
-            'production' => 5,
-        ];
-
         $name = $this->console->prompt('What is the name of your app? [' . $namespace . '] ', null, true);
         if ($name == '') {
             $name = $namespace;
@@ -68,14 +60,6 @@ class ApplicationController extends AbstractController
             $name = '"' . $name . '"';
         }
 
-        $this->console->write();
-        foreach ($envs as $env => $i) {
-            $this->console->write($i . ': ' . $env);
-        }
-        $this->console->write();
-
-        $e   = $this->console->prompt('Please select an app environment from above: ', $envs);
-        $env = array_search($e, $envs);
         $url = '';
 
         if (($web) || ($api)) {
@@ -138,7 +122,7 @@ class ApplicationController extends AbstractController
             }
         }
 
-        $appModel->init($location, $namespace, $web, $api, $cli, $name, $env, $url, $cliApp, $createDb, $frontend);
+        $appModel->init($location, $namespace, $web, $api, $cli, $name, $url, $cliApp, $createDb, $frontend);
 
         $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");
@@ -179,10 +163,16 @@ class ApplicationController extends AbstractController
     /**
      * Env command
      *
+     * @param  array $options
      * @return void
      */
-    public function env(): void
+    public function env(array $options = []): void
     {
+        if (isset($options['set'])) {
+            $this->setEnv();
+            return;
+        }
+
         if (App::isProduction()) {
             $this->console->alertWarning('Application in Production', 40);
         } else if (App::isStaging()) {
@@ -194,6 +184,54 @@ class ApplicationController extends AbstractController
         } else if (App::isLocal()) {
             $this->console->alertLight('Application in Local', 40);
         }
+    }
+
+    /**
+     * Set application environment
+     *
+     * @return void
+     */
+    protected function setEnv(): void
+    {
+        $location = getcwd();
+
+        if (!file_exists($location . '/.env')) {
+            $this->console->write('No .env file found.');
+            return;
+        }
+
+        $envs = [
+            'local'      => 1,
+            'dev'        => 2,
+            'testing'    => 3,
+            'staging'    => 4,
+            'production' => 5,
+        ];
+
+        $this->console->write();
+        foreach ($envs as $env => $i) {
+            $this->console->write($i . ': ' . $env);
+        }
+        $this->console->write();
+
+        $e   = $this->console->prompt('Please select an app environment from above: ', $envs);
+        $env = array_search($e, $envs);
+
+        $current = App::environment();
+
+        $contents = str_replace(
+            [
+                'APP_ENV=' . $current,
+                'APP_ENV="' . $current . '"',
+            ],
+            'APP_ENV=' . $env,
+            file_get_contents($location . '/.env')
+        );
+
+        file_put_contents($location . '/.env', $contents);
+
+        $this->console->write();
+        $this->console->write("Application environment set to '" . $env . "'.");
     }
 
     /**

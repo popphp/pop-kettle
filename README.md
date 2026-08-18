@@ -101,18 +101,19 @@ in a multi-segment namespace become hyphens, e.g. `My\App` &rarr; `script/my-app
 [Application Console Scripts](#application-console-scripts) below for more on that
 stand-alone script versus registering one-off commands directly with `kettle`.
 
-Along the way you'll also be prompted for an app name, environment, and (for `--web`/
-`--api`) URL, and asked whether you'd like to configure a database. If you accept, the
-application files and folders are copied over first, and then you'll immediately be
-walked through the database adapter/connection prompts to create the database
-configuration file. See [Managing the Database](#managing-the-database) below for the
-list of supported database adapters and what you'll be prompted for.
+Along the way you'll also be prompted for an app name and (for `--web`/`--api`) URL, and
+asked whether you'd like to configure a database. If you accept, the application files
+and folders are copied over first, and then you'll immediately be walked through the
+database adapter/connection prompts to create the database configuration file. See
+[Managing the Database](#managing-the-database) below for the list of supported database
+adapters and what you'll be prompted for. The application environment always starts out
+as `local` - use `app:env --set` (below) to change it afterward.
 
 ### Application Status
 
 You can view and manage the status of the application with the following commands outlined below.
 
-#### Check the current environment:
+#### Check (or change) the current environment:
 
 The environment is set in the `.env` file under the `APP_ENV` variable. Options available are:
 
@@ -125,6 +126,25 @@ The environment is set in the `.env` file under the `APP_ENV` variable. Options 
 ```bash
 ./kettle app:env
 ```
+
+To change it, pass `--set` and pick from the same numbered list:
+
+```bash
+./kettle app:env --set
+```
+
+```text
+1: local
+2: dev
+3: testing
+4: staging
+5: production
+
+Please select an app environment from above:
+```
+
+Only one of those five values can be entered - anything else just re-prompts - so there's no risk of
+writing an invalid `APP_ENV` value into `.env`.
 
 #### Check (or change) the current status:
 
