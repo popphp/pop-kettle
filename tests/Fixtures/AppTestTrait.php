@@ -130,15 +130,14 @@ trait AppTestTrait
     }
 
     /**
-     * Seed the sandbox with the kettle.inc.orig.php fixture that
-     * Model\Application::install() expects to already be sitting next to
-     * the `kettle` script it's copying into a project root.
+     * Seed the sandbox with a minimal composer.json, so install() has
+     * something to add the app's PSR-4 autoload entry to.
      *
      * @return void
      */
-    protected function seedKettleIncOrig(): void
+    protected function seedComposerJson(): void
     {
-        copy(__DIR__ . '/../../kettle.inc.orig.php', getcwd() . '/kettle.inc.orig.php');
+        file_put_contents(getcwd() . '/composer.json', json_encode(['name' => 'test/app'], JSON_PRETTY_PRINT) . PHP_EOL);
     }
 
     /**
@@ -154,7 +153,6 @@ trait AppTestTrait
      */
     protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'App', bool $cliApp = false): void
     {
-        $this->seedKettleIncOrig();
         (new Kettle\Model\Application())->install($install, getcwd(), $namespace, cliApp: $cliApp);
     }
 

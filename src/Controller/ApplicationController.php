@@ -128,6 +128,20 @@ class ApplicationController extends AbstractController
         $this->console->write("Installing files for '" . $namespace ."'...");
         $this->console->write();
 
+        $composerModel = new Model\Composer();
+        if ($composerModel->isAvailable()) {
+            $this->console->write("Registering application autoloader for '" . $namespace . "'...");
+            $this->console->write();
+            $composerModel->dumpAutoload($location);
+            $this->console->write();
+        } else {
+            $this->console->alertWarning(
+                'Composer not found -- run `composer dump-autoload` yourself before using the app.',
+                60
+            );
+            $this->console->write();
+        }
+
         if ($createDb) {
             $this->console->write("Configuring database for '" . $namespace ."'...");
             $this->console->write();

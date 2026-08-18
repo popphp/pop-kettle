@@ -59,7 +59,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitDefaultsToWebInstall()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
@@ -75,7 +74,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitDefaultsToWebInstallPromptsForUrl()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', 'http://example.com', 'n', 'n'));
 
@@ -86,9 +84,43 @@ class ApplicationControllerTest extends TestCase
         $this->assertStringContainsString('APP_URL=http://example.com', file_get_contents(getcwd() . '/.env'));
     }
 
+    public function testInitWarnsWhenComposerNotFoundForAutoload()
+    {
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('Composer not found', $result);
+    }
+
+    public function testInitRegistersComposerAutoloadWhenComposerAvailable()
+    {
+        $this->seedComposerJson();
+
+        $fakeBinDir = getcwd() . '/fake-bin';
+        mkdir($fakeBinDir);
+        copy(__DIR__ . '/../tmp/fake-composer', $fakeBinDir . '/composer');
+        chmod($fakeBinDir . '/composer', 0755);
+        putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
+
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+
+        ob_start();
+        $this->controller($console)->init('App');
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString("Registering application autoloader for 'App'", $result);
+
+        $composer = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
+        $this->assertSame('app/src/', $composer['autoload']['psr-4']['App\\']);
+    }
+
     public function testInitWithCliFlag()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', 'y', 'n'));
 
@@ -103,7 +135,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitWithCliFlagWithoutStandaloneAppRemovesConsoleController()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', 'n', 'n'));
 
@@ -117,7 +148,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitWithDatabaseConfiguration()
     {
-        $this->seedKettleIncOrig();
         $sqliteIndex = $this->sqliteAdapterIndex();
 
         $console = new Console(120, '    ');
@@ -135,7 +165,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitQuotesNameContainingSpaces()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('My App', '', 'n', 'n'));
 
@@ -148,7 +177,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitDefaultsNamespaceWhenEmpty()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
@@ -162,7 +190,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitSkipsFrontendInstallWhenAnsweredNo()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
 
@@ -175,7 +202,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitInstallsAlpineFrontend()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
 
@@ -189,7 +215,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitInstallsVueFrontend()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'y', '2'));
 
@@ -202,7 +227,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitInstallsReactFrontend()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'y', '3'));
 
@@ -215,7 +239,6 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitWarnsWhenNpmNotFoundForFrontend()
     {
-        $this->seedKettleIncOrig();
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
 
@@ -229,12 +252,12 @@ class ApplicationControllerTest extends TestCase
 
     public function testInitInstallsFrontendDependenciesWhenNpmAvailable()
     {
-        $this->seedKettleIncOrig();
-
         $fakeBinDir = getcwd() . '/fake-bin';
         mkdir($fakeBinDir);
         copy(__DIR__ . '/../tmp/fake-npm', $fakeBinDir . '/npm');
         chmod($fakeBinDir . '/npm', 0755);
+        copy(__DIR__ . '/../tmp/fake-composer', $fakeBinDir . '/composer');
+        chmod($fakeBinDir . '/composer', 0755);
         putenv('FAKE_NPM_LOG=' . getcwd() . '/npm.log');
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 

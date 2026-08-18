@@ -112,11 +112,6 @@ class Application extends AbstractModel
         ?string $frontend = null
     ): void
     {
-        if (!file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php') &&
-            file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php')) {
-            copy($location . DIRECTORY_SEPARATOR . 'kettle.inc.orig.php', $location . DIRECTORY_SEPARATOR . 'kettle.inc.php');
-        }
-
         $script = strtolower(str_replace('\\', '-', $namespace));
         $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
         $dir    = new Dir($path);
@@ -229,11 +224,18 @@ class Application extends AbstractModel
             }
         }
 
-        // Populate kettle.inc.php file autoloader for application
-        if (file_exists($location . DIRECTORY_SEPARATOR . 'kettle.inc.php')) {
-            $autoloader = "\$autoloader->addPsr4('{$namespace}\\\\', __DIR__ . '/app/src');" . PHP_EOL;
-            if (!str_contains(file_get_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php'), $autoloader)) {
-                file_put_contents($location . DIRECTORY_SEPARATOR . 'kettle.inc.php', $autoloader, FILE_APPEND);
+        // Register the app namespace in composer.json's PSR-4 autoload map
+        $composerFile = $location . DIRECTORY_SEPARATOR . 'composer.json';
+        if (file_exists($composerFile)) {
+            $composer = json_decode(file_get_contents($composerFile), true);
+            $psr4Key  = $namespace . '\\';
+
+            if (!isset($composer['autoload']['psr-4'][$psr4Key])) {
+                $composer['autoload']['psr-4'][$psr4Key] = 'app/src/';
+                file_put_contents(
+                    $composerFile,
+                    json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL
+                );
             }
         }
 

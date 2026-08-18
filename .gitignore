@@ -4,7 +4,6 @@ composer.lock
 /database
 /public
 /script
-kettle.inc.php
 vendor
 kettle
 .phpunit.result.cache

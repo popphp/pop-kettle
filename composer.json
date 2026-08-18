@@ -34,7 +34,7 @@
         "phpstan/phpstan": "^2.2",
         "ext-sqlite3": "*"
     },
-    "autoload" : {
+    "autoload": {
         "psr-4": {
             "Pop\\Kettle\\": "src/"
         }

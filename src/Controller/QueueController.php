@@ -47,7 +47,7 @@ class QueueController extends AbstractController
         }
 
         // Null means either nothing is scaffolded, or the app class isn't autoloadable
-        // (e.g. a missing or incomplete kettle.inc.php) - either way, say so
+        // (e.g. a stale composer autoloader - run `composer dump-autoload`) - either way, say so
         if ($app === null) {
             $this->console->write($this->console->colorize(
                 "No application was detected. Run 'app:init' first.", Color::BOLD_RED
