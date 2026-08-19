@@ -209,7 +209,15 @@ class Application extends \Pop\Application
      */
     public static function install(): void
     {
-        (new ApplicationController(new self(include __DIR__ . '/../config/app.console.php'), new Console(120)))->init();
+        $console = new Console(120);
+        $console->write();
+        $appInit = $console->prompt(
+            'Do you want to initialize your application now? [Y/N] ', ['y', 'n']
+        );
+        $console->write();
+        if (strtolower($appInit) == 'y') {
+            (new ApplicationController(new self(include __DIR__ . '/../config/app.console.php'), $console))->init();
+        }
     }
 
 }
