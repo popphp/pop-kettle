@@ -73,12 +73,16 @@ class ApplicationController extends AbstractController
 
         $appTypeSelection = $this->console->promptMulti('Select one or more, comma-separated: [1] ', [1, 2, 3]);
 
+        $web = false;
+        $api = false;
+        $cli = false;
+
         if (empty($appTypeSelection)) {
             $web = true;
         } else {
-            $web  = (in_array(1, $appTypeSelection));
-            $api  = (in_array(2, $appTypeSelection));
-            $cli  = (in_array(3, $appTypeSelection));
+            $web = (in_array(1, $appTypeSelection));
+            $api = (in_array(2, $appTypeSelection));
+            $cli = (in_array(3, $appTypeSelection));
         }
 
         $url = '';

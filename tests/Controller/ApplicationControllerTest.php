@@ -60,10 +60,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitDefaultsToWebInstall()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Done!', $result);
@@ -75,10 +75,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitDefaultsToWebInstallPromptsForUrl()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', 'http://example.com', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', 'http://example.com', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertStringContainsString('APP_URL=http://example.com', file_get_contents(getcwd() . '/.env'));
@@ -88,10 +88,10 @@ class ApplicationControllerTest extends TestCase
     {
         $console = new Console(120, '    ');
         // Blank line for the app-name prompt accepts the shown default
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('nick-user-app', '', '', '', 'n', 'n'));
 
         ob_start();
-        $result = $this->controller($console)->init('nick-user-app');
+        $result = $this->controller($console)->init();
         $output = ob_get_clean();
 
         $this->assertStringContainsString('[Nick User App]', $output);
@@ -101,10 +101,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitWarnsWhenComposerNotFoundForAutoload()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Composer not found', $result);
@@ -121,10 +121,10 @@ class ApplicationControllerTest extends TestCase
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         $result = ob_get_clean();
 
         $this->assertStringContainsString("Registering application autoloader for 'App'", $result);
@@ -136,10 +136,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitWithCliFlag()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', 'y', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '3', 'y', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App', ['cli' => true]);
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
@@ -150,10 +150,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitWithCliFlagWithoutStandaloneAppRemovesConsoleController()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '3', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App', ['cli' => true]);
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Controller');
@@ -166,11 +166,11 @@ class ApplicationControllerTest extends TestCase
 
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream(
-            '', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
+            'App', '', '', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
         ));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/database/testdb.sqlite');
@@ -180,10 +180,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitQuotesNameContainingSpaces()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('My App', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', 'My App', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertStringContainsString('APP_NAME="My App"', file_get_contents(getcwd() . '/.env'));
@@ -192,23 +192,23 @@ class ApplicationControllerTest extends TestCase
     public function testInitDefaultsNamespaceWhenEmpty()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('');
+        $this->controller($console)->init();
         ob_end_clean();
 
-        // Falls back to the 'App' namespace, which install() uses to derive class references
+        // Falls back to the 'MyApp' namespace, which install() uses to derive class references
         $this->assertStringContainsString('App', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
     }
 
     public function testInitSkipsFrontendInstallWhenAnsweredNo()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertFileDoesNotExist(getcwd() . '/package.json');
@@ -217,10 +217,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsAlpineFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertFileExists(getcwd() . '/package.json');
@@ -230,10 +230,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsVueFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '2'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '2'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertStringContainsString('"vue"', file_get_contents(getcwd() . '/package.json'));
@@ -242,10 +242,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsReactFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '3'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '3'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         ob_end_clean();
 
         $this->assertStringContainsString('"react"', file_get_contents(getcwd() . '/package.json'));
@@ -254,10 +254,10 @@ class ApplicationControllerTest extends TestCase
     public function testInitWarnsWhenNpmNotFoundForFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Node/npm not found', $result);
@@ -276,10 +276,10 @@ class ApplicationControllerTest extends TestCase
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
 
         ob_start();
-        $this->controller($console)->init('App');
+        $this->controller($console)->init();
         $result = ob_get_clean();
 
         $this->assertStringContainsString('Installing front-end dependencies', $result);
