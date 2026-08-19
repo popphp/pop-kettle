@@ -209,7 +209,7 @@ class Application extends \Pop\Application
      */
     public static function install(): void
     {
-        (new ApplicationController(new static(include __DIR__ . '/../config/app.console.php'), new Console(120)))->init();
+        (new ApplicationController(new self(include __DIR__ . '/../config/app.console.php'), new Console(120)))->init();
     }
 
 }
