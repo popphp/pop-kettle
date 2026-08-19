@@ -36,8 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Pop\\Kettle\\": "src/",
-            "MyApp\\": "app/src/"
+            "Pop\\Kettle\\": "src/"
         }
     },
     "autoload-dev": {
