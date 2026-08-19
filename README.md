@@ -844,4 +844,3 @@ command calls with the `php` command, for example:
 ```bash
 C:\popphp\pop-kettle>php kettle help
 ``` 
-
