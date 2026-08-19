@@ -35,12 +35,11 @@ class ApplicationController extends AbstractController
     /**
      * Init command
      *
-     * @param  ?string $namespace
-     * @param  array  $options
      * @return void
      */
-    public function init(?string $namespace = null, array $options = []): void
+    public function init(): void
     {
+        $namespace = $this->console->prompt('What is the namespace of your app? [MyApp] ', null, true);
         if (empty($namespace)) {
             $namespace = 'MyApp';
         }
@@ -49,19 +48,37 @@ class ApplicationController extends AbstractController
         $namespace = $parsed['namespace'];
         $fullName  = $parsed['fullName'];
 
-        $web  = (isset($options['web']));
-        $api  = (isset($options['api']));
-        $cli  = (isset($options['cli']));
-
-        if ((!$web) && (!$api) && (!$cli)) {
-            $web = true;
-        }
-
+        $this->console->write();
         $name = $this->console->prompt('What is the name of your app? [' . $fullName . '] ', null, true);
         if ($name == '') {
             $name = $fullName;
         } else if (str_contains($name, ' ') && !str_starts_with($name, '"') && !str_ends_with($name, '"')) {
             $name = '"' . $name . '"';
+        }
+
+        $this->console->write();
+        $this->console->write('Which application type(s)?');
+        $this->console->write();
+
+        $appTypes = [
+            'Web' => 1,
+            'API' => 2,
+            'CLI' => 3,
+        ];
+
+        foreach ($appTypes as $label => $i) {
+            $this->console->write($i . ': ' . $label);
+        }
+        $this->console->write();
+
+        $appTypeSelection = $this->console->promptMulti('Select one or more, comma-separated: [1] ', [1, 2, 3]);
+
+        if (empty($appTypeSelection)) {
+            $web = true;
+        } else {
+            $web  = (in_array(1, $appTypeSelection));
+            $api  = (in_array(2, $appTypeSelection));
+            $cli  = (in_array(3, $appTypeSelection));
         }
 
         $url = '';
