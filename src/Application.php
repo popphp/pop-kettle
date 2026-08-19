@@ -16,6 +16,7 @@ namespace Pop\Kettle;
 
 use Pop\Console\Console;
 use Pop\Db;
+use Pop\Kettle\Controller\ApplicationController;
 
 /**
  * Main module class
@@ -199,6 +200,16 @@ class Application extends \Pop\Application
                 }
             }
         }
+    }
+
+    /**
+     * Install application (post-install-cmd for main framework installation)
+     *
+     * @return void
+     */
+    public static function install(): void
+    {
+        (new ApplicationController(new static(include __DIR__ . '/../config/app.console.php'), new Console(120)))->init();
     }
 
 }
