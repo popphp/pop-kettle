@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'app:init [--web] [--api] [--cli] [<namespace>]' => [
+    'app:init' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init',
         'help'       => "Initialize an application"
