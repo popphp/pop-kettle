@@ -203,20 +203,22 @@ class Application extends \Pop\Application
     }
 
     /**
-     * Install application (post-install-cmd for main framework installation)
+     * Application install check (post-install-cmd for main framework installation)
      *
      * @return void
      */
-    public static function install(): void
+    public static function check(): void
     {
-        $console = new Console(120);
-        $console->write();
-        $appInit = $console->prompt(
-            'Do you want to initialize your application now? [Y/N] ', ['y', 'n']
-        );
-        $console->write();
-        if (strtolower($appInit) == 'y') {
-            (new ApplicationController(new self(include __DIR__ . '/../config/app.console.php'), $console))->init();
+        if (!file_exists(getcwd() . '/.env')) {
+            $console = new Console(120);
+            $console->write();
+            $appInit = $console->prompt(
+                'Do you want to initialize your application now? [Y/N] ', ['y', 'n']
+            );
+            $console->write();
+            if (strtolower($appInit) == 'y') {
+                (new ApplicationController(new self(include __DIR__ . '/../config/app.console.php'), $console))->init();
+            }
         }
     }
 
