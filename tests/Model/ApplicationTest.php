@@ -296,6 +296,129 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
     }
 
+    public function testScaffoldedIndexControllerIsInstantiableForWeb()
+    {
+        // Regression guard: the merged Http\Controller\AbstractController gained
+        // error()/maintenance() with (int $code, ?string $message) signatures,
+        // but web/web-cli's IndexController still overrode them with the old
+        // zero-parameter signatures. PHP treats a narrower override signature
+        // as a compile-time fatal (not a runtime one), so merely loading and
+        // instantiating the class - not calling error()/maintenance() - is
+        // enough to reproduce it.
+        $this->scaffoldApp('web', 'ScaffoldIdxWeb');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxWeb\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxWeb\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedIndexControllerIsInstantiableForWebCli()
+    {
+        $this->scaffoldApp('web-cli', 'ScaffoldIdxWebCli');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxWebCli\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxWebCli\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedIndexControllerIsInstantiableForApi()
+    {
+        $this->scaffoldApp('api', 'ScaffoldIdxApi');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxApi\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxApi\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedIndexControllerIsInstantiableForApiCli()
+    {
+        $this->scaffoldApp('api-cli', 'ScaffoldIdxApiCli');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxApiCli\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxApiCli\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedIndexControllerIsInstantiableForWebApi()
+    {
+        $this->scaffoldApp('web-api', 'ScaffoldIdxWebApi');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxWebApi\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxWebApi\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedIndexControllerIsInstantiableForWebApiCli()
+    {
+        $this->scaffoldApp('web-api-cli', 'ScaffoldIdxWebApiCli');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxWebApiCli\\', getcwd() . '/app/src');
+
+        $controller = new \ScaffoldIdxWebApiCli\Http\Controller\IndexController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
+    }
+
+    public function testScaffoldedWebApiIndexControllerNegotiatesHtmlAccept()
+    {
+        // Regression guard: web-api/web-api-cli's IndexController::index() used
+        // to call $this->request->getHeader('Accept')->getValue(), but the
+        // current pop-http Request::getHeader() returns a plain array of
+        // string values, not an object with getValue() - so this fataled with
+        // "Call to a member function getValue() on array" on every request.
+        // Only index() is exercised here (not error()'s non-HTML branch),
+        // since AbstractController::error() ends by calling
+        // Response::sendAndExit(), which calls PHP's exit() and would kill
+        // the PHPUnit process.
+        $this->scaffoldApp('web-api', 'ScaffoldIdxNegotiate');
+
+        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
+        $autoloader->addPsr4('ScaffoldIdxNegotiate\\', getcwd() . '/app/src');
+
+        $htmlRequest = new \Pop\Http\Server\Request(new \Pop\Http\Uri(), populateFromGlobals: false);
+        $htmlRequest->addHeader('Accept', 'text/html');
+
+        $htmlController = new \ScaffoldIdxNegotiate\Http\Controller\IndexController(
+            null, $htmlRequest, new \Pop\Http\Server\Response()
+        );
+
+        ob_start();
+        $htmlController->index();
+        $htmlOutput = ob_get_clean();
+
+        $this->assertStringContainsString('Welcome', $htmlOutput);
+
+        $jsonRequest = new \Pop\Http\Server\Request(new \Pop\Http\Uri(), populateFromGlobals: false);
+        $jsonRequest->addHeader('Accept', 'application/json');
+
+        // Mirrors the 'http_options_headers' config web-api's app.http.php
+        // defines (including the Content-Type: application/json header
+        // sendJson() relies on to decide whether to json_encode the body).
+        $jsonApplication = new \Pop\Application($autoloader, [
+            'http_options_headers' => ['Content-Type' => 'application/json']
+        ]);
+
+        $jsonController = new \ScaffoldIdxNegotiate\Http\Controller\IndexController(
+            $jsonApplication, $jsonRequest, new \Pop\Http\Server\Response()
+        );
+
+        ob_start();
+        $jsonController->index();
+        $jsonOutput = ob_get_clean();
+
+        $this->assertStringContainsString('Index page', $jsonOutput);
+    }
+
     public function testScaffoldedApiOptionsEventClassIsLoadable()
     {
         // Regression guard for the popphp Router 'controller' -> 'dispatchable'
