@@ -21,65 +21,42 @@ class ApplicationTest extends TestCase
         $this->leaveSandbox();
     }
 
-    public function testInitApiOnly()
+    public function testInitFull()
     {
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, true, null);
-
-        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Event');
-    }
-
-    public function testInitWebApi()
-    {
-        $application = new Model\Application();
-        $application->init(getcwd(), 'App', true, true, null);
+        $application->init(getcwd(), 'App', false);
 
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/IndexController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Event');
         $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Web');
         $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Api');
-    }
-
-    public function testInitApiCli()
-    {
-        $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, true, true, cliApp: true);
-
-        $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
-    }
-
-    public function testInitWebCli()
-    {
-        $application = new Model\Application();
-        $application->init(getcwd(), 'App', true, null, true, cliApp: true);
-
-        $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
     }
 
     public function testInitCliOnly()
     {
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, null, true, cliApp: true);
+        $application->init(getcwd(), 'App', true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http');
+        $this->assertFileDoesNotExist(getcwd() . '/public');
     }
 
     public function testInitCliOnlyWithoutStandaloneAppRemovesConsoleController()
     {
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', null, null, true);
+        $application->init(getcwd(), 'App', true);
 
         $this->assertFileDoesNotExist(getcwd() . '/app/src/Console/Controller');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
     }
 
-    public function testInitWebApiCli()
+    public function testInitFullWithCliApp()
     {
         $application = new Model\Application();
-        $application->init(getcwd(), 'App', true, true, true, cliApp: true);
+        $application->init(getcwd(), 'App', false, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
@@ -88,17 +65,20 @@ class ApplicationTest extends TestCase
         $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Api');
     }
 
-    public function testInitDefaultsToWeb()
+    public function testInitDefaultsToFull()
     {
         $application = new Model\Application();
         $application->init(getcwd(), 'App');
 
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/IndexController.php');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Web');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Api');
     }
 
     public function testCreateCommand()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
         $application->createCommand('send-email', getcwd());
 
@@ -110,7 +90,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateCommandWithNamespacedSignature()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
         $application->createCommand('email:send', getcwd());
 
@@ -122,7 +102,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateCommandForStandaloneApp()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
         $application->createCommand('send-email', getcwd(), true);
 
@@ -142,7 +122,7 @@ class ApplicationTest extends TestCase
         // removed, so a scaffolded command must still be constructable
         // with no arguments (as CommandRegistry::loadRoutes() does) and
         // dispatchable via handle().
-        $this->scaffoldApp('cli', 'ScaffoldCmdKettle');
+        $this->scaffoldApp(true, 'ScaffoldCmdKettle');
         $application = new Model\Application();
         $application->createCommand('greet', getcwd());
 
@@ -158,7 +138,7 @@ class ApplicationTest extends TestCase
 
     public function testScaffoldedStandaloneCommandIsInstantiable()
     {
-        $this->scaffoldApp('cli', 'ScaffoldCmdApp');
+        $this->scaffoldApp(true, 'ScaffoldCmdApp');
         $application = new Model\Application();
         $application->createCommand('greet', getcwd(), true);
 
@@ -174,7 +154,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateCommandIsNoopWhenFileAlreadyExists()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
         $application->createCommand('send-email', getcwd());
 
@@ -188,7 +168,13 @@ class ApplicationTest extends TestCase
 
     public function testCreateCommandMissingFolderThrows()
     {
-        $this->scaffoldApp('web');
+        // Every install now ships Console/Command/Kettle by default (there's
+        // no more flavor that omits it), so the only way to reproduce a
+        // missing command folder is to construct a namespace-only app by
+        // hand, the same way testCreateViewCreatesMissingBaseFolder does.
+        mkdir(getcwd() . '/app/src', 0777, true);
+        file_put_contents(getcwd() . '/app/src/Application.php', "<?php\n\nnamespace App;\n");
+
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
@@ -197,7 +183,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerCli()
     {
-        $this->scaffoldApp('cli', 'App', true);
+        $this->scaffoldApp(true, 'App', true);
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), true);
 
@@ -207,7 +193,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerDefault()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd());
 
@@ -217,7 +203,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerNestedPath()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $result      = $application->createController('Admin/Users', getcwd());
 
@@ -227,7 +213,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateControllerCliNestedPath()
     {
-        $this->scaffoldApp('cli', 'App', true);
+        $this->scaffoldApp(true, 'App', true);
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), true);
 
@@ -235,23 +221,14 @@ class ApplicationTest extends TestCase
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/Admin/Tools.php');
     }
 
-    public function testCreateControllerCliMissingFolderThrows()
-    {
-        $this->scaffoldApp('web');
-        $application = new Model\Application();
-
-        $this->expectException('Pop\Kettle\Exception');
-        $application->createController('MyController', getcwd(), true);
-    }
-
     public function testCreateControllerCliDeniedWithoutStandaloneApp()
     {
-        // Scaffolded as 'cli' but without opting into a stand-alone ./script
-        // app - Console/Controller is removed in that case (you're expected
-        // to piggyback commands through Kettle instead), so create:ctrl --cli
+        // Scaffolded without opting into a stand-alone ./script app -
+        // Console/Controller is removed in that case (you're expected to
+        // piggyback commands through Kettle instead), so create:ctrl --cli
         // should refuse with a specific message rather than the generic
         // "folder not created" error.
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
@@ -268,7 +245,7 @@ class ApplicationTest extends TestCase
         // error once a generated app's controller was actually loaded -
         // none of the other tests here go further than asserting the file
         // exists, so this instantiates each flavor for real.
-        $this->scaffoldApp('web-api-cli', 'ScaffoldCtrl', true);
+        $this->scaffoldApp(false, 'ScaffoldCtrl', true);
         $application = new Model\Application();
         $application->createController('MyController', getcwd());
         $application->createController('MyController', getcwd(), true);
@@ -283,104 +260,35 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $consoleController);
     }
 
-    public function testScaffoldedDefaultHttpControllerIsInstantiable()
-    {
-        $this->scaffoldApp('web', 'ScaffoldDefaultCtrl');
-        $application = new Model\Application();
-        $application->createController('MyController', getcwd());
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldDefaultCtrl\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldDefaultCtrl\Http\Controller\MyController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedIndexControllerIsInstantiableForWeb()
+    public function testScaffoldedIndexControllerIsInstantiable()
     {
         // Regression guard: the merged Http\Controller\AbstractController gained
         // error()/maintenance() with (int $code, ?string $message) signatures,
-        // but web/web-cli's IndexController still overrode them with the old
-        // zero-parameter signatures. PHP treats a narrower override signature
-        // as a compile-time fatal (not a runtime one), so merely loading and
-        // instantiating the class - not calling error()/maintenance() - is
-        // enough to reproduce it.
-        $this->scaffoldApp('web', 'ScaffoldIdxWeb');
+        // and IndexController must stay compatible with them. PHP treats a
+        // narrower override signature as a compile-time fatal (not a runtime
+        // one), so merely loading and instantiating the class - not calling
+        // error()/maintenance() - is enough to reproduce that class of bug.
+        $this->scaffoldApp(false, 'ScaffoldIdx');
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxWeb\\', getcwd() . '/app/src');
+        $autoloader->addPsr4('ScaffoldIdx\\', getcwd() . '/app/src');
 
-        $controller = new \ScaffoldIdxWeb\Http\Controller\IndexController();
+        $controller = new \ScaffoldIdx\Http\Controller\IndexController();
         $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
     }
 
-    public function testScaffoldedIndexControllerIsInstantiableForWebCli()
+    public function testScaffoldedIndexControllerNegotiatesHtmlAccept()
     {
-        $this->scaffoldApp('web-cli', 'ScaffoldIdxWebCli');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxWebCli\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldIdxWebCli\Http\Controller\IndexController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedIndexControllerIsInstantiableForApi()
-    {
-        $this->scaffoldApp('api', 'ScaffoldIdxApi');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxApi\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldIdxApi\Http\Controller\IndexController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedIndexControllerIsInstantiableForApiCli()
-    {
-        $this->scaffoldApp('api-cli', 'ScaffoldIdxApiCli');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxApiCli\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldIdxApiCli\Http\Controller\IndexController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedIndexControllerIsInstantiableForWebApi()
-    {
-        $this->scaffoldApp('web-api', 'ScaffoldIdxWebApi');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxWebApi\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldIdxWebApi\Http\Controller\IndexController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedIndexControllerIsInstantiableForWebApiCli()
-    {
-        $this->scaffoldApp('web-api-cli', 'ScaffoldIdxWebApiCli');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldIdxWebApiCli\\', getcwd() . '/app/src');
-
-        $controller = new \ScaffoldIdxWebApiCli\Http\Controller\IndexController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $controller);
-    }
-
-    public function testScaffoldedWebApiIndexControllerNegotiatesHtmlAccept()
-    {
-        // Regression guard: web-api/web-api-cli's IndexController::index() used
-        // to call $this->request->getHeader('Accept')->getValue(), but the
-        // current pop-http Request::getHeader() returns a plain array of
-        // string values, not an object with getValue() - so this fataled with
+        // Regression guard: IndexController::index() used to call
+        // $this->request->getHeader('Accept')->getValue(), but the current
+        // pop-http Request::getHeader() returns a plain array of string
+        // values, not an object with getValue() - so this fataled with
         // "Call to a member function getValue() on array" on every request.
         // Only index() is exercised here (not error()'s non-HTML branch),
         // since AbstractController::error() ends by calling
         // Response::sendAndExit(), which calls PHP's exit() and would kill
         // the PHPUnit process.
-        $this->scaffoldApp('web-api', 'ScaffoldIdxNegotiate');
+        $this->scaffoldApp(false, 'ScaffoldIdxNegotiate');
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
         $autoloader->addPsr4('ScaffoldIdxNegotiate\\', getcwd() . '/app/src');
@@ -401,9 +309,9 @@ class ApplicationTest extends TestCase
         $jsonRequest = new \Pop\Http\Server\Request(new \Pop\Http\Uri(), populateFromGlobals: false);
         $jsonRequest->addHeader('Accept', 'application/json');
 
-        // Mirrors the 'http_options_headers' config web-api's app.http.php
-        // defines (including the Content-Type: application/json header
-        // sendJson() relies on to decide whether to json_encode the body).
+        // Mirrors the 'http_options_headers' config app.http.php defines
+        // (including the Content-Type: application/json header sendJson()
+        // relies on to decide whether to json_encode the body).
         $jsonApplication = new \Pop\Application($autoloader, [
             'http_options_headers' => ['Content-Type' => 'application/json']
         ]);
@@ -419,40 +327,27 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('Index page', $jsonOutput);
     }
 
-    public function testScaffoldedApiOptionsEventClassIsLoadable()
+    public function testScaffoldedOptionsEventClassIsLoadable()
     {
         // Regression guard for the popphp Router 'controller' -> 'dispatchable'
         // rename: the scaffolded Options event class used to call the
         // now-removed Router::hasController()/getController() methods, which
         // only ever surfaced as a fatal "Call to undefined method" error once
         // the event actually fired - no other test loads this class at all.
-        $this->scaffoldApp('api', 'ScaffoldOptsApi');
+        $this->scaffoldApp(false, 'ScaffoldOptsEvent');
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldOptsApi\\', getcwd() . '/app/src');
+        $autoloader->addPsr4('ScaffoldOptsEvent\\', getcwd() . '/app/src');
 
         $application = new \Pop\Application($autoloader, ['routes' => []]);
-        \ScaffoldOptsApi\Http\Event\Options::send($application);
-
-        $this->assertFalse($application->router()->hasDispatchable());
-    }
-
-    public function testScaffoldedWebApiOptionsEventClassIsLoadable()
-    {
-        $this->scaffoldApp('web-api', 'ScaffoldOptsWebApi');
-
-        $autoloader = include __DIR__ . '/../../vendor/autoload.php';
-        $autoloader->addPsr4('ScaffoldOptsWebApi\\', getcwd() . '/app/src');
-
-        $application = new \Pop\Application($autoloader, ['routes' => []]);
-        \ScaffoldOptsWebApi\Http\Event\Options::send($application);
+        \ScaffoldOptsEvent\Http\Event\Options::send($application);
 
         $this->assertFalse($application->router()->hasDispatchable());
     }
 
     public function testCreateControllerDefaultMissingFolderThrows()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
@@ -461,7 +356,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateModel()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $result      = $application->createModel('User', getcwd());
 
@@ -471,7 +366,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateModelWithDataPluralizesTable()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $application->createModel('User', getcwd(), true);
 
@@ -481,7 +376,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateModelWithDataDoesNotPluralizeWhenAlreadyEndingInS()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $application->createModel('Status', getcwd(), true);
 
@@ -490,7 +385,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateModelNestedPath()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $result      = $application->createModel('Admin/Setting', getcwd());
 
@@ -503,7 +398,7 @@ class ApplicationTest extends TestCase
         // Note: the generated Table class name is derived from the model's basename
         // (after the nested path is already stripped off), so it lands flat in
         // app/src/Table/ rather than mirroring the model's Admin/ subfolder.
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $application->createModel('Admin/Setting', getcwd(), true);
 
@@ -514,7 +409,7 @@ class ApplicationTest extends TestCase
     public function testInstallQuotesNameContainingSpaces()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App', 'My App Name');
+        $application->install(false, getcwd(), 'App', 'My App Name');
 
         $this->assertStringContainsString('APP_NAME="My App Name"', file_get_contents(getcwd() . '/.env'));
     }
@@ -524,7 +419,7 @@ class ApplicationTest extends TestCase
         $this->seedComposerJson();
 
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App');
+        $application->install(false, getcwd(), 'App');
 
         $composer = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
         $this->assertSame('app/src/', $composer['autoload']['psr-4']['App\\']);
@@ -538,7 +433,7 @@ class ApplicationTest extends TestCase
         ], JSON_PRETTY_PRINT) . PHP_EOL);
 
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App');
+        $application->install(false, getcwd(), 'App');
 
         $composer = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
         $this->assertCount(1, $composer['autoload']['psr-4']);
@@ -548,7 +443,7 @@ class ApplicationTest extends TestCase
     public function testInstallSkipsAutoloadRegistrationWithoutComposerJson()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App');
+        $application->install(false, getcwd(), 'App');
 
         $this->assertFileDoesNotExist(getcwd() . '/composer.json');
     }
@@ -566,7 +461,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateView()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $result      = $application->createView('test.phtml', getcwd());
 
@@ -576,7 +471,7 @@ class ApplicationTest extends TestCase
 
     public function testCreateViewNestedPath()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
         $application = new Model\Application();
         $application->createView('admin/dashboard.phtml', getcwd());
 
@@ -619,12 +514,17 @@ class ApplicationTest extends TestCase
 
     public function testResolveAppInstanceWithoutConsoleConfigDoesNotWarn()
     {
-        $this->scaffoldApp('web', 'KettleWebOnlyApp');
+        // Every install now ships app.console.php and Console/Command by
+        // default (there's no more flavor that omits them), so a scaffold
+        // lacking console config has to be constructed by stripping them out
+        // afterward - simulating an app whose CLI scaffolding was removed.
+        $this->scaffoldApp(false, 'KettleWebOnlyApp');
+        unlink(getcwd() . '/app/config/app.console.php');
+        (new \Pop\Dir\Dir(getcwd() . '/app/src/Console/Command'))->emptyDir(true);
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
         $autoloader->addPsr4('KettleWebOnlyApp\\', getcwd() . '/app/src');
 
-        // A web-only scaffold has no app/config/app.console.php to include
         $this->assertFileDoesNotExist(getcwd() . '/app/config/app.console.php');
 
         $warnings = [];
@@ -655,7 +555,7 @@ class ApplicationTest extends TestCase
 
     public function testResolveAppInstanceReturnsConfiguredAppInstance()
     {
-        $this->scaffoldApp('cli', 'KettleResolveApp');
+        $this->scaffoldApp(true, 'KettleResolveApp');
         (new Model\Application())->createCommand('greet', getcwd(), app: true);
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
@@ -668,45 +568,10 @@ class ApplicationTest extends TestCase
         $this->assertArrayHasKey('greet', $result->config()['routes']);
     }
 
-    public function testResolveInstallTypeApiOnly()
-    {
-        $this->assertSame('api', Model\Application::resolveInstallType(null, true, null));
-    }
-
-    public function testResolveInstallTypeWebApi()
-    {
-        $this->assertSame('web-api', Model\Application::resolveInstallType(true, true, null));
-    }
-
-    public function testResolveInstallTypeApiCli()
-    {
-        $this->assertSame('api-cli', Model\Application::resolveInstallType(null, true, true));
-    }
-
-    public function testResolveInstallTypeWebCli()
-    {
-        $this->assertSame('web-cli', Model\Application::resolveInstallType(true, null, true));
-    }
-
-    public function testResolveInstallTypeCliOnly()
-    {
-        $this->assertSame('cli', Model\Application::resolveInstallType(null, null, true));
-    }
-
-    public function testResolveInstallTypeAll()
-    {
-        $this->assertSame('web-api-cli', Model\Application::resolveInstallType(true, true, true));
-    }
-
-    public function testResolveInstallTypeDefaultsToWeb()
-    {
-        $this->assertSame('web', Model\Application::resolveInstallType(null, null, null));
-    }
-
     public function testInstallScaffoldsAlpineFrontend()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App', frontend: 'alpine');
+        $application->install(false, getcwd(), 'App', frontend: 'alpine');
 
         $this->assertFileExists(getcwd() . '/package.json');
         $this->assertStringContainsString('alpinejs', file_get_contents(getcwd() . '/package.json'));
@@ -720,7 +585,7 @@ class ApplicationTest extends TestCase
     public function testInstallScaffoldsVueFrontend()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App', frontend: 'vue');
+        $application->install(false, getcwd(), 'App', frontend: 'vue');
 
         $this->assertStringContainsString('"vue"', file_get_contents(getcwd() . '/package.json'));
         $this->assertFileExists(getcwd() . '/app/assets/js/components/App.vue');
@@ -730,7 +595,7 @@ class ApplicationTest extends TestCase
     public function testInstallScaffoldsReactFrontend()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App', frontend: 'react');
+        $application->install(false, getcwd(), 'App', frontend: 'react');
 
         $this->assertStringContainsString('"react"', file_get_contents(getcwd() . '/package.json'));
         $this->assertFileExists(getcwd() . '/app/assets/js/app.jsx');
@@ -741,7 +606,7 @@ class ApplicationTest extends TestCase
     public function testInstallWithoutFrontendLeavesDefaultView()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'App');
+        $application->install(false, getcwd(), 'App');
 
         $this->assertFileDoesNotExist(getcwd() . '/package.json');
         $this->assertStringNotContainsString('x-data', file_get_contents(getcwd() . '/app/view/index.phtml'));
@@ -818,7 +683,7 @@ class ApplicationTest extends TestCase
     public function testInstallWritesSlugBasedNameConstAndHumanFullNameConst()
     {
         $application = new Model\Application();
-        $application->install('web', getcwd(), 'nick-user-app');
+        $application->install(false, getcwd(), 'nick-user-app');
 
         $contents = file_get_contents(getcwd() . '/app/src/Application.php');
         $this->assertStringContainsString("namespace NickUserApp;", $contents);
@@ -829,7 +694,7 @@ class ApplicationTest extends TestCase
     public function testInstallScriptFileNameUsesSlug()
     {
         $application = new Model\Application();
-        $application->install('cli', getcwd(), 'nick-user-app', cliApp: true);
+        $application->install(true, getcwd(), 'nick-user-app', cliApp: true);
 
         $this->assertFileExists(getcwd() . '/script/nick-user-app');
     }
