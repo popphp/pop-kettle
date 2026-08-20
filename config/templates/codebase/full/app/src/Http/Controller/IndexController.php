@@ -2,7 +2,6 @@
 
 namespace MyApp\Http\Controller;
 
-use Pop\Http\Server\AcceptSpecificity;
 
 class IndexController extends AbstractController
 {
@@ -14,7 +13,7 @@ class IndexController extends AbstractController
      */
     public function index(): void
     {
-        if ($this->request->acceptsHtml(AcceptSpecificity::Loose)) {
+        if ($this->request->acceptsHtml()) {
             $this->prepareView('index.phtml');
             $this->view->title = 'Welcome';
             $this->send();
@@ -32,7 +31,7 @@ class IndexController extends AbstractController
      */
     public function error(int $code = 404, ?string $message = null): void
     {
-        if ($this->request->acceptsHtml(AcceptSpecificity::Loose)) {
+        if ($this->request->acceptsHtml()) {
             $this->prepareView('error.phtml');
             $this->view->title = $code . ' ' . ($message ?? \Pop\Http\Server\Response::getMessageFromCode($code));
             $this->send($code);
@@ -50,7 +49,7 @@ class IndexController extends AbstractController
      */
     public function maintenance(int $code = 503, ?string $message = null): void
     {
-        if ($this->request->acceptsHtml(AcceptSpecificity::Loose)) {
+        if ($this->request->acceptsHtml()) {
             $this->prepareView('maintenance.phtml');
             $this->view->title = 'Website is Down';
             $this->send($code);
