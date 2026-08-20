@@ -20,8 +20,8 @@
     "require": {
         "php": ">=8.4.0",
         "popphp/popphp": "^5.0.1",
-        "popphp/pop-code": "^6.0.2",
-        "popphp/pop-console": "^5.0.1",
+        "popphp/pop-code": "^6.0.0",
+        "popphp/pop-console": "^5.0.2",
         "popphp/pop-db": "^7.0.0",
         "popphp/pop-dir": "^5.0.0",
         "popphp/pop-queue": "^3.0.0",
