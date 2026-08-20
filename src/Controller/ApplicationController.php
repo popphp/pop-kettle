@@ -57,37 +57,12 @@ class ApplicationController extends AbstractController
         }
 
         $this->console->write();
-        $this->console->write('Which application type(s)?');
-        $this->console->write();
-
-        $appTypes = [
-            'Web' => 1,
-            'API' => 2,
-            'CLI' => 3,
-        ];
-
-        foreach ($appTypes as $label => $i) {
-            $this->console->write($i . ': ' . $label);
-        }
-        $this->console->write();
-
-        $appTypeSelection = $this->console->promptMulti('Select one or more, comma-separated: [1] ', [1, 2, 3]);
-
-        $web = false;
-        $api = false;
-        $cli = false;
-
-        if (empty($appTypeSelection)) {
-            $web = true;
-        } else {
-            $web = (in_array(1, $appTypeSelection));
-            $api = (in_array(2, $appTypeSelection));
-            $cli = (in_array(3, $appTypeSelection));
-        }
+        $cliOnlyAnswer = $this->console->prompt('Is this a CLI-only application? [Y/N] ', null, true);
+        $cliOnly       = (strtolower($cliOnlyAnswer) == 'y');
 
         $url = '';
 
-        if (($web) || ($api)) {
+        if (!$cliOnly) {
             $this->console->write();
             $url = $this->console->prompt('What is the URL of your app? [http://localhost] ', null, true);
             if ($url == '') {
@@ -95,14 +70,11 @@ class ApplicationController extends AbstractController
             }
         }
 
-        $cliApp = false;
-        if ($cli) {
-            $this->console->write();
-            $createCliApp = $this->console->prompt(
-                'Initialize a stand-alone CLI application? [Y/N] ', ['y', 'n']
-            );
-            $cliApp = (strtolower($createCliApp) == 'y');
-        }
+        $this->console->write();
+        $createCliApp = $this->console->prompt(
+            'Initialize a stand-alone CLI application? [Y/N] ', ['y', 'n']
+        );
+        $cliApp = (strtolower($createCliApp) == 'y');
 
         $appModel = new Model\Application();
         $dbModel  = new Model\Database();
@@ -115,9 +87,8 @@ class ApplicationController extends AbstractController
         $createDb = (strtolower($configDb) == 'y');
 
         $frontend = null;
-        $install  = Model\Application::resolveInstallType($web, $api, $cli);
 
-        if (str_contains($install, 'web')) {
+        if (!$cliOnly) {
             $this->console->write();
             $installFrontend = $this->console->prompt(
                 'Would you like to install a front-end? [Y/N] ', ['y', 'n']
@@ -147,7 +118,7 @@ class ApplicationController extends AbstractController
             }
         }
 
-        $appModel->init($location, $namespace, $web, $api, $cli, $name, $url, $cliApp, $createDb, $frontend);
+        $appModel->init($location, $namespace, $cliOnly, $name, $url, $cliApp, $createDb, $frontend);
 
         $this->console->write();
         $this->console->write("Installing files for '" . $namespace ."'...");
