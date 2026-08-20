@@ -47,17 +47,6 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     }
 
     /**
-     * Determine if the request's Accept header prefers HTML (used by installs that
-     * negotiate between HTML and JSON responses on the same route)
-     *
-     * @return bool
-     */
-    protected function acceptsHtml(): bool
-    {
-        return (stripos(implode(',', $this->request->getHeader('Accept')), 'text/html') !== false);
-    }
-
-    /**
      * Redirect method
      *
      * @param  string $url
