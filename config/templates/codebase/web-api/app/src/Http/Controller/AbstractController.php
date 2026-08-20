@@ -15,7 +15,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     use HttpTrait;
 
     /**
-     * View path
+     * View path (only meaningful for installs that scaffold app/view - api-only installs never do)
      * @var string
      */
     protected string $viewPath = __DIR__ . '/../../../view';
@@ -79,6 +79,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
             $this->response->setMessage($message);
         }
 
+        $this->response->addHeader('Content-Type', 'text/html');
         $this->response->setCode($code);
         $this->response->setBody($body . PHP_EOL . PHP_EOL);
         $this->response->send(null, $headers);

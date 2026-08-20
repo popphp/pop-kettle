@@ -431,12 +431,10 @@ class ApplicationController extends AbstractController
     {
         $cli = (isset($options['cli'])) ? true : null;
 
-        $appModel    = new Model\Application();
-        $ctrlClasses = $appModel->createController($ctrl, getcwd(), $cli);
+        $appModel  = new Model\Application();
+        $ctrlClass = $appModel->createController($ctrl, getcwd(), $cli);
 
-        foreach ($ctrlClasses as $ctrlClass) {
-            $this->console->write("Controller class '" . $ctrlClass ."' created.");
-        }
+        $this->console->write("Controller class '" . $ctrlClass ."' created.");
 
         $this->console->write();
         $this->console->write('Done!');

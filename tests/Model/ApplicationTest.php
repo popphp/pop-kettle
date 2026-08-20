@@ -201,7 +201,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd(), true);
 
-        $this->assertSame(['App\Console\Controller\MyController'], $result);
+        $this->assertSame('App\Console\Controller\MyController', $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/MyController.php');
     }
 
@@ -211,7 +211,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('MyController', getcwd());
 
-        $this->assertSame(['App\Http\Controller\MyController'], $result);
+        $this->assertSame('App\Http\Controller\MyController', $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/MyController.php');
     }
 
@@ -221,7 +221,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Users', getcwd());
 
-        $this->assertSame(['App\Http\Controller\Admin\Users'], $result);
+        $this->assertSame('App\Http\Controller\Admin\Users', $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/Admin/Users.php');
     }
 
@@ -231,7 +231,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $result      = $application->createController('Admin/Tools', getcwd(), true);
 
-        $this->assertSame(['App\Console\Controller\Admin\Tools'], $result);
+        $this->assertSame('App\Console\Controller\Admin\Tools', $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/Admin/Tools.php');
     }
 

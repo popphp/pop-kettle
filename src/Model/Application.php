@@ -445,9 +445,9 @@ class Application extends AbstractModel
      * @param  string $location
      * @param  ?bool  $cli
      * @throws Exception
-     * @return array
+     * @return string
      */
-    public function createController(string $ctrl, string $location, ?bool $cli = null): array
+    public function createController(string $ctrl, string $location, ?bool $cli = null): string
     {
         $namespace = $this->getNamespace($location);
 
@@ -456,8 +456,6 @@ class Application extends AbstractModel
 
         $httpFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Http' . DIRECTORY_SEPARATOR . 'Controller';
-
-        $createdCtrls = [];
 
         // Create CLI controller
         if ($cli === true) {
@@ -489,7 +487,7 @@ class Application extends AbstractModel
             $code->addCodeObjects([$namespaceObject, $cliCtrlClassObject]);
             $code->writeToFile($cliFolder . DIRECTORY_SEPARATOR . $ctrl . '.php');
 
-            $createdCtrls[] = $cliNamespace . "\\" . $ctrl;
+            return $cliNamespace . "\\" . $ctrl;
         } else {
             // Create HTTP controller
             if (!file_exists($httpFolder)) {
@@ -517,10 +515,8 @@ class Application extends AbstractModel
             $code->addCodeObjects([$namespaceObject, $httpCtrlClassObject]);
             $code->writeToFile($httpFolder . DIRECTORY_SEPARATOR . $ctrl . '.php');
 
-            $createdCtrls[] = $httpNamespace . "\\" . $ctrl;
+            return $httpNamespace . "\\" . $ctrl;
         }
-
-        return $createdCtrls;
     }
 
     /**
