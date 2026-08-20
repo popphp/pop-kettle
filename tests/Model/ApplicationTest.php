@@ -199,59 +199,27 @@ class ApplicationTest extends TestCase
     {
         $this->scaffoldApp('cli', 'App', true);
         $application = new Model\Application();
-        $result      = $application->createController('MyController', getcwd(), null, null, true);
+        $result      = $application->createController('MyController', getcwd(), true);
 
         $this->assertSame(['App\Console\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/MyController.php');
-    }
-
-    public function testCreateControllerWeb()
-    {
-        $this->scaffoldApp('web-api');
-        $application = new Model\Application();
-        $result      = $application->createController('MyController', getcwd(), true, null, null);
-
-        $this->assertSame(['App\Http\Web\Controller\MyController'], $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/MyController.php');
-    }
-
-    public function testCreateControllerApi()
-    {
-        $this->scaffoldApp('web-api');
-        $application = new Model\Application();
-        $result      = $application->createController('MyController', getcwd(), null, true, null);
-
-        $this->assertSame(['App\Http\Api\Controller\MyController'], $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/MyController.php');
     }
 
     public function testCreateControllerDefault()
     {
         $this->scaffoldApp('web');
         $application = new Model\Application();
-        $result      = $application->createController('MyController', getcwd(), null, null, null);
+        $result      = $application->createController('MyController', getcwd());
 
         $this->assertSame(['App\Http\Controller\MyController'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/MyController.php');
-    }
-
-    public function testCreateControllerAllFlavors()
-    {
-        $this->scaffoldApp('web-api-cli', 'App', true);
-        $application = new Model\Application();
-        $result      = $application->createController('MyController', getcwd(), true, true, true);
-
-        $this->assertCount(3, $result);
-        $this->assertFileExists(getcwd() . '/app/src/Console/Controller/MyController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/MyController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/MyController.php');
     }
 
     public function testCreateControllerNestedPath()
     {
         $this->scaffoldApp('web');
         $application = new Model\Application();
-        $result      = $application->createController('Admin/Users', getcwd(), null, null, null);
+        $result      = $application->createController('Admin/Users', getcwd());
 
         $this->assertSame(['App\Http\Controller\Admin\Users'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Http/Controller/Admin/Users.php');
@@ -261,30 +229,10 @@ class ApplicationTest extends TestCase
     {
         $this->scaffoldApp('cli', 'App', true);
         $application = new Model\Application();
-        $result      = $application->createController('Admin/Tools', getcwd(), null, null, true);
+        $result      = $application->createController('Admin/Tools', getcwd(), true);
 
         $this->assertSame(['App\Console\Controller\Admin\Tools'], $result);
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/Admin/Tools.php');
-    }
-
-    public function testCreateControllerWebNestedPath()
-    {
-        $this->scaffoldApp('web-api');
-        $application = new Model\Application();
-        $result      = $application->createController('Admin/Tools', getcwd(), true, null, null);
-
-        $this->assertSame(['App\Http\Web\Controller\Admin\Tools'], $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/Admin/Tools.php');
-    }
-
-    public function testCreateControllerApiNestedPath()
-    {
-        $this->scaffoldApp('web-api');
-        $application = new Model\Application();
-        $result      = $application->createController('Admin/Tools', getcwd(), null, true, null);
-
-        $this->assertSame(['App\Http\Api\Controller\Admin\Tools'], $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/Admin/Tools.php');
     }
 
     public function testCreateControllerCliMissingFolderThrows()
@@ -293,7 +241,7 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
-        $application->createController('MyController', getcwd(), null, null, true);
+        $application->createController('MyController', getcwd(), true);
     }
 
     public function testCreateControllerCliDeniedWithoutStandaloneApp()
@@ -308,7 +256,7 @@ class ApplicationTest extends TestCase
 
         $this->expectException('Pop\Kettle\Exception');
         $this->expectExceptionMessage('This application was not initialized with a stand-alone console application.');
-        $application->createController('MyController', getcwd(), null, null, true);
+        $application->createController('MyController', getcwd(), true);
     }
 
     public function testScaffoldedControllersAreInstantiable()
@@ -322,16 +270,14 @@ class ApplicationTest extends TestCase
         // exists, so this instantiates each flavor for real.
         $this->scaffoldApp('web-api-cli', 'ScaffoldCtrl', true);
         $application = new Model\Application();
-        $application->createController('MyController', getcwd(), true, true, true);
+        $application->createController('MyController', getcwd());
+        $application->createController('MyController', getcwd(), true);
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
         $autoloader->addPsr4('ScaffoldCtrl\\', getcwd() . '/app/src');
 
-        $webController = new \ScaffoldCtrl\Http\Web\Controller\MyController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $webController);
-
-        $apiController = new \ScaffoldCtrl\Http\Api\Controller\MyController();
-        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $apiController);
+        $httpController = new \ScaffoldCtrl\Http\Controller\MyController();
+        $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $httpController);
 
         $consoleController = new \ScaffoldCtrl\Console\Controller\MyController($this->makeApp());
         $this->assertInstanceOf('Pop\Dispatch\DispatchableInterface', $consoleController);
@@ -341,7 +287,7 @@ class ApplicationTest extends TestCase
     {
         $this->scaffoldApp('web', 'ScaffoldDefaultCtrl');
         $application = new Model\Application();
-        $application->createController('MyController', getcwd(), null, null, null);
+        $application->createController('MyController', getcwd());
 
         $autoloader = include __DIR__ . '/../../vendor/autoload.php';
         $autoloader->addPsr4('ScaffoldDefaultCtrl\\', getcwd() . '/app/src');
@@ -381,31 +327,13 @@ class ApplicationTest extends TestCase
         $this->assertFalse($application->router()->hasDispatchable());
     }
 
-    public function testCreateControllerWebMissingFolderThrows()
-    {
-        $this->scaffoldApp('cli');
-        $application = new Model\Application();
-
-        $this->expectException('Pop\Kettle\Exception');
-        $application->createController('MyController', getcwd(), true, null, null);
-    }
-
-    public function testCreateControllerApiMissingFolderThrows()
-    {
-        $this->scaffoldApp('cli');
-        $application = new Model\Application();
-
-        $this->expectException('Pop\Kettle\Exception');
-        $application->createController('MyController', getcwd(), null, true, null);
-    }
-
     public function testCreateControllerDefaultMissingFolderThrows()
     {
         $this->scaffoldApp('cli');
         $application = new Model\Application();
 
         $this->expectException('Pop\Kettle\Exception');
-        $application->createController('MyController', getcwd(), null, null, null);
+        $application->createController('MyController', getcwd());
     }
 
     public function testCreateModel()
