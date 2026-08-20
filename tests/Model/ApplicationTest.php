@@ -35,8 +35,10 @@ class ApplicationTest extends TestCase
         $application = new Model\Application();
         $application->init(getcwd(), 'App', true, true, null);
 
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/AbstractController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/IndexController.php');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Web');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Api');
     }
 
     public function testInitApiCli()
@@ -80,8 +82,10 @@ class ApplicationTest extends TestCase
         $application->init(getcwd(), 'App', true, true, true, cliApp: true);
 
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/AbstractController.php');
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/AbstractController.php');
+        $this->assertFileExists(getcwd() . '/app/src/Http/Controller/IndexController.php');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Web');
+        $this->assertFileDoesNotExist(getcwd() . '/app/src/Http/Api');
     }
 
     public function testInitDefaultsToWeb()
@@ -372,7 +376,7 @@ class ApplicationTest extends TestCase
         $autoloader->addPsr4('ScaffoldOptsWebApi\\', getcwd() . '/app/src');
 
         $application = new \Pop\Application($autoloader, ['routes' => []]);
-        \ScaffoldOptsWebApi\Http\Api\Event\Options::send($application);
+        \ScaffoldOptsWebApi\Http\Event\Options::send($application);
 
         $this->assertFalse($application->router()->hasDispatchable());
     }
