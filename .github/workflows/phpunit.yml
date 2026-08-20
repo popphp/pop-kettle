@@ -48,6 +48,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
+      - name: Clear Composer cache
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer clear-cache
+
       - name: Install dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --no-suggest
