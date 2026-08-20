@@ -58,7 +58,7 @@ class ApplicationController extends AbstractController
 
         $this->console->write();
         $cliOnlyAnswer = $this->console->prompt('Is this a CLI-only application? [Y/N] ', null, true);
-        $cliOnly       = (strtolower($cliOnlyAnswer) == 'y');
+        $cliOnly       = str_starts_with(strtolower(trim($cliOnlyAnswer)), 'y');
 
         $url = '';
 

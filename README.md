@@ -559,8 +559,9 @@ MVC-based components, such as commands, controllers, models and views:
 (See [Creating Custom Commands](#creating-custom-commands) below for more on `create:command`.)
 
 By default, `create:ctrl` creates a controller under `app/src/Http/Controller/` — this is the single
-HTTP controller namespace used regardless of whether the app was installed as `Web`, `API`, or both
-(a `web-api` install's `Http\Controller` handles both, content-negotiating by `Accept` header). Pass
+HTTP controller namespace every non-CLI-only ("full") install gets, always handling both HTML and API
+responses via content negotiation on the `Accept` header (there's no separate "web" vs. "API" install to
+choose between). Pass
 `--cli` instead to create a CLI controller under `app/src/Console/Controller/` (requires the app to
 have been initialized with a stand-alone console application — see [Application Console
 Scripts](#application-console-scripts) below).
@@ -775,9 +776,9 @@ in the following ways. Assuming you've started the web server as described above
 `./kettle web:serve`, you can access the web application by going to the address `http://localhost:8000/`
 in any web browser and seeing the default index HTML page.
 
-If you create both a web and API application, the HTML application will be accessible at `http://localhost:8000/`.
-If you want to access the API application, the default route for that is `http://localhost:8000/api`
-and you can access it like this to see the default JSON response:
+A full install (i.e. not CLI-only) always has both: the HTML application is accessible at `http://localhost:8000/`.
+The default route for the API side is `http://localhost:8000/api`, and you can access it like this to see
+the default JSON response:
 
 ```bash
 $ curl -i -X GET http://localhost:8000/api
