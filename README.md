@@ -544,19 +544,20 @@ You can create skeleton application files with the `create` commands to assist y
 MVC-based components, such as commands, controllers, models and views: 
 
 ```bash
-./kettle create:command [-a|--app] <command>        Create a new CLI command
-./kettle create:ctrl [--web] [--api] [--cli] <ctrl> Create a new controller class
-./kettle create:model [-d|--data] <model>           Create a new model class
-./kettle create:view <view>                         Create a new view file
+./kettle create:command [-a|--app] <command>  Create a new CLI command
+./kettle create:ctrl [--cli] <ctrl>           Create a new controller class
+./kettle create:model [-d|--data] <model>     Create a new model class
+./kettle create:view <view>                   Create a new view file
 ```
 
 (See [Creating Custom Commands](#creating-custom-commands) below for more on `create:command`.)
 
-For `create:ctrl`, `--web`, `--api`, and `--cli` may be combined to create more than one controller
-class at once (one per flag), targeting whichever of those flavors were installed by `app:init`. If
-none of the three flags are passed, a single generic HTTP controller is created under
-`app/src/Http/Controller/` instead (regardless of whether the app was installed with `--web`, `--api`,
-or both).
+By default, `create:ctrl` creates a controller under `app/src/Http/Controller/` — this is the single
+HTTP controller namespace used regardless of whether the app was installed as `Web`, `API`, or both
+(a `web-api` install's `Http\Controller` handles both, content-negotiating by `Accept` header). Pass
+`--cli` instead to create a CLI controller under `app/src/Console/Controller/` (requires the app to
+have been initialized with a stand-alone console application — see [Application Console
+Scripts](#application-console-scripts) below).
 
 Once the respective class files or view scripts are created in the appropriate folders, you can then
 open them up and begin writing your application code.
