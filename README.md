@@ -111,7 +111,11 @@ normal web application, an API-driven web application, a CLI-driven console appl
 combination thereof. The default route for the web application or the API application is `/`.
 However, if both are initialized, then the default route for the API application becomes `/api`.
 The web application will deliver a placeholder HTML page and the API application will deliver a
-placeholder JSON response.
+placeholder JSON response. When both are installed, `/` and `/api` share the same underlying
+controller, which picks HTML vs. JSON by the request's `Accept` header rather than by which of
+the two URLs was used - so a browser navigating straight to `/api` (which typically sends
+`Accept: text/html`) still gets the HTML response, while a client that sends
+`Accept: application/json`, as API clients normally do, gets JSON from either URL.
 
 If `Web` and/or `API` were selected, the front controller will be located in
 `public/index.php` (there is no `public` folder, and therefore no `public/index.php`,
