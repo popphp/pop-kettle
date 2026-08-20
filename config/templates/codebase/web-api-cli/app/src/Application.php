@@ -60,7 +60,7 @@ class Application extends \Pop\Application
 
         if ($this->router() !== null) {
             if ($this->router()->isHttp()) {
-                $this->on('app.dispatch.pre', 'MyApp\Http\Api\Event\Options::send', 1);
+                $this->on('app.dispatch.pre', 'MyApp\Http\Event\Options::send', 1);
             } else if ($this->router()->isCli()) {
                 $console = new Console(120);
                 $console->write(PHP_EOL . $console->header(self::FULL_NAME, '=', null, 'left', false, true));

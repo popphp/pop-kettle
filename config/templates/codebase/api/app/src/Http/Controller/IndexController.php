@@ -12,7 +12,7 @@ class IndexController extends AbstractController
      */
     public function index(): void
     {
-        $this->send(200, ['message' => 'Index page']);
+        $this->sendJson(200, ['message' => 'Index page']);
     }
 
 }

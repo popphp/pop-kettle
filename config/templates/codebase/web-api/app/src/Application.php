@@ -57,7 +57,7 @@ class Application extends \Pop\Application
             $this->initDb($this->config['database']);
         }
 
-        $this->on('app.dispatch.pre', 'MyApp\Http\Api\Event\Options::send', 1);
+        $this->on('app.dispatch.pre', 'MyApp\Http\Event\Options::send', 1);
 
         return $this;
     }
