@@ -12,7 +12,7 @@ class IndexController extends AbstractController
      */
     public function index(): void
     {
-        if (stripos($this->request->getHeader('Accept')->getValue(), 'text/html') !== false) {
+        if (stripos(implode(',', $this->request->getHeader('Accept')), 'text/html') !== false) {
             $this->prepareView('index.phtml');
             $this->view->title = 'Welcome';
             $this->send();
@@ -30,9 +30,27 @@ class IndexController extends AbstractController
      */
     public function error(int $code = 404, ?string $message = null): void
     {
-        if (stripos($this->request->getHeader('Accept')->getValue(), 'text/html') !== false) {
+        if (stripos(implode(',', $this->request->getHeader('Accept')), 'text/html') !== false) {
             $this->prepareView('error.phtml');
             $this->view->title = $code . ' ' . ($message ?? \Pop\Http\Server\Response::getMessageFromCode($code));
+            $this->send($code);
+        } else {
+            parent::error($code, $message);
+        }
+    }
+
+    /**
+     * Maintenance action
+     *
+     * @param  int     $code
+     * @param  ?string $message
+     * @return void
+     */
+    public function maintenance(int $code = 503, ?string $message = null): void
+    {
+        if (stripos(implode(',', $this->request->getHeader('Accept')), 'text/html') !== false) {
+            $this->prepareView('maintenance.phtml');
+            $this->view->title = 'Website is Down';
             $this->send($code);
         } else {
             parent::error($code, $message);

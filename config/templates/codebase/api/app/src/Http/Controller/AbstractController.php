@@ -101,7 +101,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
             $this->response->setMessage($message);
         }
 
-        $this->response->addHeaders($this->application->config['http_options_headers']);
+        $this->response->addHeaders($this->application->config['http_options_headers'] ?? []);
 
         $responseBody = (($this->response->getHeaderValue('Content-Type') == 'application/json') && ($body !== null) && ($body != '')) ?
             json_encode($body, JSON_PRETTY_PRINT) : $body;
@@ -140,7 +140,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
 
         $this->response->setCode($code)
             ->setMessage($message)
-            ->addHeaders($this->application->config['http_options_headers'])
+            ->addHeaders($this->application->config['http_options_headers'] ?? [])
             ->setBody($responseBody)
             ->sendAndExit();
     }
