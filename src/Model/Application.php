@@ -38,9 +38,7 @@ class Application extends AbstractModel
      *
      * @param  string  $location
      * @param  string  $namespace
-     * @param  ?bool   $web
-     * @param  ?bool   $api
-     * @param  ?bool   $cli
+     * @param  bool    $cliOnly
      * @param  string  $name
      * @param  string  $url
      * @param  bool    $cliApp
@@ -49,48 +47,12 @@ class Application extends AbstractModel
      * @return void
      */
     public function init(
-        string $location, string $namespace, ?bool $web = null, ?bool $api = null, ?bool $cli = null,
+        string $location, string $namespace, bool $cliOnly = false,
         string $name = 'MyApp', string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
     {
-        $install = self::resolveInstallType($web, $api, $cli);
-
-        $this->install($install, $location, $namespace, $name, $url, $cliApp, $createDb, $frontend);
-    }
-
-    /**
-     * Resolve the install flavor from the web/api/cli flags
-     *
-     * @param  ?bool $web
-     * @param  ?bool $api
-     * @param  ?bool $cli
-     * @return string
-     */
-    public static function resolveInstallType(?bool $web, ?bool $api, ?bool $cli): string
-    {
-        // API-only
-        if (($api === true) && empty($web) && empty($cli)) {
-            return 'api';
-        // Web+API
-        } else if (($web === true) && ($api === true) && empty($cli)) {
-            return 'web-api';
-        // API+CLI
-        } else if (($api === true) && ($cli === true) && empty($web)) {
-            return 'api-cli';
-        // Web+CLI
-        } else if (($web === true) && ($cli === true) && empty($api)) {
-            return 'web-cli';
-        // CLI-only
-        } else if (($cli === true) && empty($web) && empty($api)) {
-            return 'cli';
-        // Install all
-        } else if (($web === true) && ($api === true) && ($cli === true)) {
-            return 'web-api-cli';
-        // Default to web-only
-        } else {
-            return 'web';
-        }
+        $this->install($cliOnly, $location, $namespace, $name, $url, $cliApp, $createDb, $frontend);
     }
 
     /**
@@ -152,7 +114,7 @@ class Application extends AbstractModel
     /**
      * Install application files
      *
-     * @param  string  $install
+     * @param  bool    $cliOnly
      * @param  string  $location
      * @param  string  $namespace
      * @param  string  $name
@@ -163,7 +125,7 @@ class Application extends AbstractModel
      * @return void
      */
     public function install(
-        string $install, string $location, string $namespace, string $name = 'MyApp',
+        bool $cliOnly, string $location, string $namespace, string $name = 'MyApp',
         string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
@@ -173,7 +135,7 @@ class Application extends AbstractModel
         $script    = $parsed['slug'];
         $fullName  = $parsed['fullName'];
 
-        $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . $install);
+        $path   = realpath(__DIR__ . '/../../config/templates/codebase/' . ($cliOnly ? 'cli' : 'full'));
         $dir    = new Dir($path);
         foreach ($dir as $entry) {
             if (is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
@@ -204,7 +166,7 @@ class Application extends AbstractModel
         }
 
         // Set up web /public folder and files
-        if (str_contains($install, 'web')) {
+        if (!$cliOnly) {
             mkdir($location . DIRECTORY_SEPARATOR . 'public');
             copy(__DIR__ . '/../../config/templates/public/.htaccess', $location . DIRECTORY_SEPARATOR . 'public/.htaccess');
             copy(__DIR__ . '/../../config/templates/public/index.php', $location . DIRECTORY_SEPARATOR . 'public/index.php');
