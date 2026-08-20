@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp\Http\Api\Event;
+namespace MyApp\Http\Event;
 
 use Pop\Application;
 
