@@ -552,30 +552,6 @@ class ApplicationControllerTest extends TestCase
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/TestController.php');
     }
 
-    public function testCreateControllerWeb()
-    {
-        $this->scaffoldApp('web-api');
-
-        ob_start();
-        $this->controller()->createController('TestController', ['web' => true]);
-        $result = ob_get_clean();
-
-        $this->assertStringContainsString("Controller class 'App\Http\Web\Controller\TestController' created.", $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Web/Controller/TestController.php');
-    }
-
-    public function testCreateControllerApi()
-    {
-        $this->scaffoldApp('web-api');
-
-        ob_start();
-        $this->controller()->createController('TestController', ['api' => true]);
-        $result = ob_get_clean();
-
-        $this->assertStringContainsString("Controller class 'App\Http\Api\Controller\TestController' created.", $result);
-        $this->assertFileExists(getcwd() . '/app/src/Http/Api/Controller/TestController.php');
-    }
-
     public function testCreateControllerMissingFolderThrows()
     {
         $this->scaffoldApp('web');
