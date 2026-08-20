@@ -130,6 +130,39 @@ trait AppTestTrait
     }
 
     /**
+     * Determine the 1-based prompt index of the direct (non-PDO) mysqli
+     * adapter, matching the numbering Model\Database::configure() prints,
+     * so tests can drive the interactive database-adapter prompt without
+     * hardcoding an index that would break if the available adapters on a
+     * given machine differ.
+     *
+     * @return int
+     */
+    protected function mysqlAdapterIndex(): int
+    {
+        $index = 0;
+        $i     = 0;
+
+        foreach (Db::getAvailableAdapters() as $adapter => $result) {
+            if ($adapter == 'pdo') {
+                foreach ($result as $r) {
+                    if ($r) {
+                        $i++;
+                    }
+                }
+            } else if ($result) {
+                $i++;
+                if (strtolower($adapter) == 'mysqli') {
+                    $index = $i;
+                    break;
+                }
+            }
+        }
+
+        return $index;
+    }
+
+    /**
      * Seed the sandbox with a minimal composer.json, so install() has
      * something to add the app's PSR-4 autoload entry to.
      *

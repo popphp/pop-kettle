@@ -1,27 +1,27 @@
 <?php
 
 return [
-    'app:init' => [
+    'pop:init' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'init',
         'help'       => "Initialize an application"
     ],
-    'app:env [-s|--set]' => [
+    'pop:env [-s|--set]' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'env',
         'help'       => 'Display (or set) current application environment'
     ],
-    'app:status' => [
+    'pop:status' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'status',
         'help'       => 'Display current application status'
     ],
-    'app:down [-s|--secret=]' => [
+    'pop:down [-s|--secret=]' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'down',
         'help'       => 'Turn on application maintenance mode'
     ],
-    'app:up' => [
+    'pop:up' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'up',
         'help'       => 'Turn off application maintenance mode' . PHP_EOL

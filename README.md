@@ -78,12 +78,12 @@ By running the following command, you can set up the basic files and folders
 required to run an application:
 
 ```bash
-./kettle app:init
+./kettle pop:init
 ```
 
-`app:init` takes no parameters or flags - everything is gathered through a series of prompts.
+`pop:init` takes no parameters or flags - everything is gathered through a series of prompts.
 
-You're first asked for the namespace of your application - it defaults to `MyApp` if left
+You're first asked for the namespace of your application - it defaults to `App` if left
 blank. It's normalized into a valid PHP namespace: each `\`- or `/`-separated segment is split
 into words on hyphens, underscores, and camelCase boundaries and re-cased, so `my-user-app`
 becomes `MyUserApp` and `My\Users\App` stays a three-segment namespace. If your namespace
@@ -124,7 +124,7 @@ Every application - CLI-only or full - can already register one-off commands dir
 `kettle` via `create:command` (see [Creating Custom Commands](#creating-custom-commands) below).
 Answering `Y` here additionally scaffolds a separate, stand-alone console script with its own
 controller classes for a fuller CLI application; its main script will be located at
-`script/myapp`, renamed to a kebab-case slug built from the same normalized namespace (e.g.
+`script/app`, renamed to a kebab-case slug built from the same normalized namespace (e.g.
 `My\Users\App` &rarr; `script/my-users-app`). See [Application Console
 Scripts](#application-console-scripts) below for more on that stand-alone script versus
 registering one-off commands directly with `kettle`.
@@ -134,9 +134,9 @@ files and folders are copied over first, and then you'll immediately be walked t
 database adapter/connection prompts to create the database configuration file. See [Managing the
 Database](#managing-the-database) below for the list of supported database adapters and what
 you'll be prompted for. The application environment always starts out as `local` - use
-`app:env --set` (below) to change it afterward.
+`pop:env --set` (below) to change it afterward.
 
-`app:init` also registers your app's namespace directly in `composer.json`'s `autoload.psr-4`
+`pop:init` also registers your app's namespace directly in `composer.json`'s `autoload.psr-4`
 map (e.g. `"App\\": "app/src/"`) and runs `composer dump-autoload`, so `public/index.php`,
 a stand-alone `script/<app>`, and `kettle` itself all pick up your classes from the one
 Composer-generated autoloader - no separate include file to keep in sync. If Composer isn't
@@ -158,13 +158,13 @@ The environment is set in the `.env` file under the `APP_ENV` variable. Options 
 - `production` (or `prod`)
 
 ```bash
-./kettle app:env
+./kettle pop:env
 ```
 
 To change it, pass `--set` and pick from the same numbered list:
 
 ```bash
-./kettle app:env --set
+./kettle pop:env --set
 ```
 
 ```text
@@ -179,7 +179,7 @@ Please select an app environment from above:
 
 Only one of those five values can be entered - anything else just re-prompts - so there's no risk of
 writing an invalid `APP_ENV` value into `.env`. Once set, it shows you the same colorized status box as
-plain `app:env`, reflecting the new value:
+plain `pop:env`, reflecting the new value:
 
 ```text
                                         
@@ -193,20 +193,20 @@ The status of the application can either be "live" or in "maintenance mode". The
 in the `.env` file under the `MAINTENANCE_MODE` variable (`true` or `false`).
 
 ```bash
-./kettle app:status
+./kettle pop:status
 ```
 
 To put the application into maintenance mode, where it's not accessible, use the following command:
 
 ```bash
-./kettle app:down
+./kettle pop:down
 ```
 
 You can generate a "secret" key to allow a select set of users to view the application while still in
 maintenance mode:
 
 ```bash
-./kettle app:down --secret
+./kettle pop:down --secret
 ```
 
 When the command finishes, it will output the auto-generated secret:
@@ -218,7 +218,7 @@ When the command finishes, it will output the auto-generated secret:
 You can also provide your own secret:
 
 ```bash
-./kettle app:down --secret=MY_SECRET_STRING
+./kettle pop:down --secret=MY_SECRET_STRING
 ```
 
 Use that string one time in the browser as a URL query parameter to view the application while it is
@@ -231,7 +231,7 @@ http://localhost:8000/?secret=MY_SECRET_STRING
 To take the application out of maintenance mode and make it live again, use the following command:
 
 ```bash
-./kettle app:up
+./kettle pop:up
 ```
 
 [Top](#pop-kettle)
@@ -239,7 +239,7 @@ To take the application out of maintenance mode and make it live again, use the 
 Front-End Assets
 ----------------
 
-`app:init` will additionally prompt you to install a front-end whenever you didn't choose a
+`pop:init` will additionally prompt you to install a front-end whenever you didn't choose a
 CLI-only application - i.e. every install except answering `Y` to "Is this a CLI-only
 application?":
 
@@ -267,10 +267,10 @@ non-hashed paths - `public/assets/js/app.js` and `public/assets/css/app.css` - f
 a production build, so those `<link>`/`<script>` tags in `index.phtml` never need to change between the
 two.
 
-Once the files are scaffolded, `app:init` automatically runs `npm install` in the project root, then
+Once the files are scaffolded, `pop:init` automatically runs `npm install` in the project root, then
 `npm run build` (the same thing `web:build` runs), so the landing page is already built and styled the
 first time you hit it - no extra step needed before you see it working. If Node/npm isn't found on your
-`PATH`, `app:init` still finishes successfully - you'll just see a warning telling you to install Node and
+`PATH`, `pop:init` still finishes successfully - you'll just see a warning telling you to install Node and
 then run `npm install`/`npm run build` yourself before using the commands below.
 
 ```bash
@@ -484,7 +484,7 @@ called `.table` to be placed in the database migration folder:
 The contents of the table will be the table class name for the migrations table in the database, for example:
 
 ```text
-MyApp\Table\Migrations
+App\Table\Migrations
 ```
 
 [Top](#pop-kettle)
@@ -573,14 +573,14 @@ open them up and begin writing your application code.
 
 The `--data` option for the `create:model` command creates a model class that extends the
 `Pop\Utils\AbstractDataModel` class, as well as a table class to interface with the corresponding
-table in the database. For example, assuming the namespace of the application is `MyApp`, the command:
+table in the database. For example, assuming the namespace of the application is `App`, the command:
 
 ```bash
 ./kettle create:model --data User
 ```
 
-will create class files for `MyApp\Model\User` (extending the data model class `Pop\Db\Model\AbstractDataModel`)
-and `MyApp\Table\Users`. From there, you can begin to store and retrieve data from the `users` table in the
+will create class files for `App\Model\User` (extending the data model class `Pop\Db\Model\AbstractDataModel`)
+and `App\Table\Users`. From there, you can begin to store and retrieve data from the `users` table in the
 database with very little additional coding.
 
 [Top](#pop-kettle)
@@ -606,16 +606,16 @@ action — a 1:1 relationship between class and command.
 ```
 
 This works for both CLI-only and full installs, since `app/src/Console/Command/` is scaffolded by
-`app:init` either way.
+`pop:init` either way.
 
 The `<command>` value becomes both the CLI command signature and (in title case) the generated class
 name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/Kettle/SendEmail.php`,
-namespaced `MyApp\Console\Command\Kettle`:
+namespaced `App\Console\Command\Kettle`:
 
 ```php
 <?php
 
-namespace MyApp\Console\Command\Kettle;
+namespace App\Console\Command\Kettle;
 
 class SendEmail extends \Pop\Console\Command\AbstractCommand
 {
@@ -673,7 +673,7 @@ the next section before using this flag.
 
 For a CLI application with a larger number of related commands, it's often cleaner to build a fully
 separate, self-contained console application than to keep piggybacking Kettle Commands onto `kettle`
-itself. Whether that stand-alone script exists at all is a one-time decision made during `app:init`:
+itself. Whether that stand-alone script exists at all is a one-time decision made during `pop:init`:
 you're always prompted "Initialize a stand-alone CLI application?", regardless of whether you chose
 a CLI-only or full install, and if you accept, its main script is scaffolded at `script/<namespace>`
 (see [Initializing an Application](#initializing-an-application) above for the exact naming rule).
@@ -699,7 +699,7 @@ Error: This application was not initialized with a stand-alone console applicati
 In short: reach for a **Kettle Command** for a small number of standalone commands you want available
 immediately with no extra wiring, running through your app's own `Application` class via `kettle`;
 reach for an **Application Console Script** when you want a larger, fully independent CLI application
-with its own namespaced groups of commands, decided once up front at `app:init` time.
+with its own namespaced groups of commands, decided once up front at `pop:init` time.
 
 [Top](#pop-kettle)
 
@@ -790,7 +790,7 @@ If you have created commands to register with Kettle, then you can access them b
 through `./kettle` (they will display at the top of the `./kettle help` command):
 
 ```bash
-./kettle myapp:custom-command
+./kettle app:custom-command
 ```
 
 ### CLI: Stand-alone Application
