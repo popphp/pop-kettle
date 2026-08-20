@@ -15,7 +15,7 @@ abstract class AbstractController extends \Pop\Controller\AbstractController
     use HttpTrait;
 
     /**
-     * View path (only meaningful for installs that scaffold app/view - api-only installs never do)
+     * View path
      * @var string
      */
     protected string $viewPath = __DIR__ . '/../../../view';
