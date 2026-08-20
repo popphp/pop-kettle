@@ -131,7 +131,7 @@ class Application extends \Pop\Application
         $request  = new Request();
         $response = new Response();
         $message  = $exception->getMessage();
-        if (stripos($request->getHeader('Accept')->getValue(), 'text/html') !== false) {
+        if ($request->acceptsHtml()) {
             $view          = new View(__DIR__ . '/../view/exception.phtml');
             $view->title   = 'Exception';
             $view->message = $message;
