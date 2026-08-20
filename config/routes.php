@@ -131,7 +131,7 @@ return [
         'action'     => 'createCommand',
         'help'       => 'Create a new CLI command'
     ],
-    'create:ctrl [--web] [--api] [--cli] <ctrl>' => [
+    'create:ctrl [--cli] <ctrl>' => [
         'controller' => 'Pop\Kettle\Controller\ApplicationController',
         'action'     => 'createController',
         'help'       => 'Create a new controller class'

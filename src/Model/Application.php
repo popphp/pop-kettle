@@ -443,15 +443,11 @@ class Application extends AbstractModel
      *
      * @param  string $ctrl
      * @param  string $location
-     * @param  ?bool  $web
-     * @param  ?bool  $api
      * @param  ?bool  $cli
      * @throws Exception
      * @return array
      */
-    public function createController(
-        string $ctrl, string $location, ?bool $web = null, ?bool $api = null, ?bool $cli = null
-    ): array
+    public function createController(string $ctrl, string $location, ?bool $cli = null): array
     {
         $namespace = $this->getNamespace($location);
 
@@ -460,12 +456,6 @@ class Application extends AbstractModel
 
         $httpFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
             'Http' . DIRECTORY_SEPARATOR . 'Controller';
-
-        $webFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
-            'Http' . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR . 'Controller';
-
-        $apiFolder = $location . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR .
-            'Http' . DIRECTORY_SEPARATOR . 'Api' . DIRECTORY_SEPARATOR . 'Controller';
 
         $createdCtrls = [];
 
@@ -500,72 +490,8 @@ class Application extends AbstractModel
             $code->writeToFile($cliFolder . DIRECTORY_SEPARATOR . $ctrl . '.php');
 
             $createdCtrls[] = $cliNamespace . "\\" . $ctrl;
-        }
-
-        // Create HTTP Web controller
-        if ($web === true) {
-            if (!file_exists($webFolder)) {
-                throw new Exception('Error: The HTTP web folder and namespace has not been created');
-            }
-            $webNamespace = $namespace . "\\Http\\Web\\Controller";
-
-            if (strpos($ctrl, DIRECTORY_SEPARATOR)) {
-                $folders = explode(DIRECTORY_SEPARATOR, $ctrl);
-                $ctrl    = array_pop($folders);
-
-                foreach ($folders as $folder) {
-                    $webNamespace .= "\\" . $folder;
-                    $webFolder    .= DIRECTORY_SEPARATOR . $folder;
-                    if (!file_exists($webFolder)) {
-                        mkdir($webFolder);
-                    }
-                }
-            }
-            $webCtrlClassObject = new Generator\ClassGenerator($ctrl);
-            $webCtrlClassObject->setParent("\\" . $namespace . "\\Http\\Web\\Controller\\AbstractController");
-
-            $namespaceObject = new Generator\NamespaceGenerator($webNamespace);
-
-            $code = new Generator();
-            $code->addCodeObjects([$namespaceObject, $webCtrlClassObject]);
-            $code->writeToFile($webFolder . DIRECTORY_SEPARATOR . $ctrl . '.php');
-
-            $createdCtrls[] = $webNamespace . "\\" . $ctrl;
-        }
-
-        // Create HTTP API controller
-        if ($api === true) {
-            if (!file_exists($apiFolder)) {
-                throw new Exception('Error: The HTTP API folder and namespace has not been created');
-            }
-            $apiNamespace = $namespace . "\\Http\\Api\\Controller";
-
-            if (strpos($ctrl, DIRECTORY_SEPARATOR)) {
-                $folders = explode(DIRECTORY_SEPARATOR, $ctrl);
-                $ctrl    = array_pop($folders);
-
-                foreach ($folders as $folder) {
-                    $apiNamespace .= "\\" . $folder;
-                    $apiFolder    .= DIRECTORY_SEPARATOR . $folder;
-                    if (!file_exists($apiFolder)) {
-                        mkdir($apiFolder);
-                    }
-                }
-            }
-            $apiCtrlClassObject = new Generator\ClassGenerator($ctrl);
-            $apiCtrlClassObject->setParent("\\" . $namespace . "\\Http\\Api\\Controller\\AbstractController");
-
-            $namespaceObject = new Generator\NamespaceGenerator($apiNamespace);
-
-            $code = new Generator();
-            $code->addCodeObjects([$namespaceObject, $apiCtrlClassObject]);
-            $code->writeToFile($apiFolder . DIRECTORY_SEPARATOR . $ctrl . '.php');
-
-            $createdCtrls[] = $apiNamespace . "\\" . $ctrl;
-        }
-
-        // Default to creating HTTP controller
-        if (($web === null) && ($api == null) && ($cli === null)) {
+        } else {
+            // Create HTTP controller
             if (!file_exists($httpFolder)) {
                 throw new Exception('Error: The HTTP folder and namespace has not been created');
             }
