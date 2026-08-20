@@ -93,46 +93,48 @@ backslashes are stripped by bash itself before `kettle` ever sees the value.
 Next you're prompted for the app's display name, defaulting to a human-readable version of the
 namespace (e.g. `My\Users\App` &rarr; `My Users App`).
 
-You're then asked which application type(s) to install:
+You're then asked whether this is a CLI-only application:
 
 ```text
-Which application type(s)?
-
-1: Web
-2: API
-3: CLI
-
-Select one or more, comma-separated: [1]
+Is this a CLI-only application? [Y/N]
 ```
 
-Enter one or more numbers separated by commas (e.g. `1,3`), or leave it blank to accept the
-default of `Web` alone. These create the related files and folders to run the application as a
-normal web application, an API-driven web application, a CLI-driven console application, or any
-combination thereof. The default route for the web application or the API application is `/`.
-However, if both are initialized, then the default route for the API application becomes `/api`.
-The web application will deliver a placeholder HTML page and the API application will deliver a
-placeholder JSON response. When both are installed, `/` and `/api` share the same underlying
-controller, which picks HTML vs. JSON by the request's `Accept` header rather than by which of
-the two URLs was used - so a browser navigating straight to `/api` (which typically sends
-`Accept: text/html`) still gets the HTML response, while a client that sends
-`Accept: application/json`, as API clients normally do, gets JSON from either URL.
+Answering `N` (or leaving it blank) scaffolds a full application - both a web entry point and an
+API, sharing the same `Http\Controller`, which picks HTML vs. JSON by the request's `Accept`
+header rather than by URL. Both `/` and `/api` route to the same controller, so a browser
+navigating straight to `/api` (which typically sends `Accept: text/html`) still gets the HTML
+response, while a client that sends `Accept: application/json`, as API clients normally do, gets
+JSON from either URL. If you only want one of the two, scaffold the full app and then trim what
+you don't want - remove the `/api` route, disable the API branch, or move it to a different
+controller. The front controller is located at `public/index.php`.
 
-If `Web` and/or `API` were selected, the front controller will be located in
-`public/index.php` (there is no `public` folder, and therefore no `public/index.php`,
-for a `CLI`-only install). If `CLI` was selected, you'll be prompted to optionally
-initialize a stand-alone CLI application as well; if you accept, its main script will
-be located at `script/myapp`, renamed to a kebab-case slug built from the same normalized
-namespace (e.g. `My\Users\App` &rarr; `script/my-users-app`). See
-[Application Console Scripts](#application-console-scripts) below for more on that
-stand-alone script versus registering one-off commands directly with `kettle`.
+Answering `Y` scaffolds a lean, CLI-only application instead - no `public/` folder, no
+`Http\Controller`, no front controller, no view templates - and skips the URL prompt below.
 
-If `Web` and/or `API` were selected, you'll also be prompted for the app's URL (defaulting to
-`http://localhost`). Finally, you're asked whether you'd like to configure a database. If you
-accept, the application files and folders are copied over first, and then you'll immediately be
-walked through the database adapter/connection prompts to create the database configuration
-file. See [Managing the Database](#managing-the-database) below for the list of supported
-database adapters and what you'll be prompted for. The application environment always starts
-out as `local` - use `app:env --set` (below) to change it afterward.
+If you didn't choose a CLI-only application, you're next prompted for the app's URL (defaulting
+to `http://localhost`).
+
+Either way, you're then asked whether to also initialize a stand-alone CLI application:
+
+```text
+Initialize a stand-alone CLI application? [Y/N]
+```
+
+Every application - CLI-only or full - can already register one-off commands directly with
+`kettle` via `create:command` (see [Creating Custom Commands](#creating-custom-commands) below).
+Answering `Y` here additionally scaffolds a separate, stand-alone console script with its own
+controller classes for a fuller CLI application; its main script will be located at
+`script/myapp`, renamed to a kebab-case slug built from the same normalized namespace (e.g.
+`My\Users\App` &rarr; `script/my-users-app`). See [Application Console
+Scripts](#application-console-scripts) below for more on that stand-alone script versus
+registering one-off commands directly with `kettle`.
+
+Finally, you're asked whether you'd like to configure a database. If you accept, the application
+files and folders are copied over first, and then you'll immediately be walked through the
+database adapter/connection prompts to create the database configuration file. See [Managing the
+Database](#managing-the-database) below for the list of supported database adapters and what
+you'll be prompted for. The application environment always starts out as `local` - use
+`app:env --set` (below) to change it afterward.
 
 `app:init` also registers your app's namespace directly in `composer.json`'s `autoload.psr-4`
 map (e.g. `"App\\": "app/src/"`) and runs `composer dump-autoload`, so `public/index.php`,
@@ -237,9 +239,9 @@ To take the application out of maintenance mode and make it live again, use the 
 Front-End Assets
 ----------------
 
-`app:init` will additionally prompt you to install a front-end whenever the application type(s)
-you selected include `Web` - that's `Web` on its own, `Web` + `API`, `Web` + `CLI`, all three
-together, or simply an empty selection at that prompt, since `Web` is assumed by default:
+`app:init` will additionally prompt you to install a front-end whenever you didn't choose a
+CLI-only application - i.e. every install except answering `Y` to "Is this a CLI-only
+application?":
 
 ```text
 Would you like to install a front-end? [Y/N]
@@ -602,9 +604,8 @@ action — a 1:1 relationship between class and command.
 ./kettle create:command [-a|--app] <command>
 ```
 
-This requires that the application has already been initialized with `CLI` selected at the
-`app:init` application-type prompt (alone or combined with `Web`/`API`), since the command class
-is scaffolded into `app/src/Console/Command/`, which is only created for CLI-enabled installs.
+This works for both CLI-only and full installs, since `app/src/Console/Command/` is scaffolded by
+`app:init` either way.
 
 The `<command>` value becomes both the CLI command signature and (in title case) the generated class
 name — e.g. `./kettle create:command send-email` produces `app/src/Console/Command/Kettle/SendEmail.php`,
@@ -671,12 +672,12 @@ the next section before using this flag.
 
 For a CLI application with a larger number of related commands, it's often cleaner to build a fully
 separate, self-contained console application than to keep piggybacking Kettle Commands onto `kettle`
-itself. Whether that stand-alone script exists at all is a one-time decision made during `app:init`
-when `CLI` is selected at the application-type prompt: you're prompted "Initialize a stand-alone
-CLI application?", and if you accept, its main script is scaffolded at `script/<namespace>` (see
-[Initializing an Application](#initializing-an-application) above for the exact naming rule). This
-choice isn't easily reversible after the fact — decide up front whether you want a second, independent
-console application, or to keep everything running through `kettle` as Kettle Commands.
+itself. Whether that stand-alone script exists at all is a one-time decision made during `app:init`:
+you're always prompted "Initialize a stand-alone CLI application?", regardless of whether you chose
+a CLI-only or full install, and if you accept, its main script is scaffolded at `script/<namespace>`
+(see [Initializing an Application](#initializing-an-application) above for the exact naming rule).
+This choice isn't easily reversible after the fact — decide up front whether you want a second,
+independent console application, or to keep everything running through `kettle` as Kettle Commands.
 
 If you accepted the prompt, the stand-alone script's route table is built from three sources: its own
 baseline `help`/error handling (routed to a `Console\Controller\ConsoleController` class), any
