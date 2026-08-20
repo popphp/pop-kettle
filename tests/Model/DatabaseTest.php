@@ -78,6 +78,64 @@ class DatabaseTest extends TestCase
         $this->assertFileExists(getcwd() . '/database/already.sqlite');
     }
 
+    public function testConfigureNamedDatabaseWithMysql()
+    {
+        // Exercises the non-default-$database branch (env/config-file writes
+        // for a named connection like "logging", not "default") against a
+        // real MySQL connection - also the only test that drives configure()'s
+        // generic (non-sqlite) Db::check() retry loop to a real success.
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream(
+            (string)$this->mysqlAdapterIndex(),
+            $_ENV['MYSQL_DB'],
+            $_ENV['MYSQL_USER'],
+            $_ENV['MYSQL_PASS'],
+            $_ENV['MYSQL_HOST']
+        ));
+
+        $database = new Model\Database();
+        $result   = $database->configure($console, getcwd(), 'logging');
+
+        $this->assertSame($database, $result);
+        $this->assertSame('mysql', $_ENV['DB_LOGGING_ADAPTER']);
+        $this->assertSame($_ENV['MYSQL_DB'], $_ENV['DB_LOGGING_DATABASE']);
+        $this->assertSame($_ENV['MYSQL_USER'], $_ENV['DB_LOGGING_USERNAME']);
+        $this->assertSame($_ENV['MYSQL_HOST'], $_ENV['DB_LOGGING_HOST']);
+
+        $envContents = file_get_contents(getcwd() . '/.env');
+        $this->assertStringContainsString('DB_LOGGING_DATABASE=' . $_ENV['MYSQL_DB'], $envContents);
+        $this->assertStringContainsString('DB_LOGGING_ADAPTER=mysql', $envContents);
+
+        $dbConfig = file_get_contents(getcwd() . '/app/config/database.php');
+        $this->assertStringContainsString("'logging' => [", $dbConfig);
+        $this->assertStringContainsString("\$_ENV['DB_LOGGING_DATABASE']", $dbConfig);
+    }
+
+    public function testConfigureNamedDatabaseWithSqlite()
+    {
+        // Same non-default-$database branch as testConfigureNamedDatabaseWithMysql(),
+        // but through the sqlite-specific branch of configure() - proves the
+        // named-connection file writes are adapter-agnostic, not incidentally
+        // only correct for mysql.
+        $console = new Console(120, '    ');
+        $console->setInputStream($this->createInputStream((string)$this->sqliteAdapterIndex(), 'archive'));
+
+        $database = new Model\Database();
+        $result   = $database->configure($console, getcwd(), 'archive');
+
+        $this->assertSame($database, $result);
+        $this->assertFileExists(getcwd() . '/database/archive.sqlite');
+        $this->assertSame('sqlite', $_ENV['DB_ARCHIVE_ADAPTER']);
+        $this->assertStringContainsString('archive.sqlite', $_ENV['DB_ARCHIVE_DATABASE']);
+
+        $envContents = file_get_contents(getcwd() . '/.env');
+        $this->assertStringContainsString('DB_ARCHIVE_ADAPTER=sqlite', $envContents);
+
+        $dbConfig = file_get_contents(getcwd() . '/app/config/database.php');
+        $this->assertStringContainsString("'archive' => [", $dbConfig);
+        $this->assertStringContainsString("\$_ENV['DB_ARCHIVE_DATABASE']", $dbConfig);
+    }
+
     public function testTestPasses()
     {
         $config = $this->seedDatabaseConfig();

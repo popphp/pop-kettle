@@ -199,7 +199,7 @@ class ApplicationControllerTest extends TestCase
         $this->controller($console)->init();
         ob_end_clean();
 
-        // Falls back to the 'MyApp' namespace, which install() uses to derive class references
+        // Falls back to the 'App' namespace, which install() uses to derive class references
         $this->assertStringContainsString('App', file_get_contents(getcwd() . '/app/src/Http/Controller/AbstractController.php'));
     }
 

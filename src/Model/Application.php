@@ -48,7 +48,7 @@ class Application extends AbstractModel
      */
     public function init(
         string $location, string $namespace, bool $cliOnly = false,
-        string $name = 'MyApp', string $url = '', bool $cliApp = false, bool $createDb = false,
+        string $name = 'App', string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
     {
@@ -125,7 +125,7 @@ class Application extends AbstractModel
      * @return void
      */
     public function install(
-        bool $cliOnly, string $location, string $namespace, string $name = 'MyApp',
+        bool $cliOnly, string $location, string $namespace, string $name = 'App',
         string $url = '', bool $cliApp = false, bool $createDb = false,
         ?string $frontend = null
     ): void
@@ -195,18 +195,18 @@ class Application extends AbstractModel
         // Set up CLI /script folder and application script
         if ($cliApp) {
             mkdir($location . DIRECTORY_SEPARATOR . 'script');
-            copy(__DIR__ . '/../../config/templates/script/myapp', $location . DIRECTORY_SEPARATOR . 'script/myapp');
+            copy(__DIR__ . '/../../config/templates/script/app', $location . DIRECTORY_SEPARATOR . 'script/app');
 
             file_put_contents(
-                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
+                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
                 str_replace(
                     ['MyApp', 'myapp'], [$namespace, $script],
-                    file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp')
+                    file_get_contents($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app')
                 )
             );
 
             rename(
-                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'myapp',
+                $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . 'app',
                 $location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script
             );
             chmod($location . DIRECTORY_SEPARATOR . 'script' . DIRECTORY_SEPARATOR . $script, 0755);

@@ -50,7 +50,7 @@ class QueueController extends AbstractController
         // (e.g. a stale composer autoloader - run `composer dump-autoload`) - either way, say so
         if ($app === null) {
             $this->console->write($this->console->colorize(
-                "No application was detected. Run 'app:init' first.", Color::BOLD_RED
+                "No application was detected. Run 'pop:init' first.", Color::BOLD_RED
             ));
         }
 

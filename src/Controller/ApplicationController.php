@@ -39,9 +39,9 @@ class ApplicationController extends AbstractController
      */
     public function init(): void
     {
-        $namespace = $this->console->prompt('What is the namespace of your app? [MyApp] ', null, true);
+        $namespace = $this->console->prompt('What is the namespace of your app? [App] ', null, true);
         if (empty($namespace)) {
-            $namespace = 'MyApp';
+            $namespace = 'App';
         }
 
         $parsed    = Model\Application::parseNamespace($namespace);

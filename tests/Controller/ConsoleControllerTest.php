@@ -56,7 +56,7 @@ class ConsoleControllerTest extends TestCase
         $result = ob_get_clean();
 
         $this->assertStringContainsString('./kettle', $result);
-        $this->assertStringContainsString('app:init', $result);
+        $this->assertStringContainsString('pop:init', $result);
     }
 
     public function testHelpRaw()
@@ -71,7 +71,7 @@ class ConsoleControllerTest extends TestCase
         $controller->help(null, ['raw' => true]);
         $result = ob_get_clean();
 
-        $this->assertStringContainsString('app:init', $result);
+        $this->assertStringContainsString('pop:init', $result);
     }
 
     public function testHelpFiltersBySubCommand()
@@ -87,7 +87,7 @@ class ConsoleControllerTest extends TestCase
         $result = ob_get_clean();
 
         $this->assertStringContainsString('db:config', $result);
-        $this->assertStringNotContainsString('app:init', $result);
+        $this->assertStringNotContainsString('pop:init', $result);
     }
 
     public function testVersion()

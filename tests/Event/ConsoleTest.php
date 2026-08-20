@@ -39,12 +39,12 @@ class ConsoleTest extends TestCase
         $this->assertStringContainsString('Application in Maintenance', $result);
     }
 
-    public function testMaintenanceDisplaySuppressedOnAppUpRoute()
+    public function testMaintenanceDisplaySuppressedOnPopUpRoute()
     {
         $dotEnv = \Dotenv\Dotenv::createMutable(__DIR__ . '/../tmp/prod');
         $dotEnv->safeLoad();
 
-        $_SERVER['argv'] = ['kettle', 'app:up'];
+        $_SERVER['argv'] = ['kettle', 'pop:up'];
         $this->makeApp();
 
         ob_start();

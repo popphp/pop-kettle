@@ -35,7 +35,7 @@ class Console
      * @var array
      */
     protected static array $omitCommands = [
-        'app:env', 'app:status', 'help', 'version', 'queue:jobs', 'queue:tasks', 'queue:work', 'queue:scheduler'
+        'pop:env', 'pop:status', 'help', 'version', 'queue:jobs', 'queue:tasks', 'queue:work', 'queue:scheduler'
     ];
 
     /**
@@ -49,7 +49,7 @@ class Console
         $console     = $console ?? new \Pop\Console\Console();
         $routeString = App::get()->router()->getRouteMatch()->getRouteString();
 
-        if (App::isDown() && ($routeString != 'app:up')) {
+        if (App::isDown() && ($routeString != 'pop:up')) {
             $console->alertInfo('Application in Maintenance', 40);
         }
     }
