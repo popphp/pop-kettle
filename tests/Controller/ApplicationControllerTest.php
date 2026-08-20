@@ -57,10 +57,10 @@ class ApplicationControllerTest extends TestCase
         return new Kettle\Controller\ApplicationController($this->makeApp(), $console ?? new Console(120, '    '));
     }
 
-    public function testInitDefaultsToWebInstall()
+    public function testInitDefaultsToFullInstall()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -72,10 +72,10 @@ class ApplicationControllerTest extends TestCase
         $this->assertStringContainsString('APP_URL=http://localhost', file_get_contents(getcwd() . '/.env'));
     }
 
-    public function testInitDefaultsToWebInstallPromptsForUrl()
+    public function testInitDefaultsToFullInstallPromptsForUrl()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', 'http://example.com', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', 'http://example.com', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -88,7 +88,7 @@ class ApplicationControllerTest extends TestCase
     {
         $console = new Console(120, '    ');
         // Blank line for the app-name prompt accepts the shown default
-        $console->setInputStream($this->createInputStream('nick-user-app', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('nick-user-app', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $result = $this->controller($console)->init();
@@ -101,7 +101,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitWarnsWhenComposerNotFoundForAutoload()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -121,7 +121,7 @@ class ApplicationControllerTest extends TestCase
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -133,10 +133,10 @@ class ApplicationControllerTest extends TestCase
         $this->assertSame('app/src/', $composer['autoload']['psr-4']['App\\']);
     }
 
-    public function testInitWithCliFlag()
+    public function testInitCliOnlyWithStandaloneApp()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '3', 'y', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', 'y', 'y', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -145,12 +145,13 @@ class ApplicationControllerTest extends TestCase
         $this->assertFileExists(getcwd() . '/app/src/Console/Controller/AbstractController.php');
         $this->assertFileExists(getcwd() . '/app/src/Console/Command/Kettle/.empty');
         $this->assertFileExists(getcwd() . '/script/app');
+        $this->assertFileDoesNotExist(getcwd() . '/public');
     }
 
-    public function testInitWithCliFlagWithoutStandaloneAppRemovesConsoleController()
+    public function testInitCliOnlyWithoutStandaloneApp()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '3', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', 'y', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -166,7 +167,7 @@ class ApplicationControllerTest extends TestCase
 
         $console = new Console(120, '    ');
         $console->setInputStream($this->createInputStream(
-            'App', '', '', '', 'y', 'n', (string)$sqliteIndex, 'testdb'
+            'App', '', '', '', 'n', 'y', 'n', (string)$sqliteIndex, 'testdb'
         ));
 
         ob_start();
@@ -180,7 +181,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitQuotesNameContainingSpaces()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', 'My App', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', 'My App', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -192,7 +193,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitDefaultsNamespaceWhenEmpty()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -205,7 +206,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitSkipsFrontendInstallWhenAnsweredNo()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'n'));
 
         ob_start();
         $this->controller($console)->init();
@@ -217,7 +218,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsAlpineFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init();
@@ -230,7 +231,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsVueFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '2'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'y', '2'));
 
         ob_start();
         $this->controller($console)->init();
@@ -242,7 +243,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitInstallsReactFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '3'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'y', '3'));
 
         ob_start();
         $this->controller($console)->init();
@@ -254,7 +255,7 @@ class ApplicationControllerTest extends TestCase
     public function testInitWarnsWhenNpmNotFoundForFrontend()
     {
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init();
@@ -276,7 +277,7 @@ class ApplicationControllerTest extends TestCase
         putenv('PATH=' . $fakeBinDir . ':' . $this->originalPath);
 
         $console = new Console(120, '    ');
-        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'y', '1'));
+        $console->setInputStream($this->createInputStream('App', '', '', '', 'n', 'n', 'y', '1'));
 
         ob_start();
         $this->controller($console)->init();
@@ -530,7 +531,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateControllerDefault()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
 
         ob_start();
         $this->controller()->createController('TestController');
@@ -542,7 +543,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateControllerCli()
     {
-        $this->scaffoldApp('cli', 'App', true);
+        $this->scaffoldApp(true, 'App', true);
 
         ob_start();
         $this->controller()->createController('TestController', ['cli' => true]);
@@ -554,7 +555,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateControllerMissingFolderThrows()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
 
         $this->expectException('Pop\Kettle\Exception');
         $this->controller()->createController('TestController', ['cli' => true]);
@@ -562,7 +563,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateModel()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
 
         ob_start();
         $this->controller()->createModel('TestModel');
@@ -574,7 +575,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateModelWithData()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
 
         ob_start();
         $this->controller()->createModel('TestModel', ['data' => true]);
@@ -587,7 +588,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateView()
     {
-        $this->scaffoldApp('web');
+        $this->scaffoldApp();
 
         ob_start();
         $this->controller()->createView('test.phtml');
@@ -599,7 +600,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateCommand()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
 
         ob_start();
         $this->controller()->createCommand('send-email');
@@ -611,7 +612,12 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateCommandMissingFolderThrows()
     {
-        $this->scaffoldApp('web');
+        // Every install now ships Console/Command/Kettle by default (there's
+        // no more flavor that omits it), so the only way to reproduce a
+        // missing command folder is to construct a namespace-only app by
+        // hand rather than going through scaffoldApp().
+        mkdir(getcwd() . '/app/src', 0777, true);
+        file_put_contents(getcwd() . '/app/src/Application.php', "<?php\n\nnamespace App;\n");
 
         $this->expectException('Pop\Kettle\Exception');
         $this->controller()->createCommand('send-email');
@@ -619,7 +625,7 @@ class ApplicationControllerTest extends TestCase
 
     public function testCreateCommandWithAppFlag()
     {
-        $this->scaffoldApp('cli');
+        $this->scaffoldApp(true);
 
         ob_start();
         $this->controller()->createCommand('send-email', ['app' => true]);

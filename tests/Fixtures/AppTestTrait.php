@@ -141,19 +141,19 @@ trait AppTestTrait
     }
 
     /**
-     * Scaffold a full application into the sandbox (current working
+     * Scaffold an application into the sandbox (current working
      * directory), so controller/model tests that generate additional files
      * (controllers, models, views, commands) have real target folders and a
      * detectable namespace to work against.
      *
-     * @param  string $install One of the config/templates/ folder names (web, api, cli, web-api, ...)
+     * @param  bool   $cliOnly Whether to scaffold the lean CLI-only tree instead of the full web+api+cli tree
      * @param  string $namespace
      * @param  bool   $cliApp Whether to also scaffold the stand-alone ./script console application
      * @return void
      */
-    protected function scaffoldApp(string $install = 'web-api-cli', string $namespace = 'App', bool $cliApp = false): void
+    protected function scaffoldApp(bool $cliOnly = false, string $namespace = 'App', bool $cliApp = false): void
     {
-        (new Kettle\Model\Application())->install($install, getcwd(), $namespace, cliApp: $cliApp);
+        (new Kettle\Model\Application())->install($cliOnly, getcwd(), $namespace, cliApp: $cliApp);
     }
 
 }
