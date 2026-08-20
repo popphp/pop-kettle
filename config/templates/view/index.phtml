@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <title><?=$title; ?></title>
     <link rel="icon" href="https://www.popphp.org/assets/img/pop-php-icon.png">
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
     <style>
         :root {
             --pop-orange: #ce5403;
@@ -12,6 +20,17 @@
             --ink: #0f172a;
             --muted: #64748b;
             --line: #e2e8f0;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --h1-color: #57534e;
+        }
+        html.dark {
+            --ink: #f1f5f9;
+            --muted: #94a3b8;
+            --line: #334155;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --h1-color: #e2e8f0;
         }
         * { box-sizing: border-box; }
         html, body { height: 100%; margin: 0; }
@@ -19,7 +38,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: #f8fafc;
+            background: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
             color: var(--ink);
         }
@@ -50,14 +69,38 @@
             color: var(--pop-orange);
             margin-bottom: 12px;
         }
-        h1 { font-size: 48px; font-weight: 300; margin: 0 0 12px; letter-spacing: -0.02em; color: #57534e; }
+        h1 { font-size: 48px; font-weight: 300; margin: 0 0 12px; letter-spacing: -0.02em; color: var(--h1-color); }
         p { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0; }
         footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
         footer a { color: var(--pop-orange); font-weight: 600; text-decoration: none; }
         footer a:hover { text-decoration: underline; }
+        .theme-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid var(--line);
+            background: var(--card-bg);
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .theme-toggle svg { width: 20px; height: 20px; }
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg id="theme-toggle-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
+        </svg>
+        <svg id="theme-toggle-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:none">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
+        </svg>
+    </button>
     <div class="stripe">
         <img class="logo" src="https://media.popphp.org/img/pop-php-logo-white.png" alt="Pop PHP">
     </div>
@@ -69,5 +112,27 @@
             <footer>Built with <a href="https://www.popphp.org" target="_blank" rel="noopener">Pop PHP</a></footer>
         </div>
     </div>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var toggle = document.getElementById('theme-toggle');
+            var moonIcon = document.getElementById('theme-toggle-moon');
+            var sunIcon = document.getElementById('theme-toggle-sun');
+
+            function syncIcons() {
+                var isDark = root.classList.contains('dark');
+                moonIcon.style.display = isDark ? 'none' : '';
+                sunIcon.style.display = isDark ? '' : 'none';
+            }
+
+            toggle.addEventListener('click', function () {
+                root.classList.toggle('dark');
+                localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+                syncIcons();
+            });
+
+            syncIcons();
+        })();
+    </script>
 </body>
 </html>
