@@ -84,4 +84,32 @@ class AssetTest extends TestCase
 
         $this->assertStringContainsString('run build', file_get_contents($logPath));
     }
+
+    public function testWatchRestoresAssetMarkersAfterWipingOutDir()
+    {
+        mkdir(getcwd() . '/public/assets/css', 0777, true);
+        mkdir(getcwd() . '/public/assets/js', 0777, true);
+        touch(getcwd() . '/public/assets/css/.empty');
+        touch(getcwd() . '/public/assets/js/.empty');
+
+        // Mimics vite wiping outDir on every (re)build before the fake npm
+        // binary "finishes"
+        unlink(getcwd() . '/public/assets/css/.empty');
+        unlink(getcwd() . '/public/assets/js/.empty');
+
+        $asset = new Model\Asset(__DIR__ . '/../tmp/fake-npm');
+        $asset->watch(getcwd());
+
+        $this->assertFileExists(getcwd() . '/public/assets/css/.empty');
+        $this->assertFileExists(getcwd() . '/public/assets/js/.empty');
+    }
+
+    public function testBuildCreatesAssetMarkersWhenOutDirIsMissing()
+    {
+        $asset = new Model\Asset(__DIR__ . '/../tmp/fake-npm');
+        $asset->build(getcwd());
+
+        $this->assertFileExists(getcwd() . '/public/assets/css/.empty');
+        $this->assertFileExists(getcwd() . '/public/assets/js/.empty');
+    }
 }
