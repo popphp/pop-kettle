@@ -92,7 +92,9 @@ class Asset extends AbstractModel
      */
     public function watch(string $location): int
     {
-        return $this->run([$this->npmBinary, 'run', 'watch'], $location);
+        $result = $this->run([$this->npmBinary, 'run', 'watch'], $location);
+        $this->touchAssetMarkers($location);
+        return $result;
     }
 
     /**
@@ -103,7 +105,28 @@ class Asset extends AbstractModel
      */
     public function build(string $location): int
     {
-        return $this->run([$this->npmBinary, 'run', 'build'], $location);
+        $result = $this->run([$this->npmBinary, 'run', 'build'], $location);
+        $this->touchAssetMarkers($location);
+        return $result;
+    }
+
+    /**
+     * Re-create the .empty marker files in the build output folders, which
+     * vite's build step wipes out along with the rest of the outDir contents
+     * on every rebuild, so the otherwise-empty folders still commit to Git
+     *
+     * @param  string $location
+     * @return void
+     */
+    protected function touchAssetMarkers(string $location): void
+    {
+        foreach (['css', 'js'] as $type) {
+            $dir = $location . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . $type;
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            touch($dir . DIRECTORY_SEPARATOR . '.empty');
+        }
     }
 
     /**
