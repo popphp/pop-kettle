@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 /**
- * Pop PHP Framework (http://www.popphp.org/)
+ * Pop PHP Framework (https://www.popphp.org/)
  *
  * @link       https://github.com/popphp/pop-bootstrap
- * @author     Nick Sagona, III <nick@noladev.com>
- * @copyright  Copyright (c) 2012-2025 NOLA Interactive, LLC.
- * @license    http://www.popphp.org/license     New BSD License
+ * @author     Nick Sagona, III <nick@popphp.org>
+ * @copyright  Copyright (c) 2009-2026 Nick Sagona, III
+ * @license    https://www.popphp.org/license     New BSD License
  */
 
 /**
@@ -22,9 +22,9 @@ use Pop\Kettle\Model\Application;
  *
  * @category   Pop\Kettle
  * @package    Pop\Kettle
- * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
- * @license    http://www.popphp.org/license     New BSD License
+ * @author     Nick Sagona, III <nick@popphp.org>
+ * @copyright  Copyright (c) 2009-2026 Nick Sagona, III
+ * @license    https://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
 class Console
