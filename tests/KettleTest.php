@@ -184,6 +184,21 @@ class KettleTest extends TestCase
         $app->initDb(include __DIR__ . '/tmp/app/config/database-bad.php');
     }
 
+    public function testInitDbBadConfigThrowsWithoutDoubledErrorPrefix()
+    {
+        // Db\Db::check() already returns a message starting with 'Error: ' - initDb() must not
+        // prepend another 'Error: ' on top of it (regression test for a doubled prefix).
+        $app = $this->makeApp();
+
+        try {
+            $app->initDb(include __DIR__ . '/tmp/app/config/database-bad.php');
+            $this->fail('Expected a Pop\Db\Adapter\Exception to be thrown.');
+        } catch (\Pop\Db\Adapter\Exception $e) {
+            $this->assertStringStartsNotWith('Error: Error:', $e->getMessage());
+            $this->assertSame(1, substr_count($e->getMessage(), 'Error:'));
+        }
+    }
+
     public function testCliError()
     {
         $app = $this->makeApp();

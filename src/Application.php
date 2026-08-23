@@ -177,7 +177,7 @@ class Application extends \Pop\Application
                 $check = Db\Db::check($adapter, $options);
 
                 if ($check !== true) {
-                    throw new \Pop\Db\Adapter\Exception('Error: ' . $check);
+                    throw new \Pop\Db\Adapter\Exception((string)$check);
                 }
 
                 $dbService = 'database';
