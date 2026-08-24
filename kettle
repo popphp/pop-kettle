@@ -18,7 +18,7 @@ try {
     $app->prepare()
         ->load()
         ->run();
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     $app = new Pop\Kettle\Application();
     $app->cliError($exception);
 }
