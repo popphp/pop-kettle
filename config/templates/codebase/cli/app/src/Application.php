@@ -114,10 +114,10 @@ class Application extends \Pop\Application
     /**
      * CLI error handler method
      *
-     * @param  \Exception $exception
+     * @param  \Throwable $exception
      * @return void
      */
-    public function cliError(\Exception $exception): void
+    public function cliError(\Throwable $exception): void
     {
         $message = strip_tags($exception->getMessage());
 

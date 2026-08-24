@@ -14,7 +14,7 @@ try {
     $app = new MyApp\Application($autoloader, $config);
     $app->load();
     $app->run();
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     $app = new MyApp\Application();
     $app->cliError($exception);
 }
