@@ -245,6 +245,39 @@ class DatabaseTest extends TestCase
         $this->assertStringContainsString('Done!', $output);
     }
 
+    public function testClearWithMultipleRealTablesDropsAllOfThem()
+    {
+        // Regression test: Sql\Schema::render() (pop-db) is now non-destructive, so a Schema
+        // object reused across a loop of drop() calls without an explicit reset() accumulates
+        // every previous DROP statement. clear() used to rely on the old, implicitly-clearing
+        // render() - with more than one table, it dropped only the first table and then failed
+        // trying to re-drop it on the next iteration.
+        $config = $this->seedDatabaseConfig();
+
+        $sqlFile = getcwd() . '/create.sql';
+        file_put_contents($sqlFile, '
+            CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);
+            CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT);
+            CREATE TABLE comments (id INTEGER PRIMARY KEY, body TEXT);
+        ');
+
+        $database = new Model\Database();
+        $database->install($config, $sqlFile);
+
+        $adapter = $database->createAdapter($config);
+        $this->assertCount(3, $adapter->getTables());
+
+        $console = new Console(120, '    ');
+        ob_start();
+        $result = $database->clear($console, getcwd(), 'default');
+        $output = ob_get_clean();
+
+        $this->assertSame($database, $result);
+        $this->assertStringContainsString('Clearing database data...', $output);
+        $this->assertStringContainsString('Done!', $output);
+        $this->assertCount(0, $database->createAdapter($config)->getTables());
+    }
+
     public function testExportMissingConfigKey()
     {
         $this->seedDatabaseConfig();

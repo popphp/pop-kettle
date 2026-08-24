@@ -557,21 +557,30 @@ class Database extends AbstractModel
                     if (($dbAdapter instanceof \Pop\Db\Adapter\Mysql) ||
                         (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'mysql'))) {
                         $dbAdapter->query('SET foreign_key_checks = 0');
+                        // The tables are dropped one statement at a time, so the schema object has to be
+                        // cleared between them - rendering it does not clear it.
                         foreach ($tables as $table) {
                             $schema->drop($table);
                             $dbAdapter->query($schema);
+                            $schema->reset();
                         }
                         $dbAdapter->query('SET foreign_key_checks = 1');
                     } else if (($dbAdapter instanceof \Pop\Db\Adapter\Pgsql) ||
                         (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'pgsql'))) {
+                        // The tables are dropped one statement at a time, so the schema object has to be
+                        // cleared between them - rendering it does not clear it.
                         foreach ($tables as $table) {
                             $schema->drop($table)->cascade();
                             $dbAdapter->query($schema);
+                            $schema->reset();
                         }
                     } else {
+                        // The tables are dropped one statement at a time, so the schema object has to be
+                        // cleared between them - rendering it does not clear it.
                         foreach ($tables as $table) {
                             $schema->drop($table);
                             $dbAdapter->query($schema);
+                            $schema->reset();
                         }
                     }
 
