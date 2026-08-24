@@ -225,6 +225,73 @@ class DatabaseTest extends TestCase
         $this->assertFileDoesNotExist(getcwd() . '/database/migrations/default/.current');
     }
 
+    public function testResetWithMultipleRealTablesOnMysqlDoesNotError()
+    {
+        // Regression test: reset()'s truncate loop has the exact same non-reset-Schema-object
+        // bug as clear()'s drop loop (see testClearWithMultipleRealTablesDropsAllOfThem). On
+        // SQLite that loop is bypassed entirely (reset() falls back to raw "DELETE FROM"), so
+        // it never surfaced there - but on MySQL, mysqli::query() only runs a single statement,
+        // so the accumulated multi-table TRUNCATE string raised a syntax error on the second
+        // table and beyond.
+        $config = [
+            'database' => $_ENV['MYSQL_DB'],
+            'adapter'  => 'mysql',
+            'username' => $_ENV['MYSQL_USER'],
+            'password' => $_ENV['MYSQL_PASS'],
+            'host'     => $_ENV['MYSQL_HOST'],
+            'type'     => null,
+        ];
+
+        @mkdir(getcwd() . '/app/config', 0777, true);
+        @mkdir(getcwd() . '/database/migrations/default', 0777, true);
+        @mkdir(getcwd() . '/database/seeds/default', 0777, true);
+        file_put_contents(getcwd() . '/app/config/database.php', '<?php return ' . var_export(['default' => $config], true) . ';');
+
+        $sqlFile = getcwd() . '/create.sql';
+        file_put_contents($sqlFile, '
+            CREATE TABLE kettle_test_users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name TEXT);
+            CREATE TABLE kettle_test_posts (id INTEGER PRIMARY KEY AUTO_INCREMENT, title TEXT);
+            CREATE TABLE kettle_test_comments (id INTEGER PRIMARY KEY AUTO_INCREMENT, body TEXT);
+        ');
+        file_put_contents(getcwd() . '/database/seeds/default/001_seed.sql', '
+            CREATE TABLE IF NOT EXISTS kettle_test_users (id INTEGER PRIMARY KEY AUTO_INCREMENT, name TEXT);
+            CREATE TABLE IF NOT EXISTS kettle_test_posts (id INTEGER PRIMARY KEY AUTO_INCREMENT, title TEXT);
+            CREATE TABLE IF NOT EXISTS kettle_test_comments (id INTEGER PRIMARY KEY AUTO_INCREMENT, body TEXT);
+        ');
+
+        $ourTables = ['kettle_test_users', 'kettle_test_posts', 'kettle_test_comments'];
+
+        $database = new Model\Database();
+        $database->install($config, $sqlFile);
+        $adapter  = $database->createAdapter($config);
+
+        try {
+            foreach ($ourTables as $table) {
+                $this->assertContains($table, $adapter->getTables());
+            }
+
+            $console = new Console(120, '    ');
+            ob_start();
+            $result = $database->reset($console, getcwd(), 'default');
+            $output = ob_get_clean();
+
+            $this->assertSame($database, $result);
+            $this->assertStringContainsString('Resetting database data...', $output);
+
+            // Reset (truncate + reseed) should leave our tables in place, recreated by the seed
+            // file - it must not error out partway through truncating them.
+            $tablesAfter = $database->createAdapter($config)->getTables();
+            foreach ($ourTables as $table) {
+                $this->assertContains($table, $tablesAfter);
+            }
+        } finally {
+            $adapter->query('SET foreign_key_checks = 0');
+            foreach (['kettle_test_users', 'kettle_test_posts', 'kettle_test_comments'] as $table) {
+                $adapter->query('DROP TABLE IF EXISTS `' . $table . '`');
+            }
+        }
+    }
+
     public function testClearWithRealTable()
     {
         $config = $this->seedDatabaseConfig();

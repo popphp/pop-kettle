@@ -481,16 +481,22 @@ class Database extends AbstractModel
                         if (($dbAdapter instanceof \Pop\Db\Adapter\Mysql) ||
                             (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'mysql'))) {
                             $dbAdapter->query('SET foreign_key_checks = 0');
+                            // The tables are truncated one statement at a time, so the schema object has
+                            // to be cleared between them - rendering it does not clear it.
                             foreach ($tables as $table) {
                                 $schema->truncate($table);
                                 $dbAdapter->query($schema);
+                                $schema->reset();
                             }
                             $dbAdapter->query('SET foreign_key_checks = 1');
                         } else if (($dbAdapter instanceof \Pop\Db\Adapter\Pgsql) ||
                             (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'pgsql'))) {
+                            // The tables are truncated one statement at a time, so the schema object has
+                            // to be cleared between them - rendering it does not clear it.
                             foreach ($tables as $table) {
                                 $schema->truncate($table)->cascade();
                                 $dbAdapter->query($schema);
+                                $schema->reset();
                             }
                         } else if (($dbAdapter instanceof \Pop\Db\Adapter\Sqlite) ||
                             (($dbAdapter instanceof \Pop\Db\Adapter\Pdo) && ($dbAdapter->getType() == 'sqlite'))) {
@@ -499,9 +505,12 @@ class Database extends AbstractModel
                                 $dbAdapter->query('DELETE FROM ' . $schema->quoteId($table));
                             }
                         } else {
+                            // The tables are truncated one statement at a time, so the schema object has
+                            // to be cleared between them - rendering it does not clear it.
                             foreach ($tables as $table) {
                                 $schema->truncate($table);
                                 $dbAdapter->query($schema);
+                                $schema->reset();
                             }
                         }
 
