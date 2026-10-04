@@ -14,6 +14,7 @@ pop-kettle
 * [Managing the Database](#managing-the-database)
     + [Seeding the Database](#seeding-the-database)
     + [Database Migrations](#database-migrations)
+    + [Migration Status](#migration-status)
     + [Migration State Storage](#migration-state-storage)
 * [Queue Commands](#queue-commands)
 * [Creating Application Files](#creating-application-files)
@@ -320,6 +321,7 @@ file is created under `/database`.
 ./kettle migrate:create <class> [<database>]     Create new database migration class
 ./kettle migrate:run [<steps>] [<database>]      Perform forward database migration
 ./kettle migrate:rollback [<steps>] [<database>] Perform backward database migration
+./kettle migrate:status [<database>]             Display current database migration status
 ./kettle migrate:point [<id>] [<database>]       Point to specific migration, w/o running
 ./kettle migrate:reset [<database>]              Perform complete rollback of the database
 ```
@@ -463,6 +465,52 @@ And you can rollback the migration and drop the `users` table by running the com
 
 ```bash
 ./kettle migrate:rollback
+```
+
+A successful `migrate:run` reports what it did, so an automated deployment can record it:
+
+```text
+Running database migration for 'default'...
+applied: 2
+batch: 1
+
+Done!
+```
+
+### Migration Status
+
+You can inspect the current migration state of a database, without changing anything, by running:
+
+```bash
+./kettle migrate:status [<database>]
+```
+
+Like the other migration commands, `<database>` defaults to `default`, and `all` reports on every
+database in the `/database/migrations` folder. The output is a set of `key: value` lines per database,
+so a deployment script can parse it without any additional tooling:
+
+```text
+database: default
+current: 20260101130000
+batch: 1
+pending: 0
+storage: table
+path: /path/to/project/database/migrations/default
+```
+
+- `current` is the timestamp of the last applied migration, or `0` if none have been applied yet
+- `batch` is the most recent batch number, or `0` if none have been applied yet (see below - batch
+  numbers are only tracked by the table-based state storage)
+- `pending` is the number of migration files ahead of `current`, i.e. what the next `migrate:run all`
+  would apply
+- `storage` is either `table` or `file`, matching the state storage in use (see below)
+- `path` is the migration folder the above was read from
+
+Taken together with the `applied:` and `batch:` lines from `migrate:run`, this gives a deployment
+pipeline what it needs to roll back exactly the migrations it applied, with `migrate:rollback`:
+
+```bash
+./kettle migrate:rollback batch-1
 ```
 
 ### Migration State Storage

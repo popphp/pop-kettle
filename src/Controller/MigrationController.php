@@ -110,7 +110,12 @@ class MigrationController extends AbstractController
                     } else {
                         $dbAdapter = $dbModel->createAdapter($dbConfig[$db]);
                         $migrator  = new Migrator($dbAdapter, $location . '/database/migrations/' . $db);
+                        $pending   = $dbModel->getPendingMigrations($migrator);
                         $migrator->run($steps);
+                        $applied   = $pending - $dbModel->getPendingMigrations($migrator);
+
+                        $this->console->write('Applied: ' . $applied);
+                        $this->console->write('Batch: ' . (($applied > 0) ? $migrator->getCurrentBatch() : 0));
                         $this->console->write();
                         $this->console->write('Done!');
                     }
@@ -169,6 +174,60 @@ class MigrationController extends AbstractController
                         $migrator->rollback($steps);
                         $this->console->write();
                         $this->console->write('Done!');
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Status command
+     *
+     * @param  ?string $database
+     * @return void
+     */
+    public function status(?string $database = 'default'): void
+    {
+        $location = getcwd();
+        $dbModel  = new Model\Database();
+
+        if ($database === null) {
+            $databases = ['default'];
+        } else if ($database == 'all') {
+            $databases = array_filter(scandir($location . '/database/migrations'), function($value) {
+                return (($value != '.') && ($value != '..'));
+            });
+        } else {
+            $databases = [$database];
+        }
+
+        if (!file_exists($location . '/app/config/database.php')) {
+            $this->console->write($this->console->colorize(
+                'The database configuration was not found.', Color::BOLD_RED
+            ));
+        } else {
+            foreach ($databases as $db) {
+                if (!file_exists($location . '/database/migrations/' . $db)) {
+                    $this->console->write($this->console->colorize(
+                        "The database migration folder was not found for '" . $db . "'.", Color::BOLD_RED
+                    ));
+                } else {
+                    $dbConfig = include $location . '/app/config/database.php';
+                    if (!isset($dbConfig[$db])) {
+                        $this->console->write($this->console->colorize(
+                            "The database configuration was not found for '" . $db . "'.", Color::BOLD_RED
+                        ));
+                    } else {
+                        $dbAdapter = $dbModel->createAdapter($dbConfig[$db]);
+                        $migrator  = new Migrator($dbAdapter, $location . '/database/migrations/' . $db);
+
+                        $this->console->write('Database: ' . $db);
+                        $this->console->write('Current: ' . ($migrator->getCurrent() ?? 0));
+                        $this->console->write('Batch: ' . $migrator->getCurrentBatch());
+                        $this->console->write('Pending: ' . $dbModel->getPendingMigrations($migrator));
+                        $this->console->write('Storage: ' . (($migrator->isTable()) ? 'table' : 'file'));
+                        $this->console->write('Path: ' . (string)$migrator->getPath());
+                        $this->console->write();
                     }
                 }
             }

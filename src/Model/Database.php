@@ -17,6 +17,7 @@ namespace Pop\Kettle\Model;
 use Pop\Console\Console;
 use Pop\Console\Color;
 use Pop\Db\Db;
+use Pop\Db\Sql\Migrator;
 use Pop\Db\Adapter;
 use Pop\Db\Sql\Seeder;
 use Pop\Utils\AbstractModel;
@@ -247,6 +248,44 @@ class Database extends AbstractModel
         (\Dotenv\Dotenv::createMutable($location))->safeLoad();
 
         return $this;
+    }
+
+    /**
+     * Get the number of migrations in the migrator's path that haven't been run yet
+     *
+     * The migrator's own list of migrations isn't publicly accessible, so the migration
+     * files are discovered here the same way Pop\Db\Sql\Migrator::setPath() discovers
+     * them - a '.php' file in the migration path containing a migration class - and
+     * counted if their leading timestamp is ahead of the current migration position.
+     *
+     * @param  Migrator $migrator
+     * @return int
+     */
+    public function getPendingMigrations(Migrator $migrator): int
+    {
+        $path    = $migrator->getPath();
+        $current = $migrator->getCurrent() ?? 0;
+        $pending = 0;
+
+        if (($path === null) || !is_dir($path)) {
+            return $pending;
+        }
+
+        foreach (scandir($path) as $filename) {
+            if (($filename == '.') || ($filename == '..') || !str_ends_with($filename, '.php') ||
+                is_dir($path . DIRECTORY_SEPARATOR . $filename)) {
+                continue;
+            }
+
+            $fileContents = trim((string)file_get_contents($path . DIRECTORY_SEPARATOR . $filename));
+
+            if ((str_contains($fileContents, 'extends AbstractMigration')) &&
+                ((int)substr($filename, 0, 14) > $current)) {
+                $pending++;
+            }
+        }
+
+        return $pending;
     }
 
     /**

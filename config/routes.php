@@ -86,6 +86,11 @@ return [
         'action'     => 'rollback',
         'help'       => 'Perform backward database migration'
     ],
+    'migrate:status [<database>]' => [
+        'controller' => 'Pop\Kettle\Controller\MigrationController',
+        'action'     => 'status',
+        'help'       => 'Display current database migration status'
+    ],
     'migrate:point [<id>] [<database>]' => [
         'controller' => 'Pop\Kettle\Controller\MigrationController',
         'action'     => 'point',
